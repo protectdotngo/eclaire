@@ -1,0 +1,68 @@
+---
+import "leaflet/dist/leaflet.css";
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import {pool} from '../lib/db'
+
+let ngoListing = []
+
+try{
+    const orgs = await pool.query('SELECT * FROM eclaire.organization')
+    ngoListing = orgs.rows
+}catch(err){
+    console.error('DB error: ', err)
+}
+
+---
+<section>
+    <div id="mapSection" style="height: 100vh;" data-map={JSON.stringify(ngoListing)}>
+    </div>
+</section>
+<script>
+    import { $mapData } from '../lib/mapStore';
+    import L from 'leaflet';
+    import 'leaflet.markercluster/dist/leaflet.markercluster-src.js'
+
+    const div = document.getElementById('mapSection')
+    const data = JSON.parse(div?.dataset.map)
+
+    var map = L.map('mapSection'). setView([46.2044, 6.1432], 12)
+    var Stadia_OSMBright = L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.{ext}', {
+        minZoom: 0,
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        ext: 'png'
+    });
+    var CartoDB_Voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+    });
+
+    CartoDB_Voyager.addTo(map);
+
+    map.zoomControl.setPosition('bottomleft');
+
+    var markers = L.markerClusterGroup();
+
+    for (const item of data){
+        markers.addLayer(L.marker([item.lat, item.lng]).bindPopup('<a style="text-decoration:none; color:black;" target="_blank" href="'+item.website+'"><h3>'+item.name+'</h3><p>'+item.address+'</p>'))
+    }
+
+    map.addLayer(markers);
+
+    $mapData.subscribe((marks) => {
+        if(marks){
+            markers.clearLayers()
+            for (const item of marks){
+                markers.addLayer(L.marker([item.lat, item.lon]).bindPopup('<a style="text-decoration:none; color:black;" target="_blank" href="'+item.website+'"><h3>'+item.name+'</h3><p>'+item.address+'</p>'))
+            }
+            map.addLayer(markers)
+        }
+    })
+</script>
+<style>
+    #map{
+        height: 100vh;
+    }
+</style>

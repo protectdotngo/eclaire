@@ -1,0 +1,25 @@
+---
+import Layout from "../layouts/MapLayout.astro";
+import Map from "../components/Map.astro";
+import Nav from '../components/Nav.astro';
+import MapSearch from '../components/MapSearch.astro'
+---
+
+<Layout>
+    <Nav/>
+    <Map>
+    </Map>
+    <MapSearch />
+</Layout>
+
+<style>
+    :root{
+        --bg-color-1: 255, 255, 255;
+        --color-1: 0, 0, 0;
+        --color-2: 80, 80, 80;
+    }
+    body{
+        font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+		height: 100%;
+    }
+</style>
