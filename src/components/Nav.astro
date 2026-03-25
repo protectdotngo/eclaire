@@ -1,51 +1,51 @@
 ---
-import eclaireLogo from '../assets/eclaire.ZJdz67m7_ZNheHl.svg';
-import Image from 'astro/components/Image.astro';
+import eclaireLogo from "../assets/eclaire.ZJdz67m7_ZNheHl.svg";
+import Image from "astro/components/Image.astro";
 ---
 
 <header class="navCont">
-    <div class="nav">
-        <a href="/">
-            <Image src={eclaireLogo} alt="Eclaire'slogo"/>
-        </a>
-        <div>
-            <a href="#">Accueil</a>
-            <a href="#">Partenaires</a>
-            <a href="#">Ressources utiles</a>
-        </div>
+  <div class="nav">
+    <a href="/">
+      <Image src={eclaireLogo} alt="Eclaire'slogo" />
+    </a>
+    <div>
+      <a href="#">Accueil</a>
+      <a href="#">Partenaires</a>
+      <a href="#">Ressources utiles</a>
     </div>
+  </div>
 </header>
 
 <style>
-    .navCont{
-        width: 100vw;
-        height: 10vh;
-        position: absolute;
-        top: 0;
-        background-color: rgba(var(--bg-color-1), 0.7);
-        z-index: 500;
-    }
-    .nav{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .nav a img{
-        width: auto;
-        height: 10vh;
-        background-color: black;
-    }
-    .nav div{
-        margin-right: 1vw;
-        display: flex;
-        gap: 3.5vw;
-    }
-    .nav div a{
-        color: var(--color-1);
-        text-decoration: none;
-        font-size: 1.3rem;
-    }
-    .nav div a:hover {
-        color: rgba(var(--color-2), 1);
-    }
+  .navCont {
+    width: 100vw;
+    height: 10vh;
+    position: absolute;
+    top: 0;
+    background-color: rgba(var(--bg-color-1), 0.7);
+    z-index: 500;
+  }
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav a img {
+    width: auto;
+    height: 10vh;
+    background-color: black;
+  }
+  .nav div {
+    margin-right: 1vw;
+    display: flex;
+    gap: 3.5vw;
+  }
+  .nav div a {
+    color: var(--color-1);
+    text-decoration: none;
+    font-size: 1.3rem;
+  }
+  .nav div a:hover {
+    color: rgba(var(--color-2), 1);
+  }
 </style>

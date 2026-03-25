@@ -19,5 +19,9 @@
     "leaflet.markercluster": "^1.5.3",
     "nanostores": "^1.2.0",
     "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "prettier": "3.8.1",
+    "prettier-plugin-astro": "0.14.1"
   }
 }
