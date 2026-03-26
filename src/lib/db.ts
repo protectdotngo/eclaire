@@ -1,12 +1,8 @@
 import pg from "pg";
 
-declare global {
-    var pgPool: pg.Pool | undefined;
-}
-
 const { Pool } = pg;
 
-const poolConfig = {
+export const pool = new Pool({
     host: import.meta.env.SCW_DB_HOST,
     user: import.meta.env.SCW_DB_USER,
     password: import.meta.env.SCW_DB_PASS,
@@ -15,6 +11,4 @@ const poolConfig = {
     ssl: { rejectUnauthorized: false },
     max: 10,
     idleTimeoutMillis: 30000,
-};
-
-export const pool = globalThis.pgPool || new Pool(poolConfig);
+});
