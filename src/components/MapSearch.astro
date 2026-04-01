@@ -14,7 +14,15 @@
       onkeydown="if(event.keyCode === 13){document.getElementById('aiFormSubmit').click(); return false}"
     >
       <div class="ai-search-cont">
-        <input type="text" class="ai-search-bar" id="search-bar" name="search" value="" autofocus placeholder="Poser une question"/>
+        <input
+          type="text"
+          class="ai-search-bar"
+          id="search-bar"
+          name="search"
+          value=""
+          autofocus
+          placeholder="Poser une question"
+        />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -91,7 +99,7 @@
 </section>
 <section class="map-search-phone"></section>
 <script>
-    import { $filterStore } from "../lib/filterStore";
+  import { $filterStore } from "../lib/filterStore";
 
   const cat = document.getElementById("category");
   const loc = document.getElementById("location");
@@ -133,20 +141,20 @@
     item.addEventListener("click", () => {
       const filter = document.getElementById("filters");
       const ai = document.getElementById("ai");
-      filter?.classList.toggle("none")
-      ai?.classList.toggle("none")
+      filter?.classList.toggle("none");
+      ai?.classList.toggle("none");
     });
   });
 </script>
 <script>
   import { $mapData } from "../lib/mapStore";
-  import { $filterStore } from "../lib/filterStore"
+  import { $filterStore } from "../lib/filterStore";
 
   const aiForm = document.getElementById("aiForm");
   const aiFormSubmit = document.getElementById("aiFormSubmit");
   const filterForm = document.getElementById("filters-form");
-  const searchBar = document.getElementById('search-bar')
-  const clearSearch = document.getElementById("clear-search")
+  const searchBar = document.getElementById("search-bar");
+  const clearSearch = document.getElementById("clear-search");
   const aiAnswer = document.getElementById("ai-response");
   var currentSearch;
 
@@ -160,23 +168,23 @@
     const result = await response.json();
     console.log(result.data);
     if (response.status === 200) {
-        $mapData.set(result.data);
-        currentSearch = searchBar.value;
-        searchBar.value = '';
-        clearSearch?.classList.add('none');
+      $mapData.set(result.data);
+      currentSearch = searchBar.value;
+      searchBar.value = "";
+      clearSearch?.classList.add("none");
     }
   });
 
-  aiForm?.addEventListener('input', (e) => {
-    if (searchBar.value !== ''){
-        clearSearch?.classList.remove("none");
-    }else{
-        clearSearch?.classList.add("none");
+  aiForm?.addEventListener("input", (e) => {
+    if (searchBar.value !== "") {
+      clearSearch?.classList.remove("none");
+    } else {
+      clearSearch?.classList.add("none");
     }
   });
 
-  clearSearch?.addEventListener('click', () => {
-    searchBar.value = '';
+  clearSearch?.addEventListener("click", () => {
+    searchBar.value = "";
     clearSearch.classList.add("none");
   });
 
@@ -192,45 +200,45 @@
   });
 
   $mapData.subscribe((data) => {
-    if (data){
-        console.log(data)
-        aiAnswer?.replaceChildren('');
-        for (var i = 0; i < data.length; i++) {
-            const limit = 100
-            var desc;
-            if (data[i].desc.length > limit){
-                let trunc = data[i].desc.substring(0, limit);
-                const lastSpace = trunc.lastIndexOf(' ');
-                if (lastSpace > -1) trunc = trunc.substring(0, lastSpace);
-                desc = trunc + '...';
-            } else{
-                desc = data[i].desc;
-            }
-
-            var answer = document.createElement('div');
-            answer.classList.add('ai-response-element');
-            var answerTitle = document.createElement('h3');
-            answerTitle.innerHTML = data[i].name;
-            var answerDesc = document.createElement('p');
-            answerDesc.innerHTML = desc;
-            var answerBtnCont = document.createElement('div');
-            answerBtnCont.classList.add('ai-response-btn-cont')
-            var answerLink = document.createElement('a');
-            answerLink.href = data[i].domain;
-            answerLink.target = '_blank';
-            var answerBtn = document.createElement('button')
-            answerBtn.classList.add('ai-response-btn')
-            answerBtn.innerHTML = 'Visiter le site'
-            answerLink.appendChild(answerBtn);
-            answerBtnCont.appendChild(answerLink);
-            answer.appendChild(answerTitle);
-            answer.appendChild(answerDesc);
-            answer.appendChild(answerBtnCont);
-            aiAnswer?.appendChild(answer)
-            var separator = document.createElement('hr');
-            separator.classList.add('ai-response-separator')
-            if (i != data.length - 1) aiAnswer?.appendChild(separator);
+    if (data) {
+      console.log(data);
+      aiAnswer?.replaceChildren("");
+      for (var i = 0; i < data.length; i++) {
+        const limit = 100;
+        var desc;
+        if (data[i].desc.length > limit) {
+          let trunc = data[i].desc.substring(0, limit);
+          const lastSpace = trunc.lastIndexOf(" ");
+          if (lastSpace > -1) trunc = trunc.substring(0, lastSpace);
+          desc = trunc + "...";
+        } else {
+          desc = data[i].desc;
         }
+
+        var answer = document.createElement("div");
+        answer.classList.add("ai-response-element");
+        var answerTitle = document.createElement("h3");
+        answerTitle.innerHTML = data[i].name;
+        var answerDesc = document.createElement("p");
+        answerDesc.innerHTML = desc;
+        var answerBtnCont = document.createElement("div");
+        answerBtnCont.classList.add("ai-response-btn-cont");
+        var answerLink = document.createElement("a");
+        answerLink.href = data[i].domain;
+        answerLink.target = "_blank";
+        var answerBtn = document.createElement("button");
+        answerBtn.classList.add("ai-response-btn");
+        answerBtn.innerHTML = "Visiter le site";
+        answerLink.appendChild(answerBtn);
+        answerBtnCont.appendChild(answerLink);
+        answer.appendChild(answerTitle);
+        answer.appendChild(answerDesc);
+        answer.appendChild(answerBtnCont);
+        aiAnswer?.appendChild(answer);
+        var separator = document.createElement("hr");
+        separator.classList.add("ai-response-separator");
+        if (i != data.length - 1) aiAnswer?.appendChild(separator);
+      }
     }
   });
 </script>
@@ -249,21 +257,21 @@
   }
   .ai {
   }
-  .ai-response{
+  .ai-response {
     overflow: scroll;
     max-height: 50vh;
     padding: 0 10px;
   }
-  :global(.ai-response-element){
+  :global(.ai-response-element) {
     padding: 0 10px;
   }
-  :global(.ai-response-element h3){
+  :global(.ai-response-element h3) {
     margin-bottom: 1vh;
   }
-  :global(.ai-response-element p){
+  :global(.ai-response-element p) {
     margin-top: 0;
   }
-  :global(.ai-response-btn){
+  :global(.ai-response-btn) {
     background-color: #34939d;
     color: white;
     font-size: 1rem;
@@ -273,11 +281,11 @@
     padding: 5px 10px;
     border-radius: 7px;
   }
-  :global(.ai-response .ai-response-btn-cont){
+  :global(.ai-response .ai-response-btn-cont) {
     display: flex;
     justify-content: right;
   }
-  :global(.ai-response-separator){
+  :global(.ai-response-separator) {
     border: 1.5px solid rgb(190, 190, 190);
     border-radius: 2px;
     margin-top: 0;
