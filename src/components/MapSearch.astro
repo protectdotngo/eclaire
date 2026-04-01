@@ -7,117 +7,148 @@
         > aux problèmes numériques, là où vous en avez besoin.
       </h2>
     </div>
-    <div class="ai-response"></div>
+    <div class="ai-response" id="ai-response"></div>
     <form
       class="ai-search"
       id="aiForm"
       onkeydown="if(event.keyCode === 13){document.getElementById('aiFormSubmit').click(); return false}"
     >
-      <input type="text" class="ai-search-bar" name="search" />
-      <button type="button" id="aiFormSubmit">Envoyer</button>
+      <div class="ai-search-cont">
+        <input type="text" class="ai-search-bar" id="search-bar" name="search" value="" autofocus placeholder="Poser une question"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="icon icon-tabler icons-tabler-filled icon-tabler-x none"
+          id="clear-search"
+          ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
+            d="M6.707 5.293l5.293 5.292l5.293 -5.292a1 1 0 0 1 1.414 1.414l-5.292 5.293l5.292 5.293a1 1 0 0 1 -1.414 1.414l-5.293 -5.292l-5.293 5.292a1 1 0 1 1 -1.414 -1.414l5.292 -5.293l-5.292 -5.293a1 1 0 0 1 1.414 -1.414"
+          ></path></svg
+        >
+        <button type="button" class="ai-search-btn" id="aiFormSubmit"
+          >Envoyer</button
+        >
+      </div>
     </form>
     <div class="ai-swap swap">
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
+        width="23"
+        height="27"
+        viewBox="0 0 23 27"
         fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="icon icon-tabler icons-tabler-outline icon-tabler-filter"
-        ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-          d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227"
-        ></path></svg
+        xmlns="http://www.w3.org/2000/svg"
       >
+        <path
+          d="M8.5 15.5833L0 2.83333V0H22.6667V2.83333L14.1667 15.5833V24.0833L8.5 26.9167V15.5833Z"
+          fill="#34939D"></path>
+      </svg>
       <span class="ai-swap-link"> ou afficher les filtres </span>
     </div>
   </div>
   <div class="filters none" id="filters">
     <div class="filters-title">
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
+        width="23"
+        height="27"
+        viewBox="0 0 23 27"
         fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="icon icon-tabler icons-tabler-outline icon-tabler-filter-pin"
-        ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-          d="M12 20l-3 1v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414"
-        ></path><path
-          d="M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879"
-        ></path><path d="M19 18v.01"></path></svg
+        xmlns="http://www.w3.org/2000/svg"
       >
-      Filtrer
+        <path
+          d="M8.5 15.5833L0 2.83333V0H22.6667V2.83333L14.1667 15.5833V24.0833L8.5 26.9167V15.5833Z"
+          fill="#2B4888"></path>
+      </svg>
+
+      <h2>Filtrer</h2>
     </div>
-    <div class="filters-choices">
-      <select name="" id="">
-        <option value=""></option>
-        <option value=""></option>
-      </select>
-      <select name="" id="">
-        <option value=""></option>
-        <option value=""></option>
-      </select>
-      <select name="" id="">
-        <option value=""></option>
-        <option value=""></option>
-      </select>
-      <select name="" id="">
-        <option value=""></option>
-        <option value=""></option>
-      </select>
-    </div>
+    <form class="filters-form" id="filters-form">
+      <div class="filter-form-cont">
+        <select name="category" id="category">
+          <option value="" selected>-- Catégorie --</option>
+        </select>
+        <select name="location" id="location">
+          <option value="" selected>-- Code Postal --</option>
+        </select>
+      </div>
+    </form>
     <div class="filters-swap swap">
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
+        width="32"
+        height="31"
+        viewBox="0 0 32 31"
         fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="icon icon-tabler icons-tabler-outline icon-tabler-subtitles-ai"
-        ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-          d="M11.5 19h-5.5a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v4"
-        ></path><path d="M7 15h5"></path><path d="M17 12h-3"></path><path
-          d="M11 12h-1"></path><path
-          d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5"
-        ></path></svg
+        xmlns="http://www.w3.org/2000/svg"
       >
+        <path
+          d="M17 5.66669H2.83333V22.6667H12.1703L14.1667 25.5166L16.163 22.6667H25.5V14.1667H28.3333V24.0834C28.3333 24.8548 27.688 25.5001 26.9167 25.5001H17.6378L14.1667 30.4584L10.6955 25.5001H1.41667C0.645249 25.5001 0 24.8548 0 24.0834V4.25002C2.83333e-05 3.4786 0.645235 2.83334 1.41667 2.83334H17V5.66669ZM24.8332 0.452406C25.0832 -0.150793 25.9168 -0.150811 26.1668 0.452406L26.5251 1.31846C27.137 2.79576 28.2788 3.97543 29.714 4.61386L30.7295 5.06626C31.3114 5.32506 31.3114 6.17156 30.7295 6.43036L29.6545 6.90903C28.2554 7.53135 27.134 8.66926 26.5114 10.0979L26.1613 10.8989C25.9056 11.4856 25.0943 11.4856 24.8387 10.8989L24.4886 10.0979C23.866 8.66924 22.7447 7.53135 21.3455 6.90903L20.2691 6.43036C19.688 6.17132 19.688 5.32524 20.2691 5.06626L21.286 4.61386C22.7211 3.97543 23.863 2.79576 24.4749 1.31846L24.8332 0.452406Z"
+          fill="#34939D"></path>
+      </svg>
       ou poser une question
     </div>
   </div>
 </section>
 <section class="map-search-phone"></section>
 <script>
+    import { $filterStore } from "../lib/filterStore";
+
+  const cat = document.getElementById("category");
+  const loc = document.getElementById("location");
+  const res = await fetch("/api/baseData", {
+    method: "GET",
+  });
+  const baseData = await res.json();
+  $filterStore.set(baseData.data);
+  var allCat: string[] = [];
+  var allLoc: number[] = [];
+  function populateFilters() {
+    for (const item of baseData.data) {
+      allCat = allCat.concat(item.category);
+    }
+    allCat = [...new Set(allCat.map((c) => c.toLowerCase()))];
+    for (var i = 0; i < allCat.length; i++) {
+      var opt = document.createElement("option");
+      opt.value = allCat[i];
+      opt.innerHTML = allCat[i].charAt(0).toUpperCase() + allCat[i].slice(1);
+      cat?.appendChild(opt);
+    }
+    for (const item of baseData.data) {
+      const code = item.address.match(/\b[1-9]\d{3}\b/)?.[0];
+      allLoc.push(code);
+    }
+    allLoc = [...new Set(allLoc)];
+    for (var i = 0; i < allLoc.length; i++) {
+      var opt = document.createElement("option");
+      opt.value = allLoc[i].toString();
+      opt.innerHTML = allLoc[i].toString();
+      loc?.appendChild(opt);
+    }
+  }
+  populateFilters();
+</script>
+<script>
   const swap = document.querySelectorAll(".swap");
   swap.forEach((item) => {
     item.addEventListener("click", () => {
       const filter = document.getElementById("filters");
       const ai = document.getElementById("ai");
-      if (filter?.classList.contains("none")) {
-        filter.classList.remove("none");
-        ai?.classList.add("none");
-      } else {
-        ai?.classList.remove("none");
-        filter?.classList.add("none");
-      }
+      filter?.classList.toggle("none")
+      ai?.classList.toggle("none")
     });
   });
 </script>
 <script>
   import { $mapData } from "../lib/mapStore";
+  import { $filterStore } from "../lib/filterStore"
+
   const aiForm = document.getElementById("aiForm");
   const aiFormSubmit = document.getElementById("aiFormSubmit");
+  const filterForm = document.getElementById("filters-form");
+  const searchBar = document.getElementById('search-bar')
+  const clearSearch = document.getElementById("clear-search")
+  const aiAnswer = document.getElementById("ai-response");
+  var currentSearch;
 
   aiFormSubmit?.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -126,14 +157,87 @@
       method: "POST",
       body: formData,
     });
-
     const result = await response.json();
-    $mapData.set(result.data);
+    console.log(result.data);
+    if (response.status === 200) {
+        $mapData.set(result.data);
+        currentSearch = searchBar.value;
+        searchBar.value = '';
+        clearSearch?.classList.add('none');
+    }
+  });
+
+  aiForm?.addEventListener('input', (e) => {
+    if (searchBar.value !== ''){
+        clearSearch?.classList.remove("none");
+    }else{
+        clearSearch?.classList.add("none");
+    }
+  });
+
+  clearSearch?.addEventListener('click', () => {
+    searchBar.value = '';
+    clearSearch.classList.add("none");
+  });
+
+  filterForm?.addEventListener("change", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(filterForm);
+    const response = await fetch("/api/filterSearch", {
+      method: "POST",
+      body: formData,
+    });
+    const result = await response.json();
+    $filterStore.set(result.data);
+  });
+
+  $mapData.subscribe((data) => {
+    if (data){
+        console.log(data)
+        aiAnswer?.replaceChildren('');
+        for (var i = 0; i < data.length; i++) {
+            const limit = 100
+            var desc;
+            if (data[i].desc.length > limit){
+                let trunc = data[i].desc.substring(0, limit);
+                const lastSpace = trunc.lastIndexOf(' ');
+                if (lastSpace > -1) trunc = trunc.substring(0, lastSpace);
+                desc = trunc + '...';
+            } else{
+                desc = data[i].desc;
+            }
+
+            var answer = document.createElement('div');
+            answer.classList.add('ai-response-element');
+            var answerTitle = document.createElement('h3');
+            answerTitle.innerHTML = data[i].name;
+            var answerDesc = document.createElement('p');
+            answerDesc.innerHTML = desc;
+            var answerBtnCont = document.createElement('div');
+            answerBtnCont.classList.add('ai-response-btn-cont')
+            var answerLink = document.createElement('a');
+            answerLink.href = data[i].domain;
+            answerLink.target = '_blank';
+            var answerBtn = document.createElement('button')
+            answerBtn.classList.add('ai-response-btn')
+            answerBtn.innerHTML = 'Visiter le site'
+            answerLink.appendChild(answerBtn);
+            answerBtnCont.appendChild(answerLink);
+            answer.appendChild(answerTitle);
+            answer.appendChild(answerDesc);
+            answer.appendChild(answerBtnCont);
+            aiAnswer?.appendChild(answer)
+            var separator = document.createElement('hr');
+            separator.classList.add('ai-response-separator')
+            if (i != data.length - 1) aiAnswer?.appendChild(separator);
+        }
+    }
   });
 </script>
 <style>
   .map-search {
     width: 35vw;
+    min-width: 400px;
     max-height: 80vh;
     background-color: rgb(var(--bg-color-1));
     position: absolute;
@@ -145,10 +249,125 @@
   }
   .ai {
   }
+  .ai-response{
+    overflow: scroll;
+    max-height: 50vh;
+    padding: 0 10px;
+  }
+  :global(.ai-response-element){
+    padding: 0 10px;
+  }
+  :global(.ai-response-element h3){
+    margin-bottom: 1vh;
+  }
+  :global(.ai-response-element p){
+    margin-top: 0;
+  }
+  :global(.ai-response-btn){
+    background-color: #34939d;
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 1vh;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 7px;
+  }
+  :global(.ai-response .ai-response-btn-cont){
+    display: flex;
+    justify-content: right;
+  }
+  :global(.ai-response-separator){
+    border: 1.5px solid rgb(190, 190, 190);
+    border-radius: 2px;
+    margin-top: 0;
+  }
   .ai-info-title {
     margin-top: 0;
+    font-size: 1.3rem;
+  }
+  .ai-search-cont {
+    width: 100%;
+    margin: 2vh auto auto auto;
+    display: flex;
+    flex-direction: row;
+    border-radius: 10px;
+    border-right: none;
+    border-color: rgb(190, 190, 190);
+    border-style: solid;
+    border-width: 1px;
+  }
+  .ai-search-cont svg {
+    cursor: pointer;
+    width: 2.5rem;
+    height: 100%;
+    margin: auto;
+    background-color: white;
+  }
+  .ai-search-cont:focus-within {
+    outline: 1px solid #34939d;
+    border-color: #34939d;
+  }
+  .ai-search-cont:focus-within .ai-search-btn {
+    border-radius: 0 7px 7px 0;
+  }
+  .ai-search-bar {
+    width: 100%;
+    border: none;
+    border-radius: 10px 0 0 10px;
+    font-size: 1.05rem;
+    padding: 10px;
+    padding-right: 0;
+  }
+  .ai-search-bar:focus {
+    outline: none;
+  }
+  .ai-search-btn {
+    width: 20%;
+    min-width: 90px;
+    border: none;
+    border-radius: 0 9px 9px 0;
+    cursor: pointer;
+    border: none;
+    background-color: #34939d;
+    color: white;
+    font-size: 1.05rem;
+  }
+  .ai-swap svg {
+    color: #2b4888;
+  }
+  .filters-title {
+    width: fit-content;
+    padding: 2vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    gap: 0.5vw;
+    background-color: rgba(43, 72, 136, 0.2);
+    border-radius: 10px;
+    color: #2b4888;
+    margin-bottom: 3vh;
+  }
+  .filters-title h2 {
+    margin: auto;
+  }
+  .filter-form-cont {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2vh;
+  }
+  .filter-form-cont select {
+    width: 100%;
+    text-align: center;
     font-size: 1.2rem;
-    text-align: justify;
+    border-radius: 10px;
+    padding: 1vh;
+    border-color: rgb(228, 227, 227);
+    border-style: solid;
+    border-width: 1px;
   }
   .none {
     display: none;
@@ -156,5 +375,18 @@
   .ai-swap,
   .filters-swap {
     cursor: pointer;
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1vw;
+    margin-top: 1vh;
+    text-decoration: underline;
+    height: 4vh;
+  }
+  .ai-swap svg,
+  .filters-swap svg {
+    width: 1.4rem;
   }
 </style>
