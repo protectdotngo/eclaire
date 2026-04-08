@@ -1,3 +1,10 @@
+---
+import FilterSVG from "../assets/filter.svg";
+import ChatSVG from "../assets/chat.svg";
+import LinkSVG from "../assets/link.svg";
+import XSVG from "../assets/cross.svg";
+---
+
 <section class="map-search">
   <div class="ai" id="ai">
     <div class="ai-info">
@@ -7,7 +14,30 @@
         > aux problèmes numériques, là où vous en avez besoin.
       </h2>
     </div>
-    <div class="ai-response" id="ai-response"></div>
+    <div
+      class="ai-response none"
+      id="ai-response"
+      x-data="{ results: [] }"
+      @search-finished.window="results = $event.detail"
+    >
+      <template x-for="(item, i) in results" :key="item.domain">
+        <div class="ai-reponse-element">
+          <h3 x-text="item.name"></h3>
+          <p
+            x-text="item.desc.length > 100 ? item.desc.substr(0, item.desc.lastIndexOf(' ', 100)) + ' ' : item.desc"
+          >
+          </p>
+          <div class="ai-response-btn-cont">
+            <a :href="item.domain" target="_blank" class="ai-response-btn"
+              >Visiter le site <LinkSVG /></a
+            >
+          </div>
+          <template x-if="i < results.length -1">
+            <hr class="ai-response-separator" />
+          </template>
+        </div>
+      </template>
+    </div>
     <form
       class="ai-search"
       id="aiForm"
@@ -23,52 +53,20 @@
           autofocus
           placeholder="Poser une question"
         />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="icon icon-tabler icons-tabler-filled icon-tabler-x none"
-          id="clear-search"
-          ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-            d="M6.707 5.293l5.293 5.292l5.293 -5.292a1 1 0 0 1 1.414 1.414l-5.292 5.293l5.292 5.293a1 1 0 0 1 -1.414 1.414l-5.293 -5.292l-5.293 5.292a1 1 0 1 1 -1.414 -1.414l5.292 -5.293l-5.292 -5.293a1 1 0 0 1 1.414 -1.414"
-          ></path></svg
-        >
+        <XSVG id={"clear-search"} class={"none"} />
         <button type="button" class="ai-search-btn" id="aiFormSubmit"
           >Envoyer</button
         >
       </div>
     </form>
     <div class="ai-swap swap">
-      <svg
-        width="23"
-        height="27"
-        viewBox="0 0 23 27"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M8.5 15.5833L0 2.83333V0H22.6667V2.83333L14.1667 15.5833V24.0833L8.5 26.9167V15.5833Z"
-          fill="#34939D"></path>
-      </svg>
+      <FilterSVG width={"23"} height={"27"} fill={"#34939D"} />
       <span class="ai-swap-link"> ou afficher les filtres </span>
     </div>
   </div>
   <div class="filters none" id="filters">
     <div class="filters-title">
-      <svg
-        width="23"
-        height="27"
-        viewBox="0 0 23 27"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M8.5 15.5833L0 2.83333V0H22.6667V2.83333L14.1667 15.5833V24.0833L8.5 26.9167V15.5833Z"
-          fill="#2B4888"></path>
-      </svg>
-
+      <FilterSVG width={"23"} height={"27"} fill={"#2B4888"} />
       <h2>Filtrer</h2>
     </div>
     <form class="filters-form" id="filters-form">
@@ -82,59 +80,12 @@
       </div>
     </form>
     <div class="filters-swap swap">
-      <svg
-        width="32"
-        height="31"
-        viewBox="0 0 32 31"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M17 5.66669H2.83333V22.6667H12.1703L14.1667 25.5166L16.163 22.6667H25.5V14.1667H28.3333V24.0834C28.3333 24.8548 27.688 25.5001 26.9167 25.5001H17.6378L14.1667 30.4584L10.6955 25.5001H1.41667C0.645249 25.5001 0 24.8548 0 24.0834V4.25002C2.83333e-05 3.4786 0.645235 2.83334 1.41667 2.83334H17V5.66669ZM24.8332 0.452406C25.0832 -0.150793 25.9168 -0.150811 26.1668 0.452406L26.5251 1.31846C27.137 2.79576 28.2788 3.97543 29.714 4.61386L30.7295 5.06626C31.3114 5.32506 31.3114 6.17156 30.7295 6.43036L29.6545 6.90903C28.2554 7.53135 27.134 8.66926 26.5114 10.0979L26.1613 10.8989C25.9056 11.4856 25.0943 11.4856 24.8387 10.8989L24.4886 10.0979C23.866 8.66924 22.7447 7.53135 21.3455 6.90903L20.2691 6.43036C19.688 6.17132 19.688 5.32524 20.2691 5.06626L21.286 4.61386C22.7211 3.97543 23.863 2.79576 24.4749 1.31846L24.8332 0.452406Z"
-          fill="#34939D"></path>
-      </svg>
+      <ChatSVG width={"32"} height={"31"} fill={"#34939D"} />
       ou poser une question
     </div>
   </div>
 </section>
 <section class="map-search-phone"></section>
-<script>
-  import { $filterStore } from "../lib/filterStore";
-
-  const cat = document.getElementById("category");
-  const loc = document.getElementById("location");
-  const res = await fetch("/api/baseData", {
-    method: "GET",
-  });
-  const baseData = await res.json();
-  $filterStore.set(baseData.data);
-  var allCat: string[] = [];
-  var allLoc: number[] = [];
-  function populateFilters() {
-    for (const item of baseData.data) {
-      allCat = allCat.concat(item.category);
-    }
-    allCat = [...new Set(allCat.map((c) => c.toLowerCase()))];
-    for (var i = 0; i < allCat.length; i++) {
-      var opt = document.createElement("option");
-      opt.value = allCat[i];
-      opt.innerHTML = allCat[i].charAt(0).toUpperCase() + allCat[i].slice(1);
-      cat?.appendChild(opt);
-    }
-    for (const item of baseData.data) {
-      const code = item.address.match(/\b[1-9]\d{3}\b/)?.[0];
-      allLoc.push(code);
-    }
-    allLoc = [...new Set(allLoc)];
-    for (var i = 0; i < allLoc.length; i++) {
-      var opt = document.createElement("option");
-      opt.value = allLoc[i].toString();
-      opt.innerHTML = allLoc[i].toString();
-      loc?.appendChild(opt);
-    }
-  }
-  populateFilters();
-</script>
 <script>
   const swap = document.querySelectorAll(".swap");
   swap.forEach((item) => {
@@ -148,15 +99,56 @@
 </script>
 <script>
   import { $mapData } from "../lib/mapStore";
-  import { $filterStore } from "../lib/filterStore";
+  import type { Data } from "../interfaces/dbData";
 
-  const aiForm = document.getElementById("aiForm");
+  const aiForm: HTMLFormElement = document.getElementById(
+    "aiForm",
+  ) as HTMLFormElement;
   const aiFormSubmit = document.getElementById("aiFormSubmit");
-  const filterForm = document.getElementById("filters-form");
-  const searchBar = document.getElementById("search-bar");
+  const filterForm: HTMLFormElement = document.getElementById(
+    "filters-form",
+  ) as HTMLFormElement;
+  const searchBar: HTMLInputElement = document.getElementById(
+    "search-bar",
+  ) as HTMLInputElement;
   const clearSearch = document.getElementById("clear-search");
   const aiAnswer = document.getElementById("ai-response");
-  var currentSearch;
+  let currentSearch = "";
+
+  async function populateFilters() {
+    const cat = document.getElementById("category");
+    const loc = document.getElementById("location");
+    const res = await fetch("/api/baseData", {
+      method: "GET",
+    });
+    const baseData = await res.json();
+    const data: Data[] = baseData.data;
+    $mapData.set(data);
+    let allCat: string[] = [];
+    let allLoc: string[] = [];
+    for (const item of data) {
+      allCat = allCat.concat(item.category);
+    }
+    allCat = [...new Set(allCat.map((c) => c.toLowerCase()))];
+    for (let i = 0; i < allCat.length; i++) {
+      let opt = document.createElement("option");
+      opt.value = allCat[i];
+      opt.innerHTML = allCat[i].charAt(0).toUpperCase() + allCat[i].slice(1);
+      cat?.appendChild(opt);
+    }
+    for (const item of data) {
+      const code = item.address.match(/\b[1-9]\d{3}\b/)?.[0] ?? "";
+      if (code) allLoc.push(code);
+    }
+    allLoc = [...new Set(allLoc)];
+    for (let i = 0; i < allLoc.length; i++) {
+      let opt = document.createElement("option");
+      opt.value = allLoc[i].toString();
+      opt.innerHTML = allLoc[i].toString();
+      loc?.appendChild(opt);
+    }
+  }
+  populateFilters();
 
   aiFormSubmit?.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -165,10 +157,13 @@
       method: "POST",
       body: formData,
     });
-    const result = await response.json();
-    console.log(result.data);
     if (response.status === 200) {
-      $mapData.set(result.data);
+      const result = await response.json();
+      const data: Data[] = result.data;
+      const event = new CustomEvent("search-finished", { detail: data });
+      window.dispatchEvent(event);
+      aiAnswer?.classList.remove("none");
+      $mapData.set(data);
       currentSearch = searchBar.value;
       searchBar.value = "";
       clearSearch?.classList.add("none");
@@ -195,50 +190,10 @@
       method: "POST",
       body: formData,
     });
-    const result = await response.json();
-    $filterStore.set(result.data);
-  });
-
-  $mapData.subscribe((data) => {
-    if (data) {
-      console.log(data);
-      aiAnswer?.replaceChildren("");
-      for (var i = 0; i < data.length; i++) {
-        const limit = 100;
-        var desc;
-        if (data[i].desc.length > limit) {
-          let trunc = data[i].desc.substring(0, limit);
-          const lastSpace = trunc.lastIndexOf(" ");
-          if (lastSpace > -1) trunc = trunc.substring(0, lastSpace);
-          desc = trunc + "...";
-        } else {
-          desc = data[i].desc;
-        }
-
-        var answer = document.createElement("div");
-        answer.classList.add("ai-response-element");
-        var answerTitle = document.createElement("h3");
-        answerTitle.innerHTML = data[i].name;
-        var answerDesc = document.createElement("p");
-        answerDesc.innerHTML = desc;
-        var answerBtnCont = document.createElement("div");
-        answerBtnCont.classList.add("ai-response-btn-cont");
-        var answerLink = document.createElement("a");
-        answerLink.href = data[i].domain;
-        answerLink.target = "_blank";
-        var answerBtn = document.createElement("button");
-        answerBtn.classList.add("ai-response-btn");
-        answerBtn.innerHTML = "Visiter le site";
-        answerLink.appendChild(answerBtn);
-        answerBtnCont.appendChild(answerLink);
-        answer.appendChild(answerTitle);
-        answer.appendChild(answerDesc);
-        answer.appendChild(answerBtnCont);
-        aiAnswer?.appendChild(answer);
-        var separator = document.createElement("hr");
-        separator.classList.add("ai-response-separator");
-        if (i != data.length - 1) aiAnswer?.appendChild(separator);
-      }
+    if (response.status === 200) {
+      const result = await response.json();
+      const data: Data[] = result.data;
+      $mapData.set(data);
     }
   });
 </script>
@@ -258,7 +213,7 @@
   .ai {
   }
   .ai-response {
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: 50vh;
     padding: 0 10px;
   }
@@ -280,6 +235,9 @@
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 7px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
   }
   :global(.ai-response .ai-response-btn-cont) {
     display: flex;

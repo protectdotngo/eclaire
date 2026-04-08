@@ -7,7 +7,7 @@ export const POST: APIRoute = async ({ request }) => {
   const loc = data.get("location");
   console.log(typeof loc, loc);
   const values = [];
-  var query =
+  let query =
     "SELECT o.name, o.desc, o.domain, o.address, o.socials, o.category, o.lat, o.lon FROM test.orgs o ";
 
   if (cat && loc && typeof cat === "string" && typeof loc === "string") {
