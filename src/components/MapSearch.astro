@@ -24,7 +24,7 @@ import XSVG from "../assets/cross.svg";
         <div class="ai-reponse-element">
           <h3 x-text="item.name"></h3>
           <p
-            x-text="item.desc.length > 100 ? item.desc.substr(0, item.desc.lastIndexOf(' ', 100)) + ' ' : item.desc"
+            x-text="item.desc.length > 100 ? item.desc.substr(0, item.desc.lastIndexOf(' ', 100)) + '...' : item.desc"
           >
           </p>
           <div class="ai-response-btn-cont">
@@ -71,11 +71,29 @@ import XSVG from "../assets/cross.svg";
     </div>
     <form class="filters-form" id="filters-form">
       <div class="filter-form-cont">
-        <select name="category" id="category">
+        <select
+          name="category"
+          id="category"
+          x-data="{ results: [] }"
+          @populate-categories.window="results = $event.detail"
+        >
           <option value="" selected>-- Catégorie --</option>
+          <template x-for="item in results">
+            <option
+              :value="item"
+              x-text="item.charAt(0).toUpperCase()+item.slice(1)"></option>
+          </template>
         </select>
-        <select name="location" id="location">
-          <option value="" selected>-- Code Postal --</option>
+        <select
+          name="location"
+          id="location"
+          x-data="{ results: [] }"
+          @populate-locations.window="results = $event.detail"
+        >
+          <option value="" selected>-- Localité --</option>
+          <template x-for="item in results">
+            <option :value="item" x-text="item"></option>
+          </template>
         </select>
       </div>
     </form>
@@ -124,29 +142,16 @@ import XSVG from "../assets/cross.svg";
     const baseData = await res.json();
     const data: Data[] = baseData.data;
     $mapData.set(data);
-    let allCat: string[] = [];
-    let allLoc: string[] = [];
-    for (const item of data) {
-      allCat = allCat.concat(item.category);
-    }
-    allCat = [...new Set(allCat.map((c) => c.toLowerCase()))];
-    for (let i = 0; i < allCat.length; i++) {
-      let opt = document.createElement("option");
-      opt.value = allCat[i];
-      opt.innerHTML = allCat[i].charAt(0).toUpperCase() + allCat[i].slice(1);
-      cat?.appendChild(opt);
-    }
-    for (const item of data) {
-      const code = item.address.match(/\b[1-9]\d{3}\b/)?.[0] ?? "";
-      if (code) allLoc.push(code);
-    }
-    allLoc = [...new Set(allLoc)];
-    for (let i = 0; i < allLoc.length; i++) {
-      let opt = document.createElement("option");
-      opt.value = allLoc[i].toString();
-      opt.innerHTML = allLoc[i].toString();
-      loc?.appendChild(opt);
-    }
+    const allCat: string[] = [
+      ...new Set(
+        data.flatMap((item) => item.category.map((cat) => cat.toLowerCase())),
+      ),
+    ];
+    const eventCat = new CustomEvent("populate-categories", { detail: allCat });
+    window.dispatchEvent(eventCat);
+    const allLoc = [...new Set(data.map((item) => item.city))];
+    const eventLoc = new CustomEvent("populate-locations", { detail: allLoc });
+    window.dispatchEvent(eventLoc);
   }
   populateFilters();
 

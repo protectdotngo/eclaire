@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
       ),
       ranked_results AS (
         SELECT 
-          o.name, o.address, o.domain, o.category, o.lat, o.lon, o.desc,
+          o.name, o.address, o.city, o.domain, o.category, o.lat, o.lon, o.desc,
           (1 - (o.embedding <=> sv.query_vec)) AS raw_org_score,
           (SELECT jsonb_agg(jsonb_build_object('title', n.title, 'url', n.url, 'content', n.content))
           FROM (

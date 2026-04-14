@@ -13,7 +13,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (cat && loc && typeof cat === "string" && typeof loc === "string") {
     console.log("Cat & Loc");
     query =
-      query + "WHERE $1 = ANY(category) AND o.address ILIKE '%'|| $2 || '%';";
+      query + "WHERE $1 = ANY(category) AND o.city ILIKE '%'|| $2 || '%';";
     values.push(cat, loc);
   } else if (cat && typeof cat === "string") {
     console.log("Cat");
@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
     values.push(cat);
   } else if (loc && typeof loc === "string") {
     console.log("Loc");
-    query = query + "WHERE o.address ILIKE '%'|| $1 || '%';";
+    query = query + "WHERE o.city ILIKE '%'|| $1 || '%';";
     values.push(loc);
   } else {
     return new Response(JSON.stringify({ message: "Invalid search" }), {

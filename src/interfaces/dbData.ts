@@ -2,9 +2,10 @@ export interface Data {
   name: string;
   desc: string;
   address: string;
+  city: string;
   domain: string;
-  category: Array<string>;
-  socials: Array<string>;
+  category: string[];
+  socials: string[];
   lat: number;
   lon: number;
 }
