@@ -17,15 +17,33 @@ import XSVG from "../assets/cross.svg";
     <div
       class="ai-response none"
       id="ai-response"
-      x-data="{ results: [] }"
+      x-data="{ count: 15, results: [] }"
       @search-finished.window="results = $event.detail"
     >
       <template x-for="(item, i) in results" :key="item.domain">
-        <div class="ai-reponse-element">
+        <div class="ai-reponse-element" >
           <h3 x-text="item.name"></h3>
           <p
-            x-text="item.desc.length > 100 ? item.desc.substr(0, item.desc.lastIndexOf(' ', 100)) + '...' : item.desc"
+            x-data="{ expanded: false }"
           >
+            <span
+              x-text="expanded?item.desc:$truncate(item.desc, {words: count})"
+            >
+            </span>
+            <span
+              class="underline pointer"
+              x-show="!expanded"
+              @click="expanded = !expanded"
+            >
+             Lire plus
+            </span>
+            <span
+              class="underline pointer"
+              x-show="expanded"
+              @click="expanded = !expanded"
+            >
+             Réduire
+            </span>
           </p>
           <div class="ai-response-btn-cont">
             <a :href="item.domain" target="_blank" class="ai-response-btn"
@@ -359,5 +377,11 @@ import XSVG from "../assets/cross.svg";
   .ai-swap svg,
   .filters-swap svg {
     width: 1.4rem;
+  }
+  .pointer {
+    cursor: pointer;
+  }
+  .underline{
+    text-decoration: underline;
   }
 </style>

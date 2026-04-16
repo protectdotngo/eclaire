@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node'
 
 import vercel from '@astrojs/vercel';
 
@@ -10,5 +9,7 @@ import alpinejs from '@astrojs/alpinejs';
 export default defineConfig({
   output: 'server',
   adapter: vercel(),
-  integrations: [alpinejs()]
+  integrations: [alpinejs({
+    entrypoint: '/alpine-config',
+  })]
 });

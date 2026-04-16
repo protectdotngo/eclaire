@@ -1,0 +1,1 @@
+declare module '@alpine-collective/toolkit-truncate';

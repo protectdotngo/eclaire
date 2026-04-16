@@ -1,4 +1,4 @@
 import { atom } from "nanostores";
 import type { Data } from "../interfaces/dbData";
 
-export const $mapData = atom<Data[] | null>(null);
+export const $mapData = atom<Data[]>([]);

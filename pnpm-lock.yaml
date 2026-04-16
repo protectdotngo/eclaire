@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@alpine-collective/toolkit-truncate':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@astrojs/alpinejs':
         specifier: ^0.5.0
         version: 0.5.0(@types/alpinejs@3.13.11)(alpinejs@3.15.10)
@@ -59,6 +62,9 @@ importers:
         version: 0.14.1
 
 packages:
+
+  '@alpine-collective/toolkit-truncate@1.0.2':
+    resolution: {integrity: sha512-IiYuTZa1Q7mMKjX8en6pJedEPa7+J3CCKTkKAABhqRSMk61ydrQS6DG7vjR2Mz7eUvKVHou6goV0ynBxINwFtw==}
 
   '@astrojs/alpinejs@0.5.0':
     resolution: {integrity: sha512-mORFY/ljzz6LPqkBPBd4v2i6yMhTkySgopIpVyKODEoJegp1PuX2Hri589P1oJzICGHSY8Q28OIyF/50Cf/lMQ==}
@@ -1851,6 +1857,8 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
+
+  '@alpine-collective/toolkit-truncate@1.0.2': {}
 
   '@astrojs/alpinejs@0.5.0(@types/alpinejs@3.13.11)(alpinejs@3.15.10)':
     dependencies:
