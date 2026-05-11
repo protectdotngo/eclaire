@@ -8,53 +8,51 @@ import XSVG from "../assets/cross.svg";
 <section class="map-search">
   <div class="ai" id="ai">
     <div class="ai-info">
-      <h2 class="ai-info-title">
+      <h2 class="ai-info-title" id="infoTitle">
         Avec Éclaire, nous apportons des <span class="ai-info-title-highlight"
           >réponses concrètes</span
         > aux problèmes numériques, là où vous en avez besoin.
       </h2>
     </div>
-    <div
-      class="ai-response none"
-      id="ai-response"
-      x-data="{ count: 15, results: [] }"
-      @search-finished.window="results = $event.detail"
-    >
-      <template x-for="(item, i) in results" :key="item.domain">
-        <div class="ai-reponse-element" >
-          <h3 x-text="item.name"></h3>
-          <p
-            x-data="{ expanded: false }"
-          >
-            <span
-              x-text="expanded?item.desc:$truncate(item.desc, {words: count})"
-            >
-            </span>
-            <span
-              class="underline pointer"
-              x-show="!expanded"
-              @click="expanded = !expanded"
-            >
-             Lire plus
-            </span>
-            <span
-              class="underline pointer"
-              x-show="expanded"
-              @click="expanded = !expanded"
-            >
-             Réduire
-            </span>
-          </p>
-          <div class="ai-response-btn-cont">
-            <a :href="item.domain" target="_blank" class="ai-response-btn"
-              >Visiter le site <LinkSVG /></a
-            >
+    <div class="ai-response-cont">
+      <div
+        class="ai-response"
+        id="ai-response"
+        x-data="streamingResults()"
+        x-init="init()"
+        @search-finished.window="startStreaming($event.detail)"
+      >
+        <template x-for="(item, i) in displayed" :key="item.domain">
+          <div class="ai-reponse-element">
+            <h3 x-text="item.displayName"></h3>
+            
+            <template x-if="item.desc">
+              <p x-data="{ expanded: false }">
+                <span x-text="expanded ? item.displayDesc : $truncate(item.displayDesc, { words: count })"></span>
+                <span class="cursor" x-show="item.streaming">▊</span>
+                
+                <template x-if="!item.streaming">
+                  <span>
+                    <span class="underline pointer" x-show="!expanded" @click="expanded = !expanded">Lire plus</span>
+                    <span class="underline pointer" x-show="expanded" @click="expanded = !expanded">Réduire</span>
+                  </span>
+                </template>
+              </p>
+            </template>
+            <template x-if="item.domain">
+              <div class="ai-response-btn-cont" x-show="!item.streaming" x-transition.opacity.duration.400ms>
+                <a :href="item.domain" target="_blank" class="ai-response-btn">
+                  Visiter le site <LinkSVG />
+                </a>
+              </div>
+            </template>
+            
+            <template x-if="i < displayed.length - 1">
+              <hr class="ai-response-separator" />
+            </template>
           </div>
-          <template x-if="i < results.length -1">
-            <hr class="ai-response-separator" />
-          </template>
-        </div>
-      </template>
+        </template>
+      </div>
     </div>
     <form
       class="ai-search"
@@ -68,7 +66,6 @@ import XSVG from "../assets/cross.svg";
           id="search-bar"
           name="search"
           value=""
-          autofocus
           placeholder="Poser une question"
         />
         <XSVG id={"clear-search"} class={"none"} />
@@ -121,7 +118,88 @@ import XSVG from "../assets/cross.svg";
     </div>
   </div>
 </section>
-<section class="map-search-phone"></section>
+<script>
+  import Alpine from 'alpinejs';
+
+  interface DisplayedItem {
+    domain: string;
+    name: string;
+    desc?: string;
+    displayName: string;
+    displayDesc: string;
+    streaming: boolean;
+  }
+
+  interface SearchResult {
+    domain: string;
+    name: string;
+    desc?: string;
+  }
+
+  interface StreamingResults {
+    count: number;
+    displayed: DisplayedItem[];
+    init(): void;
+    startStreaming(results: SearchResult[]): Promise<void>;
+    typeInto(obj: DisplayedItem, key: 'displayName' | 'displayDesc', fullText: string, msPerChar: number): Promise<void>;
+    sleep(ms: number): Promise<void>;
+  }
+
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('streamingResults', (): StreamingResults => ({
+      count: 20,
+      displayed: [],
+
+      init() {},
+
+      async startStreaming(results) {
+        this.displayed = [];
+
+        for (const item of results) {
+          const stub: DisplayedItem = {
+            ...item,
+            displayName: '',
+            displayDesc: '',
+            streaming: true,
+          };
+          this.displayed.push(stub);
+          const ref = this.displayed[this.displayed.length - 1];
+
+          await this.typeInto(ref, 'displayName', item.name, 25);
+
+          if (item.desc) {
+            await this.typeInto(ref, 'displayDesc', item.desc, 8);
+          }
+
+          ref.streaming = false;
+          await this.sleep(120);
+        }
+      },
+
+      typeInto(obj, key, fullText, msPerChar) {
+        return new Promise((resolve) => {
+          let i = 0;
+          const tick = () => {
+            const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
+            i = Math.min(i + chunk, fullText.length);
+            obj[key] = fullText.slice(0, i);
+            if (i < fullText.length) {
+              setTimeout(tick, msPerChar + Math.random() * 20);
+            } else {
+              resolve();
+            }
+          };
+          tick();
+        });
+      },
+
+      sleep(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      },
+    }));
+  });
+</script>
+
 <script>
   const swap = document.querySelectorAll(".swap");
   swap.forEach((item) => {
@@ -148,13 +226,13 @@ import XSVG from "../assets/cross.svg";
     "search-bar",
   ) as HTMLInputElement;
   const clearSearch = document.getElementById("clear-search");
-  const aiAnswer = document.getElementById("ai-response");
+  const infoTitle = document.getElementById("infoTitle");
   let currentSearch = "";
 
   async function populateFilters() {
     const cat = document.getElementById("category");
     const loc = document.getElementById("location");
-    const res = await fetch("/api/baseData", {
+    const res = await fetch("/api/dataInit", {
       method: "GET",
     });
     const baseData = await res.json();
@@ -164,11 +242,12 @@ import XSVG from "../assets/cross.svg";
       ...new Set(
         data.flatMap((item) => item.category.map((cat) => cat.toLowerCase())),
       ),
-    ];
-    const eventCat = new CustomEvent("populate-categories", { detail: allCat });
+    ].filter((el) => {return el!=""});
+    const eventCat = new CustomEvent("populate-categories", { detail: allCat.sort() });
     window.dispatchEvent(eventCat);
-    const allLoc = [...new Set(data.map((item) => item.city))];
-    const eventLoc = new CustomEvent("populate-locations", { detail: allLoc });
+    console.log(allCat.sort());
+    const allLoc = [...new Set(data.map((item) => item.city))].filter((el) => {return el!=""});
+    const eventLoc = new CustomEvent("populate-locations", { detail: allLoc.sort() });
     window.dispatchEvent(eventLoc);
   }
   populateFilters();
@@ -176,19 +255,19 @@ import XSVG from "../assets/cross.svg";
   aiFormSubmit?.addEventListener("click", async (e) => {
     e.preventDefault();
     const formData = new FormData(aiForm);
-    const response = await fetch("/api/dataGet", {
+    const response = await fetch("/api/dataRetrieve", {
       method: "POST",
       body: formData,
     });
     if (response.status === 200) {
       const result = await response.json();
       const data: Data[] = result.data;
-      const event = new CustomEvent("search-finished", { detail: data });
-      window.dispatchEvent(event);
-      aiAnswer?.classList.remove("none");
-      $mapData.set(data);
       currentSearch = searchBar.value;
       searchBar.value = "";
+      const event = new CustomEvent("search-finished", { detail: data });
+      window.dispatchEvent(event);
+      infoTitle?.classList.add("none")
+      $mapData.set(data);
       clearSearch?.classList.add("none");
     }
   });
@@ -209,7 +288,7 @@ import XSVG from "../assets/cross.svg";
   filterForm?.addEventListener("change", async (e) => {
     e.preventDefault();
     const formData = new FormData(filterForm);
-    const response = await fetch("/api/filterSearch", {
+    const response = await fetch("/api/dataFilter", {
       method: "POST",
       body: formData,
     });
@@ -222,25 +301,21 @@ import XSVG from "../assets/cross.svg";
 </script>
 <style>
   .map-search {
-    width: 35vw;
-    min-width: 400px;
-    max-height: 80vh;
+    width: 90%;
     background-color: rgb(var(--bg-color-1));
-    position: absolute;
-    right: 2vw;
-    bottom: 5vh;
-    z-index: 1000;
-    border-radius: 15px;
-    padding: 15px;
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 4vh;
   }
   .ai {
   }
-  .ai-response {
+  .ai-response-cont {
     overflow-y: scroll;
-    max-height: 50vh;
+    max-height: 67vh;
     padding: 0 10px;
   }
-  :global(.ai-response-element) {
+  .ai-response-element {
     padding: 0 10px;
   }
   :global(.ai-response-element h3) {

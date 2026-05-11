@@ -1,12 +1,14 @@
 ---
 import eclaireLogo from "../assets/eclaire.svg";
+import eclaireI from "../assets/eclaire_i.svg"
 import Image from "astro/components/Image.astro";
 ---
 
 <header class="navCont">
+  <Image src={eclaireI} alt="Eclaire's logo small" class:list={"logo-min none"} />
   <div class="nav">
     <a href="/">
-      <Image src={eclaireLogo} alt="Eclaire'slogo" />
+      <Image src={eclaireLogo} alt="Eclaire's logo" class:list={"logo"} />
     </a>
     <div>
       <a href="/">Accueil</a>
@@ -18,12 +20,8 @@ import Image from "astro/components/Image.astro";
 
 <style>
   .navCont {
-    width: 100vw;
+    width: 100%;
     height: 10vh;
-    position: absolute;
-    top: 0;
-    background-color: rgba(var(--bg-color-1), 0.7);
-    z-index: 500;
   }
   .nav {
     display: flex;
@@ -31,19 +29,26 @@ import Image from "astro/components/Image.astro";
     align-items: center;
     height: 100%;
   }
-  .nav a img {
+  .logo {
     width: auto;
     height: 10vh;
+  }
+  .logo-min{
+    width: auto;
+    height: 7vh;
+    display: none;
+    margin: auto;
+    padding: 1.5vh;
   }
   .nav div {
     margin-right: 1vw;
     display: flex;
-    gap: 3.5vw;
+    gap: 2vw;
   }
   .nav div a {
     color: var(--color-1);
     text-decoration: none;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
   .nav div a:hover {
     color: rgba(var(--color-2), 1);

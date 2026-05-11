@@ -1,13 +1,13 @@
+import "dotenv/config";
 import type { APIRoute } from "astro";
-import { pool } from "../../lib/db";
+import { db } from "../../lib/dbDrizzle";
+import { orgsInTest } from "../../../drizzle/schema";
 
 export const GET: APIRoute = async () => {
   try {
-    const result = await pool.query(
-      "SELECT o.name, o.desc, o.domain, o.address, o.city, o.socials, o.category, o.lat, o.lon FROM test.orgs o;",
-    );
+    const result = await db.select().from(orgsInTest);
     return new Response(
-      JSON.stringify({ message: "Success", data: result.rows }),
+      JSON.stringify({ message: "Success", data: result }),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {

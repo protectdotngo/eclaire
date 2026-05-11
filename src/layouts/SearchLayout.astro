@@ -1,0 +1,64 @@
+---
+import MapSearch from "../components/MapSearch.astro";
+import Nav from "../components/Nav.astro";
+import SideBarCloseSVG from "../assets/layout-sidebar-left-collapse.svg";
+import SideBarOpenSVG from "../assets/layout-sidebar-left-expand.svg";
+---
+
+<div class="side-bar" id="sideBar">
+    <Nav />
+    <div class="side-bar-btn-cont">
+        <SideBarOpenSVG class:list={"side-bar-btn none"} id={"sideBarOpen"} />
+        <SideBarCloseSVG class:list={"side-bar-btn"} id={"sideBarClose"} />
+    </div>
+    <MapSearch />
+</div>
+<script>
+    const sideBarBtns = document.querySelectorAll(".side-bar-btn");
+    sideBarBtns.forEach((item) => {
+        item.addEventListener("click", () => {
+            const open = document.getElementById("sideBarOpen");
+            const close = document.getElementById("sideBarClose");
+            const sideBar = document.getElementById("sideBar");
+            open?.classList.toggle("none");
+            close?.classList.toggle("none");
+            sideBar?.classList.toggle("collapsed");
+        })
+    });
+</script>
+<style>
+  .side-bar {
+    width: 100%;
+    max-width: 40vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: max-width 0.3s ease;
+  }
+  .side-bar.collapsed {
+    max-width: 60px;
+  }
+  .side-bar.collapsed :global(.nav),
+  .side-bar.collapsed :global(.map-search) {
+    display: none;
+  }
+  .side-bar.collapsed :global(.main){
+    max-width: calc(100vw - 60px)
+  }
+  .side-bar.collapsed :global(.logo-min){
+    display: block;
+  }
+  .side-bar-btn-cont{
+    width: 30px;
+    height: 30px;
+    margin-left: 1vw;
+  }
+  .side-bar-btn{
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .none {
+    display: none;
+  }
+</style>
