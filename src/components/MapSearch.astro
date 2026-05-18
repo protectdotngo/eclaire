@@ -245,7 +245,6 @@ import XSVG from "../assets/cross.svg";
     ].filter((el) => {return el!=""});
     const eventCat = new CustomEvent("populate-categories", { detail: allCat.sort() });
     window.dispatchEvent(eventCat);
-    console.log(allCat.sort());
     const allLoc = [...new Set(data.map((item) => item.city))].filter((el) => {return el!=""});
     const eventLoc = new CustomEvent("populate-locations", { detail: allLoc.sort() });
     window.dispatchEvent(eventLoc);
