@@ -9,30 +9,13 @@ export const eventsInTest = test.table("events", {
 	url: text().notNull(),
 	title: text(),
 	content: text(),
-	date: timestamp({ mode: 'string' }),
 	location: text(),
 	scrapedAt: timestamp("scraped_at", { mode: 'string' }).defaultNow().notNull(),
 	embedding: vector({ dimensions: 1024 }),
+	startDate: timestamp("start_date", { mode: 'string' }),
+	endDate: timestamp("end_date", { mode: 'string' }),
 }, (table) => [
 	unique("events_url_unique").on(table.url),
-]);
-
-export const orgsInTest = test.table("orgs", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	name: text().notNull(),
-	desc: text().notNull(),
-	category: text().array().notNull(),
-	domain: text(),
-	eventsUrl: text("events_url"),
-	newsUrl: text("news_url"),
-	socials: text().array(),
-	address: text(),
-	lat: doublePrecision(),
-	lon: doublePrecision(),
-	embedding: vector({ dimensions: 1024 }),
-	city: text(),
-}, (table) => [
-	unique("orgs_name_address_unique").on(table.name, table.address),
 ]);
 
 export const newsInTest = test.table("news", {
@@ -45,6 +28,25 @@ export const newsInTest = test.table("news", {
 	embedding: vector({ dimensions: 1024 }),
 }, (table) => [
 	unique("news_url_unique").on(table.url),
+]);
+
+export const orgsInTest = test.table("orgs", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	name: text().notNull(),
+	desc: text().notNull(),
+	categories: text().array().notNull(),
+	domain: text(),
+	eventsUrl: text("events_url"),
+	newsUrl: text("news_url"),
+	socials: text().array(),
+	address: text(),
+	lat: doublePrecision(),
+	lon: doublePrecision(),
+	embedding: vector({ dimensions: 1024 }),
+	city: text(),
+	rss: text(),
+}, (table) => [
+	unique("orgs_name_address_unique").on(table.name, table.address),
 ]);
 
 export const orgsNewsInTest = test.table("orgs_news", {

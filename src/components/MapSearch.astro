@@ -240,7 +240,7 @@ import XSVG from "../assets/cross.svg";
     $mapData.set(data);
     const allCat: string[] = [
       ...new Set(
-        data.flatMap((item) => item.category.map((cat) => cat.toLowerCase())),
+        data.flatMap((item) => item.categories.map((cat) => cat.toLowerCase())),
       ),
     ].filter((el) => {return el!=""});
     const eventCat = new CustomEvent("populate-categories", { detail: allCat.sort() });

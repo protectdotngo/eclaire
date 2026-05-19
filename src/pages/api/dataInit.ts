@@ -12,7 +12,7 @@ export const GET: APIRoute = async () => {
         address: orgsInTest.address,
         city: orgsInTest.city,
         domain: orgsInTest.domain,
-        category: orgsInTest.category,
+        categories: orgsInTest.categories,
         lat: orgsInTest.lat,
         lon: orgsInTest.lon,
         desc: orgsInTest.desc,

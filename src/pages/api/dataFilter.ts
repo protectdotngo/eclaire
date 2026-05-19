@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const conditions: SQL[] = [];
-  if (hasCat) conditions.push(sql`${cat} = ANY(${orgsInTest.category})`);
+  if (hasCat) conditions.push(sql`${cat} = ANY(${orgsInTest.categories})`);
   if (hasLoc) conditions.push(ilike(orgsInTest.city, `%${loc}%`));
 
   try {
@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
         domain: orgsInTest.domain,
         address: orgsInTest.address,
         socials: orgsInTest.socials,
-        category: orgsInTest.category,
+        categories: orgsInTest.categories,
         lat: orgsInTest.lat,
         lon: orgsInTest.lon,
       })

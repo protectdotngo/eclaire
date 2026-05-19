@@ -34,8 +34,10 @@ export const POST: APIRoute = async ({ request }) => {
       model: "qwen3-embedding-8b",
     }),
   });
+  console.log(response)
   const res = await response.json();
   const queryVector = res.data[0].embedding;
+  console.log(queryVector)
   const vectorLiteral = JSON.stringify(queryVector);
 
   try {
@@ -94,7 +96,7 @@ export const POST: APIRoute = async ({ request }) => {
         address: orgsInTest.address,
         city: orgsInTest.city,
         domain: orgsInTest.domain,
-        category: orgsInTest.category,
+        categories: orgsInTest.categories,
         lat: orgsInTest.lat,
         lon: orgsInTest.lon,
         desc: orgsInTest.desc,

@@ -7,7 +7,7 @@ export interface Data {
   address: string;
   city: string;
   domain: string;
-  category: string[];
+  categories: string[];
   socials: string[];
   lat: number;
   lon: number;
