@@ -1,19 +1,23 @@
 ---
 import eclaireLogo from "../assets/eclaire.svg";
-import eclaireI from "../assets/eclaire_i.svg"
+import eclaireI from "../assets/eclaire_i.svg";
 import Image from "astro/components/Image.astro";
 ---
 
 <header class="navCont">
-  <Image src={eclaireI} alt="Eclaire's logo small" class:list={"logo-min none"} />
+  <Image
+    src={eclaireI}
+    alt="Eclaire's logo small"
+    class:list={"logo-min none"}
+  />
   <div class="nav">
     <a href="/">
       <Image src={eclaireLogo} alt="Eclaire's logo" class:list={"logo"} />
     </a>
     <div>
       <a href="/">Accueil</a>
-      <a href="#">Partenaires</a>
-      <a href="#">Ressources utiles</a>
+      <a href="/calendar">Calendrier</a>
+      <!-- <a href="#">Ressources utiles</a> -->
     </div>
   </div>
 </header>
@@ -33,7 +37,7 @@ import Image from "astro/components/Image.astro";
     width: auto;
     height: 10vh;
   }
-  .logo-min{
+  .logo-min {
     width: auto;
     height: 7vh;
     display: none;

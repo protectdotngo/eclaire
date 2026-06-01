@@ -1,0 +1,49 @@
+---
+import Layout from "../layouts/CalendarLayout.astro";
+import Nav from "../components/Nav.astro";
+import CalendarComp from "../components/Calendar.astro";
+---
+
+<Layout>
+  <Nav />
+  <div class="calendar-cont">
+    <CalendarComp />
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --bg-color-1: 255, 255, 255;
+    --color-1: 0, 0, 0;
+    --color-2: 80, 80, 80;
+  }
+  html,
+  body {
+    font-family:
+      Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial,
+      sans-serif;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .calendar-cont {
+    display: flex;
+    flex-direction: column;
+    padding: 1vh 5vw 0;
+    height: 90vh;
+    box-sizing: border-box;
+  }
+
+  .calendar-cont > .calendar {
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 2vh;
+    height: auto; /* override the fixed 80vh */
+  }
+
+  @media screen and (max-width: 1125px) {
+    .calendar-cont {
+      padding: 0 5vw;
+    }
+  }
+</style>

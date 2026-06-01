@@ -25,28 +25,42 @@ import XSVG from "../assets/cross.svg";
         <template x-for="(item, i) in displayed" :key="item.domain">
           <div class="ai-reponse-element">
             <h3 x-text="item.displayName"></h3>
-            
+
             <template x-if="item.desc">
               <p x-data="{ expanded: false }">
-                <span x-text="expanded ? item.displayDesc : $truncate(item.displayDesc, { words: count })"></span>
+                <span
+                  x-text="expanded ? item.displayDesc : $truncate(item.displayDesc, { words: count })"
+                ></span>
                 <span class="cursor" x-show="item.streaming">▊</span>
-                
+
                 <template x-if="!item.streaming">
                   <span>
-                    <span class="underline pointer" x-show="!expanded" @click="expanded = !expanded">Lire plus</span>
-                    <span class="underline pointer" x-show="expanded" @click="expanded = !expanded">Réduire</span>
+                    <span
+                      class="underline pointer"
+                      x-show="!expanded"
+                      @click="expanded = !expanded">Lire plus</span
+                    >
+                    <span
+                      class="underline pointer"
+                      x-show="expanded"
+                      @click="expanded = !expanded">Réduire</span
+                    >
                   </span>
                 </template>
               </p>
             </template>
             <template x-if="item.domain">
-              <div class="ai-response-btn-cont" x-show="!item.streaming" x-transition.opacity.duration.400ms>
+              <div
+                class="ai-response-btn-cont"
+                x-show="!item.streaming"
+                x-transition.opacity.duration.400ms
+              >
                 <a :href="item.domain" target="_blank" class="ai-response-btn">
                   Visiter le site <LinkSVG />
                 </a>
               </div>
             </template>
-            
+
             <template x-if="i < displayed.length - 1">
               <hr class="ai-response-separator" />
             </template>
@@ -119,7 +133,7 @@ import XSVG from "../assets/cross.svg";
   </div>
 </section>
 <script>
-  import Alpine from 'alpinejs';
+  import Alpine from "alpinejs";
 
   interface DisplayedItem {
     domain: string;
@@ -141,62 +155,70 @@ import XSVG from "../assets/cross.svg";
     displayed: DisplayedItem[];
     init(): void;
     startStreaming(results: SearchResult[]): Promise<void>;
-    typeInto(obj: DisplayedItem, key: 'displayName' | 'displayDesc', fullText: string, msPerChar: number): Promise<void>;
+    typeInto(
+      obj: DisplayedItem,
+      key: "displayName" | "displayDesc",
+      fullText: string,
+      msPerChar: number,
+    ): Promise<void>;
     sleep(ms: number): Promise<void>;
   }
 
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('streamingResults', (): StreamingResults => ({
-      count: 20,
-      displayed: [],
+  document.addEventListener("alpine:init", () => {
+    Alpine.data(
+      "streamingResults",
+      (): StreamingResults => ({
+        count: 20,
+        displayed: [],
 
-      init() {},
+        init() {},
 
-      async startStreaming(results) {
-        this.displayed = [];
+        async startStreaming(results) {
+          this.displayed = [];
 
-        for (const item of results) {
-          const stub: DisplayedItem = {
-            ...item,
-            displayName: '',
-            displayDesc: '',
-            streaming: true,
-          };
-          this.displayed.push(stub);
-          const ref = this.displayed[this.displayed.length - 1];
+          for (const item of results) {
+            const stub: DisplayedItem = {
+              ...item,
+              displayName: "",
+              displayDesc: "",
+              streaming: true,
+            };
+            this.displayed.push(stub);
+            const ref = this.displayed[this.displayed.length - 1];
 
-          await this.typeInto(ref, 'displayName', item.name, 25);
+            await this.typeInto(ref, "displayName", item.name, 25);
 
-          if (item.desc) {
-            await this.typeInto(ref, 'displayDesc', item.desc, 8);
-          }
-
-          ref.streaming = false;
-          await this.sleep(120);
-        }
-      },
-
-      typeInto(obj, key, fullText, msPerChar) {
-        return new Promise((resolve) => {
-          let i = 0;
-          const tick = () => {
-            const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
-            i = Math.min(i + chunk, fullText.length);
-            obj[key] = fullText.slice(0, i);
-            if (i < fullText.length) {
-              setTimeout(tick, msPerChar + Math.random() * 20);
-            } else {
-              resolve();
+            if (item.desc) {
+              await this.typeInto(ref, "displayDesc", item.desc, 8);
             }
-          };
-          tick();
-        });
-      },
 
-      sleep(ms) {
-        return new Promise((r) => setTimeout(r, ms));
-      },
-    }));
+            ref.streaming = false;
+            await this.sleep(120);
+          }
+        },
+
+        typeInto(obj, key, fullText, msPerChar) {
+          return new Promise((resolve) => {
+            let i = 0;
+            const tick = () => {
+              const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
+              i = Math.min(i + chunk, fullText.length);
+              obj[key] = fullText.slice(0, i);
+              if (i < fullText.length) {
+                setTimeout(tick, msPerChar + Math.random() * 20);
+              } else {
+                resolve();
+              }
+            };
+            tick();
+          });
+        },
+
+        sleep(ms) {
+          return new Promise((r) => setTimeout(r, ms));
+        },
+      }),
+    );
   });
 </script>
 
@@ -230,44 +252,71 @@ import XSVG from "../assets/cross.svg";
   let currentSearch = "";
 
   async function populateFilters() {
-    const cat = document.getElementById("category");
-    const loc = document.getElementById("location");
-    const res = await fetch("/api/dataInit", {
-      method: "GET",
-    });
-    const baseData = await res.json();
-    const data: Data[] = baseData.data;
-    $mapData.set(data);
-    const allCat: string[] = [
-      ...new Set(
-        data.flatMap((item) => item.categories.map((cat) => cat.toLowerCase())),
-      ),
-    ].filter((el) => {return el!=""});
-    const eventCat = new CustomEvent("populate-categories", { detail: allCat.sort() });
-    window.dispatchEvent(eventCat);
-    const allLoc = [...new Set(data.map((item) => item.city))].filter((el) => {return el!=""});
-    const eventLoc = new CustomEvent("populate-locations", { detail: allLoc.sort() });
-    window.dispatchEvent(eventLoc);
+    try {
+      const res = await fetch("/api/dataInit", {
+        method: "GET",
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.status === 200) {
+        const baseData = await res.json();
+        const data: Data[] = baseData.data;
+        $mapData.set(data);
+        const allCat: string[] = [
+          ...new Set(
+            data.flatMap((item) =>
+              item.categories.map((cat) => cat.toLowerCase()),
+            ),
+          ),
+        ].filter((el) => {
+          return el != "";
+        });
+        const eventCat = new CustomEvent("populate-categories", {
+          detail: allCat.sort(),
+        });
+        window.dispatchEvent(eventCat);
+        const allLoc = [...new Set(data.map((item) => item.city))].filter(
+          (el) => {
+            return el != "";
+          },
+        );
+        const eventLoc = new CustomEvent("populate-locations", {
+          detail: allLoc.sort(),
+        });
+        window.dispatchEvent(eventLoc);
+      } else {
+        throw new Error(`Status ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Failed to load orgs:", err);
+    }
   }
   populateFilters();
 
   aiFormSubmit?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const formData = new FormData(aiForm);
-    const response = await fetch("/api/dataRetrieve", {
-      method: "POST",
-      body: formData,
-    });
-    if (response.status === 200) {
-      const result = await response.json();
-      const data: Data[] = result.data;
-      currentSearch = searchBar.value;
-      searchBar.value = "";
-      const event = new CustomEvent("search-finished", { detail: data });
-      window.dispatchEvent(event);
-      infoTitle?.classList.add("none")
-      $mapData.set(data);
-      clearSearch?.classList.add("none");
+    try {
+      const formData = new FormData(aiForm);
+      const res = await fetch("/api/dataRetrieve", {
+        method: "POST",
+        body: formData,
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.status === 200) {
+        const result = await res.json();
+        console.log(result.data);
+        const data: Data[] = result.data;
+        currentSearch = searchBar.value;
+        searchBar.value = "";
+        const event = new CustomEvent("search-finished", { detail: data });
+        window.dispatchEvent(event);
+        infoTitle?.classList.add("none");
+        $mapData.set(data);
+        clearSearch?.classList.add("none");
+      } else {
+        throw new Error(`Status ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Failed to get response:", err);
     }
   });
 
@@ -286,15 +335,22 @@ import XSVG from "../assets/cross.svg";
 
   filterForm?.addEventListener("change", async (e) => {
     e.preventDefault();
-    const formData = new FormData(filterForm);
-    const response = await fetch("/api/dataFilter", {
-      method: "POST",
-      body: formData,
-    });
-    if (response.status === 200) {
-      const result = await response.json();
-      const data: Data[] = result.data;
-      $mapData.set(data);
+    try {
+      const formData = new FormData(filterForm);
+      const res = await fetch("/api/dataFilter", {
+        method: "POST",
+        body: formData,
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.status === 200) {
+        const result = await res.json();
+        const data: Data[] = result.data;
+        $mapData.set(data);
+      } else {
+        throw new Error(`Status ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Failed to load filtered orgs:", err);
     }
   });
 </script>
@@ -455,7 +511,7 @@ import XSVG from "../assets/cross.svg";
   .pointer {
     cursor: pointer;
   }
-  .underline{
+  .underline {
     text-decoration: underline;
   }
 </style>

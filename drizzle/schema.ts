@@ -14,6 +14,7 @@ export const eventsInTest = test.table("events", {
 	embedding: vector({ dimensions: 1024 }),
 	startDate: timestamp("start_date", { mode: 'string' }),
 	endDate: timestamp("end_date", { mode: 'string' }),
+	categories: text("categories").array(),
 }, (table) => [
 	unique("events_url_unique").on(table.url),
 ]);

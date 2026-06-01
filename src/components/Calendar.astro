@@ -1,0 +1,558 @@
+<div class="controls">
+  <input
+    type="search"
+    id="event-search"
+    class="search-input"
+    placeholder="Rechercher un événement..."
+    autocomplete="off"
+  />
+
+  <button
+    id="filter-toggle"
+    class="filter-toggle"
+    aria-expanded="false"
+    aria-controls="filter-section"
+  >
+    <span>Catégories</span>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+</div>
+
+<div id="filter-section" class="filter-section">
+  <div class="filter-content">
+    <div class="filter-label">Sélectionnés</div>
+    <div id="selected-chips" class="chip-row chip-row--selected"></div>
+
+    <div class="filter-label">Thématiques</div>
+    <div id="bucket-chips" class="chip-row chip-row--available"></div>
+
+    <div class="filter-label">Publics</div>
+    <div id="audience-chips" class="chip-row chip-row--available chip-row--neutral"></div>
+  </div>
+</div>
+
+<div id="calendar" class="calendar"></div>
+
+<dialog id="event-detail-modal" class="custom-modal">
+  <div class="modal-content">
+    <h2 id="modal-title">Erreur</h2>
+    <p id="modal-description">
+      Une erreur est survenue lors du chargement des événements.<br />Vérifier
+      votre connexion internet.<br />Si l'erreur persiste, veuillez réessayer
+      plus tard.
+    </p>
+
+    <div class="modal-actions">
+      <button id="modal-close-btn" type="button" class="btn-secondary">
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import {
+    createCalendar,
+    createViewMonthGrid,
+    createViewDay,
+  } from "@schedule-x/calendar";
+  import { createEventModalPlugin } from "@schedule-x/event-modal";
+  import { createEventsServicePlugin } from "@schedule-x/events-service";
+  import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
+  import "@schedule-x/theme-default/dist/index.css";
+  import "temporal-polyfill/global";
+  import type { Event } from "../interfaces/dbEvent";
+  import type {
+    CalendarConfig,
+    CalendarEventExternal,
+  } from "@schedule-x/calendar";
+  import type { DisplayBucket } from "../interfaces/displayBucket";
+  import { DISPLAY_BUCKETS } from "../lib/calendarConfig";
+  import { AUDIENCE_TAGS } from "../lib/audienceTags";
+  import {
+    AUDIENCE_SET,
+    BUCKET_IDS,
+    splitEventTags,
+    buildCalendars,
+    escapeHtml,
+  } from "../lib/calendarHelper";
+
+  const timeZone = "Europe/Zurich";
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+  let formattedEvents: CalendarEventExternal[] = [];
+  const selected = new Set<string>();
+
+  async function fetchEvents() {
+    try {
+      const res = await fetch("/api/dataEvents", {
+        method: "GET",
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.status === 200) {
+        const baseData = await res.json();
+        const data: Event[] = baseData.data;
+        formattedEvents = sortEvents(data);
+        eventsService.set(formattedEvents);
+      } else {
+        throw new Error(`Status ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Failed to load events:", err);
+      modal.showModal();
+    }
+  }
+
+  function sortEvents(events: Event[]): CalendarEventExternal[] {
+    if (!events) return [];
+    const formatted: CalendarEventExternal[] = [];
+    let zonedStart;
+    let zonedEnd;
+
+    for (const item of events) {
+      if (item.start_date.split(" ")[1] !== "00:00:00") {
+        const ISOStart = item.start_date.replace(" ", "T");
+        const plainStart = Temporal.PlainDateTime.from(ISOStart);
+        zonedStart = plainStart.toZonedDateTime(timeZone);
+        if (item.end_date) {
+          const ISOEnd = item.end_date.replace(" ", "T");
+          const plainEnd = Temporal.PlainDateTime.from(ISOEnd);
+          zonedEnd = plainEnd.toZonedDateTime(timeZone);
+        } else {
+          zonedEnd = zonedStart.add({ hours: 1 });
+        }
+      } else {
+        const ISOStart = item.start_date.split(" ")[0];
+        const ISOEnd = item.end_date.split(" ")[0];
+        zonedStart = Temporal.PlainDate.from(ISOStart);
+        if (!ISOEnd || ISOEnd == ISOStart) {
+          zonedEnd = zonedStart;
+        } else {
+          zonedEnd = Temporal.PlainDate.from(ISOEnd);
+        }
+      }
+
+      const categories = Array.isArray(item.categories)
+        ? item.categories
+        : item.categories
+          ? [item.categories]
+          : [];
+
+      const { buckets, audiences } = splitEventTags(categories);
+      const primary = buckets[0];
+
+      formatted.push({
+        id: item.id,
+        title: item.title,
+        url: item.url,
+        description: item.content,
+        start: zonedStart,
+        end: zonedEnd,
+        location: item.location,
+        calendarId: primary.calendarId,
+        bucketIds: buckets.map((b) => b.calendarId),
+        audiences,
+        rawCategories: categories,
+      } satisfies CalendarEventExternal);
+    }
+
+    return formatted;
+  }
+
+  function createBucketChip(bucket: DisplayBucket): HTMLButtonElement {
+    const btn = document.createElement("button");
+    btn.className = "category-chip category-chip--bucket";
+    btn.dataset.filterKey = bucket.calendarId;
+    btn.style.setProperty("--chip-color", bucket.colors.light.main);
+    btn.style.setProperty("--chip-bg", bucket.colors.light.container);
+    btn.style.setProperty("--chip-text", bucket.colors.light.onContainer);
+    btn.style.viewTransitionName = `chip-${bucket.calendarId}`;
+    btn.innerHTML = `<span class="dot"></span><span>${escapeHtml(bucket.label)}</span>`;
+    btn.addEventListener("click", () => toggleSelected(bucket.calendarId));
+    return btn;
+  }
+
+  function createAudienceChip(tag: string): HTMLButtonElement {
+    const btn = document.createElement("button");
+    btn.className = "category-chip category-chip--audience";
+    btn.dataset.filterKey = tag;
+    btn.style.viewTransitionName = `chip-${tag.replace(/\W/g, "-")}`;
+    btn.innerHTML = `<span>${escapeHtml(tag)}</span>`;
+    btn.addEventListener("click", () => toggleSelected(tag));
+    return btn;
+  }
+
+  function toggleSelected(key: string) {
+    if (selected.has(key)) selected.delete(key);
+    else selected.add(key);
+    renderFilterAnimated();
+    applyFilter();
+  }
+
+  function renderFilter() {
+    const sel = document.getElementById("selected-chips")!;
+    const bucketRow = document.getElementById("bucket-chips")!;
+    const audienceRow = document.getElementById("audience-chips")!;
+
+    sel.innerHTML = "";
+    bucketRow.innerHTML = "";
+    audienceRow.innerHTML = "";
+
+    for (const bucket of DISPLAY_BUCKETS) {
+      const chip = createBucketChip(bucket);
+      (selected.has(bucket.calendarId) ? sel : bucketRow).appendChild(chip);
+    }
+
+    for (const tag of AUDIENCE_TAGS) {
+      const chip = createAudienceChip(tag);
+      (selected.has(tag) ? sel : audienceRow).appendChild(chip);
+    }
+  }
+
+  function renderFilterAnimated() {
+    if (typeof document.startViewTransition === "function") {
+      document.startViewTransition(() => renderFilter());
+    } else {
+      renderFilter();
+    }
+  }
+
+  let searchQuery = "";
+
+  function normalize(s: string): string {
+    return s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // strip accents
+  }
+
+  function applyFilter() {
+    const selectedBuckets = new Set<string>();
+    const selectedAudiences = new Set<string>();
+    for (const key of selected) {
+      if (BUCKET_IDS.has(key)) selectedBuckets.add(key);
+      else if (AUDIENCE_SET.has(key)) selectedAudiences.add(key);
+    }
+
+    const q = normalize(searchQuery.trim());
+
+    const filtered = formattedEvents.filter((e) => {
+      const bucketMatch =
+        selectedBuckets.size === 0 ||
+        (e.bucketIds as string[]).some((id) => selectedBuckets.has(id));
+
+      const audienceMatch =
+        selectedAudiences.size === 0 ||
+        (e.audiences as string[]).some((a) => selectedAudiences.has(a));
+
+      if (!bucketMatch || !audienceMatch) return false;
+
+      if (!q) return true;
+
+      const haystack = [
+        e.title ?? "",
+        (e.description as string) ?? "",
+        ...((e.rawCategories as string[]) ?? []),
+      ]
+        .map(normalize)
+        .join(" ");
+
+      return haystack.includes(q);
+    });
+
+    eventsService.set(filtered);
+  }
+
+  const searchInput = document.getElementById(
+    "event-search",
+  ) as HTMLInputElement;
+
+  let searchDebounce: number | undefined;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = window.setTimeout(() => {
+      searchQuery = searchInput.value;
+      applyFilter();
+    }, 150);
+  });
+
+  const filterToggle = document.getElementById("filter-toggle")!;
+  const filterSection = document.getElementById("filter-section")!;
+
+  filterToggle.addEventListener("click", () => {
+    const isOpen = filterToggle.getAttribute("aria-expanded") === "true";
+    filterToggle.setAttribute("aria-expanded", String(!isOpen));
+    filterSection.classList.toggle("open", !isOpen);
+  });
+
+  const calendarDiv = document.getElementById("calendar") as HTMLDivElement;
+  const modal = document.getElementById(
+    "event-detail-modal",
+  ) as HTMLDialogElement;
+  const modalCloseBtn = document.getElementById("modal-close-btn");
+
+  const now = new Date();
+  const minDate = new Temporal.PlainDate(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    1,
+  );
+
+  const eventModal = createEventModalPlugin();
+  const eventsService = createEventsServicePlugin();
+  const calendarControls = createCalendarControlsPlugin();
+
+  const config: CalendarConfig = {
+    views: [createViewMonthGrid(), createViewDay()],
+    calendars: buildCalendars(),
+    events: [],
+    locale: "fr-FR",
+    timezone: timeZone,
+    minDate: minDate,
+    dayBoundaries: {
+      start: "06:00",
+      end: "24:00",
+    },
+    callbacks: {
+      onEventClick(calendarEvent: CalendarEventExternal) {
+        if (isMobile && calendarEvent.url) {
+          window.open(calendarEvent.url, "_blank");
+        }
+      },
+      onDoubleClickEvent(calendarEvent: CalendarEventExternal, e: UIEvent) {
+        if (!isMobile && calendarEvent.url) {
+          window.open(calendarEvent.url, "_blank");
+        }
+      },
+    },
+    plugins: [
+      eventsService,
+      ...(isMobile ? [] : [eventModal]),
+      calendarControls,
+    ],
+  };
+
+  const calendar = createCalendar(config);
+  calendar.render(calendarDiv);
+
+  modalCloseBtn?.addEventListener("click", () => modal.close());
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.close();
+  });
+
+  fetchEvents();
+  renderFilter();
+</script>
+
+<style>
+  .calendar {
+    width: 100%;
+  }
+
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    background: white;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #1e6fdb;
+    box-shadow: 0 0 0 3px rgba(30, 111, 219, 0.15);
+  }
+
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #1e293b;
+    transition: background 0.15s ease;
+  }
+
+  .filter-toggle:hover {
+    background: #f1f5f9;
+  }
+
+  .filter-toggle .chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .filter-toggle[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .custom-modal {
+    border: none;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 450px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .custom-modal::backdrop {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-content h2 {
+    margin-top: 0;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: flex-end;
+  }
+
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    margin-bottom: 1vh;
+    background-color: white;
+    color: black;
+    font-size: 1.2rem;
+    border: 2px solid lightgrey;
+    border-radius: 7px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+</style>
+<style is:global>
+  .sx__event {
+    cursor: pointer;
+  }
+
+  /* ---------- Collapsible filter section ---------- */
+  .filter-section {
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-bottom: 1rem;
+    transition: grid-template-rows 0.25s ease;
+  }
+
+  .filter-section.open {
+    grid-template-rows: 1fr;
+  }
+
+  .filter-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .filter-section.open .filter-content {
+    padding-bottom: 0.5rem;
+  }
+
+  /* ---------- Filter labels and chip rows ---------- */
+  .filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #666;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .chip-row--selected {
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px dashed rgba(0, 0, 0, 0.1);
+  }
+
+  /* ---------- Chip base ---------- */
+  .category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      opacity 0.15s ease;
+  }
+
+  .category-chip:hover {
+    opacity: 0.85;
+  }
+
+  .category-chip .dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--chip-color);
+  }
+
+  /* ---------- Bucket chips (colored) ---------- */
+  .category-chip--bucket {
+    border: 2px solid var(--chip-color);
+  }
+
+  .chip-row--selected .category-chip--bucket {
+    background: var(--chip-bg);
+    color: var(--chip-text);
+  }
+
+  .chip-row--available .category-chip--bucket {
+    color: var(--chip-color);
+  }
+
+  /* ---------- Audience chips (neutral) ---------- */
+  .category-chip--audience {
+    border: 2px solid #cbd5e1;
+    color: #475569;
+  }
+
+  .category-chip--audience span::first-letter {
+    text-transform: uppercase;
+  }
+
+  .chip-row--selected .category-chip--audience {
+    background: #1e293b;
+    color: white;
+    border-color: #1e293b;
+  }
+
+  /* ---------- View transitions ---------- */
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.3s;
+  }
+</style>

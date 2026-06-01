@@ -8,8 +8,6 @@ import {
   orgsNewsInTest,
   orgsEventsInTest,
 } from "../../../drizzle/schema";
-import type { News } from "../../interfaces/dbNews";
-import type { Event } from "../../interfaces/dbEvent";
 import { db } from "../../lib/dbDrizzle";
 
 export const POST: APIRoute = async ({ request }) => {
@@ -34,10 +32,8 @@ export const POST: APIRoute = async ({ request }) => {
       model: "qwen3-embedding-8b",
     }),
   });
-  console.log(response)
   const res = await response.json();
   const queryVector = res.data[0].embedding;
-  console.log(queryVector)
   const vectorLiteral = JSON.stringify(queryVector);
 
   try {
@@ -58,7 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
       WHERE ${orgsEventsInTest.orgId} = ${orgsInTest.id}
     ), 0)`;
 
-    const topNews = sql<News>`(
+    const topNews = sql<any>`(
       SELECT jsonb_agg(jsonb_build_object('title', n.title, 'url', n.url, 'content', n.content))
       FROM (
         SELECT ${newsInTest.title} AS title, ${newsInTest.url} AS url, ${newsInTest.content} AS content
@@ -70,10 +66,10 @@ export const POST: APIRoute = async ({ request }) => {
       ) n
     )`;
 
-    const topEvents = sql<Event>`(
-      SELECT jsonb_agg(jsonb_build_object('title', e.title, 'url', e.url, 'content', e.content, 'location', e.location))
+    const topEvents = sql<any>`(
+      SELECT jsonb_agg(jsonb_build_object('title', e.title, 'url', e.url, 'content', e.content, 'start_date', e.start_date, 'end_date', e.end_date, 'location', e.location))
       FROM (
-        SELECT ${eventsInTest.title} AS title, ${eventsInTest.url} AS url, ${eventsInTest.content} AS content, ${eventsInTest.location} AS location
+        SELECT ${eventsInTest.title} AS title, ${eventsInTest.url} AS url, ${eventsInTest.content} AS content, ${eventsInTest.startDate} AS start_date, ${eventsInTest.endDate} AS end_date, ${eventsInTest.location} AS location
         FROM ${eventsInTest}
         JOIN ${orgsEventsInTest} ON ${orgsEventsInTest.eventId} = ${eventsInTest.id}
         WHERE ${orgsEventsInTest.orgId} = ${orgsInTest.id}
