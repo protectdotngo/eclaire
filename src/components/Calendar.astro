@@ -14,7 +14,18 @@
     aria-controls="filter-section"
   >
     <span>Catégories</span>
-    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg
+      class="chevron"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="6 9 12 15 18 9"></polyline>
     </svg>
   </button>
@@ -29,7 +40,11 @@
     <div id="bucket-chips" class="chip-row chip-row--available"></div>
 
     <div class="filter-label">Publics</div>
-    <div id="audience-chips" class="chip-row chip-row--available chip-row--neutral"></div>
+    <div
+      id="audience-chips"
+      class="chip-row chip-row--available chip-row--neutral"
+    >
+    </div>
   </div>
 </div>
 
@@ -86,10 +101,15 @@
   const selected = new Set<string>();
 
   async function fetchEvents() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orgId = urlParams.get("org");
+    const endpoint = orgId
+      ? `/api/dataEvents?org=${encodeURIComponent(orgId)}`
+      : `/api/dataEvents`;
     try {
-      const res = await fetch("/api/dataEvents", {
+      const res = await fetch(endpoint, {
         method: "GET",
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(10000),
       });
       if (res.status === 200) {
         const baseData = await res.json();
@@ -446,7 +466,6 @@
     cursor: pointer;
   }
 
-  /* ---------- Collapsible filter section ---------- */
   .filter-section {
     display: grid;
     grid-template-rows: 0fr;
@@ -470,7 +489,6 @@
     padding-bottom: 0.5rem;
   }
 
-  /* ---------- Filter labels and chip rows ---------- */
   .filter-label {
     font-size: 0.75rem;
     font-weight: 600;
@@ -493,7 +511,6 @@
     border: 1px dashed rgba(0, 0, 0, 0.1);
   }
 
-  /* ---------- Chip base ---------- */
   .category-chip {
     display: inline-flex;
     align-items: center;
@@ -520,7 +537,6 @@
     background: var(--chip-color);
   }
 
-  /* ---------- Bucket chips (colored) ---------- */
   .category-chip--bucket {
     border: 2px solid var(--chip-color);
   }
@@ -534,7 +550,6 @@
     color: var(--chip-color);
   }
 
-  /* ---------- Audience chips (neutral) ---------- */
   .category-chip--audience {
     border: 2px solid #cbd5e1;
     color: #475569;
@@ -550,7 +565,6 @@
     border-color: #1e293b;
   }
 
-  /* ---------- View transitions ---------- */
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation-duration: 0.3s;

@@ -1,31 +1,24 @@
 ---
-import Layout from "../layouts/MapLayout.astro";
+import Layout from "../layouts/BaseLayout.astro";
 import Map from "../components/Map.astro";
 import SearchLayout from "../layouts/SearchLayout.astro";
 ---
 
-<Layout>
-  <SearchLayout />
-  <div class="main">
-    <Map />
+<Layout title="Éclaire - Le Phare Numérique">
+  <div class="page">
+    <SearchLayout />
+    <div class="main">
+      <Map />
+    </div>
   </div>
 </Layout>
 
 <style>
-  :root {
-    --bg-color-1: 255, 255, 255;
-    --color-1: 0, 0, 0;
-    --color-2: 80, 80, 80;
+  .page {
+    display: flex;
+    flex-direction: row;
   }
-  html, body {
-    font-family:
-      Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial,
-      sans-serif;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .main{
+  .main {
     width: 100%;
   }
 </style>

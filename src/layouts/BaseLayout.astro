@@ -1,0 +1,35 @@
+---
+const { title = "Default Title" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  :root {
+    --bg-color-1: 255, 255, 255;
+    --color-1: 0, 0, 0;
+    --color-2: 80, 80, 80;
+  }
+  html,
+  body {
+    font-family:
+      Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial,
+      sans-serif;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>

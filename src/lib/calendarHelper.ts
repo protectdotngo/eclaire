@@ -4,7 +4,7 @@ import { AUDIENCE_TAGS } from "./audienceTags";
 import { DISPLAY_BUCKETS } from "./calendarConfig";
 
 export const AUDIENCE_SET = new Set<string>(AUDIENCE_TAGS);
-export const BUCKET_IDS = new Set(DISPLAY_BUCKETS.map(b => b.calendarId));
+export const BUCKET_IDS = new Set(DISPLAY_BUCKETS.map((b) => b.calendarId));
 
 const categoryToBucket = new Map<string, DisplayBucket>();
 for (const bucket of DISPLAY_BUCKETS) {
@@ -14,7 +14,7 @@ for (const bucket of DISPLAY_BUCKETS) {
 }
 
 export const OTHER_BUCKET = DISPLAY_BUCKETS.find(
-  b => b.calendarId === "other"
+  (b) => b.calendarId === "other",
 )!;
 
 export function splitEventTags(categories: string[]): {
@@ -40,44 +40,41 @@ export function splitEventTags(categories: string[]): {
   return { buckets: [...buckets], audiences };
 }
 
-// ---------- Schedule-x calendars config ----------
 export function buildCalendars(): Record<string, CalendarType> {
   return Object.fromEntries(
-    DISPLAY_BUCKETS.map(b => [
+    DISPLAY_BUCKETS.map((b) => [
       b.calendarId,
       {
         colorName: b.calendarId,
         lightColors: { ...b.colors.light },
         darkColors: { ...b.colors.dark },
       },
-    ])
+    ]),
   );
 }
 
-// ---------- HTML escape ----------
 export function escapeHtml(s: string): string {
   return s.replace(
     /[&<>"']/g,
-    c =>
+    (c) =>
       ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
         "'": "&#39;",
-      })[c]!
+      })[c]!,
   );
 }
 
-// ---------- Event content renderer ----------
 export function renderEventContent(
   title: string,
-  buckets: DisplayBucket[]
+  buckets: DisplayBucket[],
 ): string {
   const dots = buckets
     .map(
-      b =>
-        `<span class="event-tag-dot" style="background:${b.colors.light.main}" title="${escapeHtml(b.label)}"></span>`
+      (b) =>
+        `<span class="event-tag-dot" style="background:${b.colors.light.main}" title="${escapeHtml(b.label)}"></span>`,
     )
     .join("");
 

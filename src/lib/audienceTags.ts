@@ -7,6 +7,8 @@ export const AUDIENCE_TAGS = [
   "emploi",
   "intergénérationnel",
   "tout public",
+  "adultes",
+  "à domicile",
 ] as const;
 
 export type AudienceTag = (typeof AUDIENCE_TAGS)[number];
