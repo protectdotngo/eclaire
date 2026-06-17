@@ -132,6 +132,7 @@
     let zonedEnd;
 
     for (const item of events) {
+      if (!item.start_date) continue;
       if (item.start_date.split(" ")[1] !== "00:00:00") {
         const ISOStart = item.start_date.replace(" ", "T");
         const plainStart = Temporal.PlainDateTime.from(ISOStart);
@@ -145,7 +146,10 @@
         }
       } else {
         const ISOStart = item.start_date.split(" ")[0];
-        const ISOEnd = item.end_date.split(" ")[0];
+        let ISOEnd;
+        if(item.end_date){
+          ISOEnd = item.end_date.split(" ")[0];
+        }
         zonedStart = Temporal.PlainDate.from(ISOStart);
         if (!ISOEnd || ISOEnd == ISOStart) {
           zonedEnd = zonedStart;
