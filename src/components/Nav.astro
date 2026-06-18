@@ -1,18 +1,13 @@
 ---
-import eclaireLogo from "../assets/eclaire.svg";
-import eclaireI from "../assets/eclaire_i.svg";
-import Image from "astro/components/Image.astro";
+import EclaireLogo from "../assets/eclaire.svg";
+import EclaireI from "../assets/eclaire_i.svg";
 ---
 
 <header class="navCont">
-  <Image
-    src={eclaireI}
-    alt="Eclaire's logo small"
-    class:list={"logo-min none"}
-  />
+  <EclaireI class="logo-min none" />
   <div class="nav">
     <a href="/">
-      <Image src={eclaireLogo} alt="Eclaire's logo" class:list={"logo"} />
+      <EclaireLogo class="logo" />
     </a>
     <div>
       <a href="/">Accueil</a>
