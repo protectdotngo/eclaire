@@ -6,25 +6,25 @@ import SideBarOpenSVG from "../assets/layout-sidebar-left-expand.svg";
 ---
 
 <div class="side-bar" id="sideBar">
-    <Nav />
-    <div class="side-bar-btn-cont">
-        <SideBarOpenSVG class:list={"side-bar-btn none"} id={"sideBarOpen"} />
-        <SideBarCloseSVG class:list={"side-bar-btn"} id={"sideBarClose"} />
-    </div>
-    <MapSearch />
+  <Nav />
+  <div class="side-bar-btn-cont">
+    <SideBarOpenSVG class:list={"side-bar-btn none"} id={"sideBarOpen"} />
+    <SideBarCloseSVG class:list={"side-bar-btn"} id={"sideBarClose"} />
+  </div>
+  <MapSearch />
 </div>
 <script>
-    const sideBarBtns = document.querySelectorAll(".side-bar-btn");
-    sideBarBtns.forEach((item) => {
-        item.addEventListener("click", () => {
-            const open = document.getElementById("sideBarOpen");
-            const close = document.getElementById("sideBarClose");
-            const sideBar = document.getElementById("sideBar");
-            open?.classList.toggle("none");
-            close?.classList.toggle("none");
-            sideBar?.classList.toggle("collapsed");
-        })
+  const sideBarBtns = document.querySelectorAll(".side-bar-btn");
+  sideBarBtns.forEach((item) => {
+    item.addEventListener("click", () => {
+      const open = document.getElementById("sideBarOpen");
+      const close = document.getElementById("sideBarClose");
+      const sideBar = document.getElementById("sideBar");
+      open?.classList.toggle("none");
+      close?.classList.toggle("none");
+      sideBar?.classList.toggle("collapsed");
     });
+  });
 </script>
 <style>
   .side-bar {
@@ -42,18 +42,18 @@ import SideBarOpenSVG from "../assets/layout-sidebar-left-expand.svg";
   .side-bar.collapsed :global(.map-search) {
     display: none;
   }
-  .side-bar.collapsed :global(.main){
-    max-width: calc(100vw - 60px)
+  .side-bar.collapsed :global(.main) {
+    max-width: calc(100vw - 60px);
   }
-  .side-bar.collapsed :global(.logo-min){
+  .side-bar.collapsed :global(.logo-min) {
     display: block;
   }
-  .side-bar-btn-cont{
+  .side-bar-btn-cont {
     width: 30px;
     height: 30px;
     margin-left: 1vw;
   }
-  .side-bar-btn{
+  .side-bar-btn {
     cursor: pointer;
     width: 100%;
     height: 100%;

@@ -3,6 +3,7 @@ import FilterSVG from "../assets/filter.svg";
 import ChatSVG from "../assets/chat.svg";
 import LinkSVG from "../assets/link.svg";
 import XSVG from "../assets/cross.svg";
+import RefreshSVG from "../assets/refresh.svg";
 ---
 
 <section class="map-search">
@@ -14,60 +15,198 @@ import XSVG from "../assets/cross.svg";
         > aux problèmes numériques, là où vous en avez besoin.
       </h2>
     </div>
-    <div class="ai-response-cont">
+
+    <div class="ai-response-cont" id="ai-response-cont">
       <div
-        class="ai-response"
-        id="ai-response"
-        x-data="streamingResults()"
+        class="ai-timeline"
+        id="ai-timeline"
+        x-data="conversationTimeline()"
         x-init="init()"
-        @search-finished.window="startStreaming($event.detail)"
+        @chat-message.window="addMessage($event.detail)"
+        @orgs-result.window="addOrgs($event.detail)"
+        @events-result.window="addEvents($event.detail)"
+        @chat-thinking.window="thinking = $event.detail"
+        @chat-reset.window="reset()"
       >
-        <template x-for="(item, i) in displayed" :key="item.domain">
-          <div class="ai-reponse-element">
-            <h3 x-text="item.displayName"></h3>
-
-            <template x-if="item.desc">
-              <p x-data="{ expanded: false }">
-                <span
-                  x-text="expanded ? item.displayDesc : $truncate(item.displayDesc, { words: count })"
-                ></span>
-                <span class="cursor" x-show="item.streaming">▊</span>
-
-                <template x-if="!item.streaming">
-                  <span>
-                    <span
-                      class="underline pointer"
-                      x-show="!expanded"
-                      @click="expanded = !expanded">Lire plus</span
-                    >
-                    <span
-                      class="underline pointer"
-                      x-show="expanded"
-                      @click="expanded = !expanded">Réduire</span
-                    >
-                  </span>
+        <template x-for="(item, idx) in items" :key="idx">
+          <div>
+            <template x-if="item.kind === 'message'">
+              <div :class="'ai-chat-msg ai-chat-msg-' + item.role">
+                <template x-if="item.role === 'assistant'">
+                  <div x-html="renderMarkdown(item.content)"></div>
                 </template>
-              </p>
-            </template>
-            <template x-if="item.domain">
-              <div
-                class="ai-response-btn-cont"
-                x-show="!item.streaming"
-                x-transition.opacity.duration.400ms
-              >
-                <a :href="item.domain" target="_blank" class="ai-response-btn">
-                  Visiter le site <LinkSVG />
-                </a>
+                <template x-if="item.role === 'user'">
+                  <span x-text="item.content"></span>
+                </template>
               </div>
             </template>
 
-            <template x-if="i < displayed.length - 1">
-              <hr class="ai-response-separator" />
+            <template x-if="item.kind === 'orgs'">
+              <div class="ai-orgs-block">
+                <template
+                  x-for="(org, i) in item.displayed"
+                  :key="org.id ?? org.name + i"
+                >
+                  <div class="ai-reponse-element">
+                    <h3 x-text="org.displayName"></h3>
+
+                    <template x-if="org.reason">
+                      <p class="ai-response-reason" x-text="org.reason"></p>
+                    </template>
+
+                    <template x-if="org.desc">
+                      <p x-data="{ expanded: false }">
+                        <span
+                          x-text="expanded ? org.displayDesc : $truncate(org.displayDesc, { words: 20 })"
+                        ></span>
+                        <span class="cursor" x-show="org.streaming">▊</span>
+                        <template x-if="!org.streaming">
+                          <span>
+                            <span
+                              class="underline pointer"
+                              x-show="!expanded"
+                              @click="expanded = !expanded">Lire plus</span
+                            >
+                            <span
+                              class="underline pointer"
+                              x-show="expanded"
+                              @click="expanded = !expanded">Réduire</span
+                            >
+                          </span>
+                        </template>
+                      </p>
+                    </template>
+
+                    <div
+                      class="ai-response-btn-cont"
+                      x-show="!org.streaming"
+                      x-transition.opacity.duration.400ms
+                    >
+                      <template x-if="org.id">
+                        <a
+                          :href="'/calendar?org=' + org.id"
+                          target="_blank"
+                          class="ai-response-btn ai-response-btn-calendar"
+                        >
+                          Voir les événements
+                        </a>
+                      </template>
+                      <template x-if="org.domain">
+                        <a
+                          :href="org.domain"
+                          target="_blank"
+                          class="ai-response-btn"
+                        >
+                          Visiter le site <LinkSVG />
+                        </a>
+                      </template>
+                    </div>
+
+                    <template x-if="i < item.displayed.length - 1">
+                      <hr class="ai-response-separator" />
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <template x-if="item.kind === 'events'">
+              <div class="ai-events-block">
+                <template
+                  x-for="(ev, i) in item.displayed"
+                  :key="ev.id ?? ev.title + i"
+                >
+                  <div class="ai-reponse-element">
+                    <h3 x-text="ev.displayTitle"></h3>
+
+                    <template x-if="ev.dateLabel">
+                      <p class="ai-event-date" x-text="ev.dateLabel"></p>
+                    </template>
+
+                    <template x-if="ev.location">
+                      <p class="ai-event-location" x-text="ev.location"></p>
+                    </template>
+
+                    <template x-if="ev.content">
+                      <p x-data="{ expanded: false }">
+                        <span
+                          x-text="expanded ? ev.displayContent : $truncate(ev.displayContent, { words: 20 })"
+                        ></span>
+                        <span class="cursor" x-show="ev.streaming">▊</span>
+                        <template x-if="!ev.streaming">
+                          <span>
+                            <span
+                              class="underline pointer"
+                              x-show="!expanded"
+                              @click="expanded = !expanded">Lire plus</span
+                            >
+                            <span
+                              class="underline pointer"
+                              x-show="expanded"
+                              @click="expanded = !expanded">Réduire</span
+                            >
+                          </span>
+                        </template>
+                      </p>
+                    </template>
+
+                    <template
+                      x-if="!ev.streaming && ev.orgs && ev.orgs.length > 0"
+                    >
+                      <div class="ai-event-orgs">
+                        <span class="ai-event-orgs-label">Proposé par :</span>
+                        <template x-for="(o, oi) in ev.orgs" :key="o.id">
+                          <span class="ai-event-org">
+                            <template x-if="o.domain">
+                              <a
+                                :href="o.domain"
+                                target="_blank"
+                                class="ai-event-org-link"
+                                x-text="o.name"></a>
+                            </template>
+                            <template x-if="!o.domain">
+                              <span x-text="o.name"></span>
+                            </template>
+                            <template x-if="oi < ev.orgs.length - 1">
+                              <span>,&nbsp;</span>
+                            </template>
+                          </span>
+                        </template>
+                      </div>
+                    </template>
+
+                    <div
+                      class="ai-response-btn-cont"
+                      x-show="!ev.streaming && ev.url"
+                      x-transition.opacity.duration.400ms
+                    >
+                      <template x-if="ev.url">
+                        <a
+                          :href="ev.url"
+                          target="_blank"
+                          class="ai-response-btn"
+                        >
+                          Plus d'info <LinkSVG />
+                        </a>
+                      </template>
+                    </div>
+
+                    <template x-if="i < item.displayed.length - 1">
+                      <hr class="ai-response-separator" />
+                    </template>
+                  </div>
+                </template>
+              </div>
             </template>
           </div>
         </template>
+
+        <div class="ai-chat-thinking" x-show="thinking">
+          <span></span><span></span><span></span>
+        </div>
       </div>
     </div>
+
     <form
       class="ai-search"
       id="aiForm"
@@ -88,11 +227,18 @@ import XSVG from "../assets/cross.svg";
         >
       </div>
     </form>
-    <div class="ai-swap swap">
-      <FilterSVG width={"23"} height={"27"} fill={"#34939D"} />
-      <span class="ai-swap-link"> ou afficher les filtres </span>
+
+    <div class="ai-actions">
+      <button type="button" class="ai-reset-btn none" id="aiReset">
+        <RefreshSVG width={"18"} height={"18"} /> Nouvelle recherche
+      </button>
+      <div class="ai-swap swap">
+        <FilterSVG width={"23"} height={"27"} fill={"#34939D"} />
+        <span class="ai-swap-link"> ou afficher les filtres </span>
+      </div>
     </div>
   </div>
+
   <div class="filters none" id="filters">
     <div class="filters-title">
       <FilterSVG width={"23"} height={"27"} fill={"#2B4888"} />
@@ -132,93 +278,243 @@ import XSVG from "../assets/cross.svg";
     </div>
   </div>
 </section>
+
 <script>
   import Alpine from "alpinejs";
+  import { marked } from "marked";
+
+  marked.setOptions({
+    breaks: true,
+    gfm: true,
+  });
+
+  function renderMarkdown(text: string): string {
+    return marked.parse(text) as string;
+  }
 
   interface DisplayedItem {
-    domain: string;
+    id?: string;
+    domain?: string;
     name: string;
     desc?: string;
+    reason?: string;
     displayName: string;
     displayDesc: string;
     streaming: boolean;
   }
 
-  interface SearchResult {
-    domain: string;
-    name: string;
-    desc?: string;
+  interface DisplayedEvent {
+    id?: string;
+    title: string;
+    content?: string;
+    location?: string;
+    url?: string;
+    dateLabel?: string;
+    orgs: Array<{ id: string; name: string; domain: string | null }>;
+    displayTitle: string;
+    displayContent: string;
+    streaming: boolean;
   }
 
-  interface StreamingResults {
-    count: number;
-    displayed: DisplayedItem[];
-    init(): void;
-    startStreaming(results: SearchResult[]): Promise<void>;
-    typeInto(
-      obj: DisplayedItem,
-      key: "displayName" | "displayDesc",
-      fullText: string,
-      msPerChar: number,
-    ): Promise<void>;
-    sleep(ms: number): Promise<void>;
+  interface SearchResult {
+    id?: string;
+    domain?: string;
+    name: string;
+    desc?: string;
+    reason?: string;
+  }
+
+  interface EventResult {
+    id: string;
+    title: string | null;
+    content: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    location: string | null;
+    url: string | null;
+    categories: string[] | null;
+    orgs: Array<{ id: string; name: string; domain: string | null }>;
+  }
+
+  interface ChatMsg {
+    role: "user" | "assistant";
+    content: string;
+  }
+
+  type TimelineItem =
+    | { kind: "message"; role: "user" | "assistant"; content: string }
+    | { kind: "orgs"; displayed: DisplayedItem[] }
+    | { kind: "events"; displayed: DisplayedEvent[] };
+
+  function formatEventDate(
+    startDate: string | null,
+    endDate: string | null,
+  ): string | undefined {
+    if (!startDate && !endDate) return "Récurrent ou non daté";
+    const fmt = (iso: string): string => {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      const date = d.toLocaleDateString("fr-CH", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
+      if (!hasTime) return date;
+      const time = d.toLocaleTimeString("fr-CH", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      return `${date} à ${time}`;
+    };
+    if (startDate && endDate && startDate !== endDate) {
+      return `${fmt(startDate)} — ${fmt(endDate)}`;
+    }
+    if (startDate) return fmt(startDate);
+    if (endDate) return fmt(endDate);
+    return undefined;
   }
 
   document.addEventListener("alpine:init", () => {
-    Alpine.data(
-      "streamingResults",
-      (): StreamingResults => ({
-        count: 20,
-        displayed: [],
+    Alpine.data("conversationTimeline", () => ({
+      items: [] as TimelineItem[],
+      thinking: false,
+      renderMarkdown,
 
-        init() {},
+      init() {},
 
-        async startStreaming(results) {
-          this.displayed = [];
+      addMessage(msg: ChatMsg) {
+        this.items.push({
+          kind: "message",
+          role: msg.role,
+          content: msg.content,
+        });
+        this.scrollToBottom();
+      },
 
-          for (const item of results) {
-            const stub: DisplayedItem = {
-              ...item,
-              displayName: "",
-              displayDesc: "",
-              streaming: true,
-            };
-            this.displayed.push(stub);
-            const ref = this.displayed[this.displayed.length - 1];
+      async addOrgs(orgs: SearchResult[]) {
+        this.items.push({ kind: "orgs", displayed: [] });
+        const blockRef = this.items[this.items.length - 1] as {
+          kind: "orgs";
+          displayed: DisplayedItem[];
+        };
 
-            await this.typeInto(ref, "displayName", item.name, 25);
-
-            if (item.desc) {
-              await this.typeInto(ref, "displayDesc", item.desc, 8);
-            }
-
-            ref.streaming = false;
-            await this.sleep(120);
+        for (const org of orgs) {
+          const stub: DisplayedItem = {
+            ...org,
+            displayName: "",
+            displayDesc: "",
+            streaming: true,
+          };
+          blockRef.displayed.push(stub);
+          const orgRef = blockRef.displayed[blockRef.displayed.length - 1];
+          await this.typeInto(orgRef, "displayName", org.name, 25);
+          if (org.desc) {
+            await this.typeInto(orgRef, "displayDesc", org.desc, 8);
           }
-        },
+          orgRef.streaming = false;
+          this.scrollToBottom();
+          await this.sleep(120);
+        }
 
-        typeInto(obj, key, fullText, msPerChar) {
-          return new Promise((resolve) => {
-            let i = 0;
-            const tick = () => {
-              const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
-              i = Math.min(i + chunk, fullText.length);
-              obj[key] = fullText.slice(0, i);
-              if (i < fullText.length) {
-                setTimeout(tick, msPerChar + Math.random() * 20);
-              } else {
-                resolve();
-              }
-            };
-            tick();
-          });
-        },
+        window.dispatchEvent(new CustomEvent("orgs-done"));
+      },
 
-        sleep(ms) {
-          return new Promise((r) => setTimeout(r, ms));
-        },
-      }),
-    );
+      async addEvents(events: EventResult[]) {
+        this.items.push({ kind: "events", displayed: [] });
+        const blockRef = this.items[this.items.length - 1] as {
+          kind: "events";
+          displayed: DisplayedEvent[];
+        };
+
+        for (const ev of events) {
+          const stub: DisplayedEvent = {
+            id: ev.id,
+            title: ev.title ?? "Sans titre",
+            content: ev.content ?? undefined,
+            location: ev.location ?? undefined,
+            url: ev.url ?? undefined,
+            dateLabel: formatEventDate(ev.startDate, ev.endDate),
+            orgs: ev.orgs ?? [],
+            displayTitle: "",
+            displayContent: "",
+            streaming: true,
+          };
+          blockRef.displayed.push(stub);
+          const evRef = blockRef.displayed[blockRef.displayed.length - 1];
+          await this.typeIntoEvent(evRef, "displayTitle", stub.title, 25);
+          if (stub.content) {
+            await this.typeIntoEvent(evRef, "displayContent", stub.content, 8);
+          }
+          evRef.streaming = false;
+          this.scrollToBottom();
+          await this.sleep(120);
+        }
+
+        window.dispatchEvent(new CustomEvent("events-done"));
+      },
+
+      typeInto(
+        obj: DisplayedItem,
+        key: "displayName" | "displayDesc",
+        fullText: string,
+        msPerChar: number,
+      ): Promise<void> {
+        return new Promise((resolve) => {
+          let i = 0;
+          const tick = () => {
+            const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
+            i = Math.min(i + chunk, fullText.length);
+            obj[key] = fullText.slice(0, i);
+            if (i < fullText.length) {
+              setTimeout(tick, msPerChar + Math.random() * 20);
+            } else {
+              resolve();
+            }
+          };
+          tick();
+        });
+      },
+
+      typeIntoEvent(
+        obj: DisplayedEvent,
+        key: "displayTitle" | "displayContent",
+        fullText: string,
+        msPerChar: number,
+      ): Promise<void> {
+        return new Promise((resolve) => {
+          let i = 0;
+          const tick = () => {
+            const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
+            i = Math.min(i + chunk, fullText.length);
+            obj[key] = fullText.slice(0, i);
+            if (i < fullText.length) {
+              setTimeout(tick, msPerChar + Math.random() * 20);
+            } else {
+              resolve();
+            }
+          };
+          tick();
+        });
+      },
+
+      sleep(ms: number): Promise<void> {
+        return new Promise((r) => setTimeout(r, ms));
+      },
+
+      scrollToBottom() {
+        setTimeout(() => {
+          const cont = document.getElementById("ai-response-cont");
+          if (cont) cont.scrollTop = cont.scrollHeight;
+        }, 50);
+      },
+
+      reset() {
+        this.items = [];
+        this.thinking = false;
+      },
+    }));
   });
 </script>
 
@@ -233,94 +529,245 @@ import XSVG from "../assets/cross.svg";
     });
   });
 </script>
+
 <script>
   import { $mapData } from "../lib/mapStore";
   import type { Data } from "../interfaces/dbData";
 
-  const aiForm: HTMLFormElement = document.getElementById(
-    "aiForm",
-  ) as HTMLFormElement;
+  interface ChatMsg {
+    role: "user" | "assistant";
+    content: string;
+  }
+
+  interface Block {
+    type: "text" | "orgs" | "event_search";
+    content?: string;
+    items?: { id: string; reason: string }[];
+    filters?: {
+      date_from?: string;
+      date_to?: string;
+      day_of_week?: number;
+      time_of_day?: string;
+      categories?: string[];
+      keywords?: string[];
+      city?: string;
+      org_ids?: string[];
+      audience?: string;
+    };
+  }
+
+  interface EventResult {
+    id: string;
+    title: string | null;
+    content: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    location: string | null;
+    url: string | null;
+    categories: string[] | null;
+    orgs: Array<{ id: string; name: string; domain: string | null }>;
+  }
+
+  interface ChatApiResponse {
+    blocks: Block[];
+    orgs: Data[];
+    events: EventResult[];
+  }
+
+  const aiForm = document.getElementById("aiForm") as HTMLFormElement;
   const aiFormSubmit = document.getElementById("aiFormSubmit");
-  const filterForm: HTMLFormElement = document.getElementById(
-    "filters-form",
-  ) as HTMLFormElement;
-  const searchBar: HTMLInputElement = document.getElementById(
-    "search-bar",
-  ) as HTMLInputElement;
+  const aiReset = document.getElementById("aiReset");
+  const filterForm = document.getElementById("filters-form") as HTMLFormElement;
+  const searchBar = document.getElementById("search-bar") as HTMLInputElement;
   const clearSearch = document.getElementById("clear-search");
   const infoTitle = document.getElementById("infoTitle");
-  let currentSearch = "";
+
+  let history: ChatMsg[] = [];
+  const orgIdsOnMap = new Set<string>();
+  let initialOrgs: Data[] = [];
+
+  function dispatchChatMessage(msg: ChatMsg) {
+    window.dispatchEvent(new CustomEvent("chat-message", { detail: msg }));
+  }
+
+  function setThinking(value: boolean) {
+    window.dispatchEvent(new CustomEvent("chat-thinking", { detail: value }));
+  }
+
+  function waitForOrgsDone(): Promise<void> {
+    return new Promise((resolve) => {
+      const handler = () => {
+        window.removeEventListener("orgs-done", handler);
+        resolve();
+      };
+      window.addEventListener("orgs-done", handler);
+    });
+  }
+
+  function waitForEventsDone(): Promise<void> {
+    return new Promise((resolve) => {
+      const handler = () => {
+        window.removeEventListener("events-done", handler);
+        resolve();
+      };
+      window.addEventListener("events-done", handler);
+    });
+  }
+
+  function resetConversation() {
+    history = [];
+    orgIdsOnMap.clear();
+    $mapData.set(initialOrgs);
+    window.dispatchEvent(new CustomEvent("chat-reset"));
+    aiReset?.classList.add("none");
+    infoTitle?.classList.remove("none");
+  }
 
   async function populateFilters() {
     try {
       const res = await fetch("/api/dataInit", {
         method: "GET",
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(5000),
       });
-      if (res.status === 200) {
-        const baseData = await res.json();
-        const data: Data[] = baseData.data;
-        $mapData.set(data);
-        const allCat: string[] = [
-          ...new Set(
-            data.flatMap((item) =>
-              item.categories.map((cat) => cat.toLowerCase()),
-            ),
+      if (res.status !== 200) throw new Error(`Status ${res.status}`);
+      const baseData = await res.json();
+      const data: Data[] = baseData.data;
+      initialOrgs = data;
+      $mapData.set(data);
+
+      const allCat: string[] = [
+        ...new Set(
+          data.flatMap((item) =>
+            item.categories.map((cat) => cat.toLowerCase()),
           ),
-        ].filter((el) => {
-          return el != "";
-        });
-        const eventCat = new CustomEvent("populate-categories", {
-          detail: allCat.sort(),
-        });
-        window.dispatchEvent(eventCat);
-        const allLoc = [...new Set(data.map((item) => item.city))].filter(
-          (el) => {
-            return el != "";
-          },
-        );
-        const eventLoc = new CustomEvent("populate-locations", {
-          detail: allLoc.sort(),
-        });
-        window.dispatchEvent(eventLoc);
-      } else {
-        throw new Error(`Status ${res.status}`);
-      }
+        ),
+      ].filter((el) => el != "");
+      window.dispatchEvent(
+        new CustomEvent("populate-categories", { detail: allCat.sort() }),
+      );
+
+      const allLoc = [...new Set(data.map((item) => item.city))].filter(
+        (el) => el != "",
+      );
+      window.dispatchEvent(
+        new CustomEvent("populate-locations", { detail: allLoc.sort() }),
+      );
     } catch (err) {
       console.error("Failed to load orgs:", err);
     }
   }
   populateFilters();
 
+  async function sendChatMessage(userText: string) {
+    history.push({ role: "user", content: userText });
+    dispatchChatMessage({ role: "user", content: userText });
+    infoTitle?.classList.add("none");
+    setThinking(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+        signal: AbortSignal.timeout(120000),
+      });
+      if (res.status !== 200) throw new Error(`Status ${res.status}`);
+      const result: ChatApiResponse = await res.json();
+
+      setThinking(false);
+
+      for (const block of result.blocks) {
+        if (block.type === "text" && block.content) {
+          dispatchChatMessage({ role: "assistant", content: block.content });
+        } else if (
+          block.type === "orgs" &&
+          result.orgs &&
+          result.orgs.length > 0
+        ) {
+          const blockIds = new Set((block.items ?? []).map((i) => i.id));
+          const orgsForBlock = result.orgs.filter((o) => blockIds.has(o.id));
+
+          if (orgsForBlock.length > 0) {
+            const donePromise = waitForOrgsDone();
+            window.dispatchEvent(
+              new CustomEvent("orgs-result", { detail: orgsForBlock }),
+            );
+
+            const newOrgs = orgsForBlock.filter((o) => !orgIdsOnMap.has(o.id));
+            newOrgs.forEach((o) => orgIdsOnMap.add(o.id));
+            const current = $mapData.get() ?? [];
+            const merged =
+              orgIdsOnMap.size === newOrgs.length
+                ? [...newOrgs]
+                : [...current, ...newOrgs];
+            $mapData.set(merged);
+
+            aiReset?.classList.remove("none");
+            await donePromise;
+          }
+        } else if (
+          block.type === "event_search" &&
+          result.events &&
+          result.events.length > 0
+        ) {
+          const donePromise = waitForEventsDone();
+          window.dispatchEvent(
+            new CustomEvent("events-result", { detail: result.events }),
+          );
+          aiReset?.classList.remove("none");
+          await donePromise;
+        } else if (
+          block.type === "event_search" &&
+          (!result.events || result.events.length === 0)
+        ) {
+          const filters = block.filters;
+          let filtersDescription = "";
+          if (filters?.city) filtersDescription += ` à ${filters.city}`;
+          if (filters?.categories?.length) {
+            filtersDescription += ` dans le domaine "${filters.categories[0]}"`;
+          }
+          if (filters?.keywords?.length) {
+            filtersDescription += ` sur "${filters.keywords.join(", ")}"`;
+          }
+          dispatchChatMessage({
+            role: "assistant",
+            content: filtersDescription
+              ? `Je n'ai trouvé aucun événement${filtersDescription} sur cette période. Tu veux que j'élargisse les critères ?`
+              : "Je n'ai trouvé aucun événement sur cette période. Tu veux que j'élargisse la recherche ?",
+          });
+          aiReset?.classList.remove("none");
+        }
+      }
+
+      history.push({
+        role: "assistant",
+        content: JSON.stringify({ blocks: result.blocks }),
+      });
+    } catch (err) {
+      console.error("Chat call failed:", err);
+      setThinking(false);
+      dispatchChatMessage({
+        role: "assistant",
+        content:
+          "Désolé, je n'ai pas pu obtenir de réponse. Tu peux réessayer ?",
+      });
+    }
+  }
+
   aiFormSubmit?.addEventListener("click", async (e) => {
     e.preventDefault();
-    try {
-      const formData = new FormData(aiForm);
-      const res = await fetch("/api/dataRetrieve", {
-        method: "POST",
-        body: formData,
-        signal: AbortSignal.timeout(3000),
-      });
-      if (res.status === 200) {
-        const result = await res.json();
-        console.log(result.data);
-        const data: Data[] = result.data;
-        currentSearch = searchBar.value;
-        searchBar.value = "";
-        const event = new CustomEvent("search-finished", { detail: data });
-        window.dispatchEvent(event);
-        infoTitle?.classList.add("none");
-        $mapData.set(data);
-        clearSearch?.classList.add("none");
-      } else {
-        throw new Error(`Status ${res.status}`);
-      }
-    } catch (err) {
-      console.error("Failed to get response:", err);
-    }
+    const text = searchBar.value.trim();
+    if (!text) return;
+    searchBar.value = "";
+    clearSearch?.classList.add("none");
+    await sendChatMessage(text);
   });
 
-  aiForm?.addEventListener("input", (e) => {
+  aiReset?.addEventListener("click", () => {
+    resetConversation();
+  });
+
+  aiForm?.addEventListener("input", () => {
     if (searchBar.value !== "") {
       clearSearch?.classList.remove("none");
     } else {
@@ -340,20 +787,18 @@ import XSVG from "../assets/cross.svg";
       const res = await fetch("/api/dataFilter", {
         method: "POST",
         body: formData,
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(5000),
       });
-      if (res.status === 200) {
-        const result = await res.json();
-        const data: Data[] = result.data;
-        $mapData.set(data);
-      } else {
-        throw new Error(`Status ${res.status}`);
-      }
+      if (res.status !== 200) throw new Error(`Status ${res.status}`);
+      const result = await res.json();
+      const data: Data[] = result.data;
+      $mapData.set(data);
     } catch (err) {
       console.error("Failed to load filtered orgs:", err);
     }
   });
 </script>
+
 <style>
   .map-search {
     width: 90%;
@@ -363,12 +808,16 @@ import XSVG from "../assets/cross.svg";
     margin-right: auto;
     margin-bottom: 4vh;
   }
-  .ai {
-  }
   .ai-response-cont {
     overflow-y: scroll;
     max-height: 67vh;
     padding: 0 10px;
+  }
+  .ai-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 0;
   }
   .ai-response-element {
     padding: 0 10px;
@@ -392,9 +841,12 @@ import XSVG from "../assets/cross.svg";
     align-items: center;
     text-decoration: none;
   }
-  :global(.ai-response .ai-response-btn-cont) {
+  :global(.ai-response-btn-cont) {
     display: flex;
-    justify-content: right;
+    justify-content: space-between;
+  }
+  :global(.ai-response-btn-calendar) {
+    background-color: #2b4888;
   }
   :global(.ai-response-separator) {
     border: 1.5px solid rgb(190, 190, 190);
@@ -405,6 +857,159 @@ import XSVG from "../assets/cross.svg";
     margin-top: 0;
     font-size: 1.3rem;
   }
+
+  .ai-orgs-block {
+    background-color: rgba(52, 147, 157, 0.06);
+    border-left: 3px solid #34939d;
+    border-radius: 6px;
+    padding: 12px 8px;
+  }
+
+  .ai-events-block {
+    background-color: rgba(124, 58, 237, 0.06);
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 12px 8px;
+  }
+
+  .ai-event-date {
+    font-weight: 600;
+    color: #7c3aed;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+
+  .ai-event-location {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 4px;
+  }
+
+  .ai-event-orgs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .ai-event-orgs-label {
+    color: #4b5563;
+    font-weight: 500;
+  }
+
+  .ai-event-org {
+    color: #374151;
+  }
+
+  :global(.ai-event-org-link) {
+    color: #7c3aed;
+    text-decoration: underline;
+  }
+
+  :global(.ai-event-org-link:hover) {
+    color: #5b21b6;
+  }
+
+  .ai-chat-msg {
+    max-width: 85%;
+    width: fit-content;
+    padding: 8px 14px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  .ai-chat-msg-user {
+    align-self: flex-end;
+    background-color: #2b4888;
+    color: white;
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+  }
+  .ai-chat-msg-assistant {
+    align-self: flex-start;
+    background-color: rgba(52, 147, 157, 0.15);
+    color: #1f2937;
+    border-bottom-left-radius: 4px;
+    margin-right: auto;
+  }
+  .ai-chat-msg-assistant ul,
+  .ai-chat-msg-assistant ol {
+    margin: 6px 0;
+    padding-left: 20px;
+  }
+
+  .ai-chat-msg-assistant li {
+    margin: 2px 0;
+  }
+
+  .ai-chat-msg-assistant p {
+    margin: 4px 0;
+  }
+
+  .ai-chat-msg-assistant p:first-child {
+    margin-top: 0;
+  }
+
+  .ai-chat-msg-assistant p:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-chat-msg-assistant strong {
+    font-weight: 600;
+  }
+
+  .ai-chat-msg-assistant code {
+    background-color: rgba(0, 0, 0, 0.06);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  .ai-chat-thinking {
+    align-self: flex-start;
+    display: flex;
+    gap: 4px;
+    padding: 12px 14px;
+    background-color: rgba(52, 147, 157, 0.15);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+  .ai-chat-thinking span {
+    width: 8px;
+    height: 8px;
+    background-color: #34939d;
+    border-radius: 50%;
+    animation: chat-dot 1.4s infinite ease-in-out both;
+  }
+  .ai-chat-thinking span:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  .ai-chat-thinking span:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+  @keyframes chat-dot {
+    0%,
+    80%,
+    100% {
+      transform: scale(0.6);
+      opacity: 0.4;
+    }
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .ai-response-reason {
+    font-style: italic;
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+  }
+
   .ai-search-cont {
     width: 100%;
     margin: 2vh auto auto auto;
@@ -447,14 +1052,36 @@ import XSVG from "../assets/cross.svg";
     border: none;
     border-radius: 0 9px 9px 0;
     cursor: pointer;
-    border: none;
     background-color: #34939d;
     color: white;
     font-size: 1.05rem;
   }
-  .ai-swap svg {
-    color: #2b4888;
+
+  .ai-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1vw;
+    flex-wrap: wrap;
   }
+  .ai-reset-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: transparent;
+    color: #2b4888;
+    border: 1px solid #2b4888;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    margin-top: 1vh;
+  }
+  .ai-reset-btn:hover {
+    background-color: rgba(43, 72, 136, 0.1);
+  }
+
   .filters-title {
     width: fit-content;
     padding: 2vh;
