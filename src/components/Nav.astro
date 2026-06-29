@@ -1,36 +1,123 @@
 ---
 import EclaireLogo from "../assets/eclaire.svg";
-import EclaireI from "../assets/eclaire_i.svg";
+import EclaireI from "../assets/eclaire-i.svg";
+import OpenSideBar from "../assets/layout-sidebar-left-expand.svg";
+import CloseSideBar from "../assets/layout-sidebar-left-collapse.svg";
+
+const { showPanelToggle = false } = Astro.props;
 ---
 
 <header class="navCont">
-  <EclaireI class="logo-min none" />
   <div class="nav">
     <a href="/">
       <EclaireLogo class="logo" />
+      <EclaireI class="logo-min" />
     </a>
     <div>
-      <a href="/">Accueil</a>
-      <a href="/calendar">Calendrier</a>
-      <!-- <a href="#">Ressources utiles</a> -->
+      <button class="hamburger" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="menu">
+        <a href="/">Accueil</a>
+        <a href="/calendar">Calendrier</a>
+        <a href="https://eclaire-v1.protect.ngo/">Eclaire v1</a>
+        <!-- <a href="#">Partenaires</a>
+        <a href="#">Ressources utiles</a> -->
+      </nav>
+      {
+        showPanelToggle && (
+          <>
+            <CloseSideBar class="side-bar-btn icon" id="sideBarClose" />
+            <OpenSideBar class="side-bar-btn icon none" id="sideBarOpen" />
+          </>
+        )
+      }
     </div>
   </div>
+  <nav class="menu-mobile">
+    <a href="/">Accueil</a>
+    <a href="/calendar">Calendrier</a>
+    <a href="https://eclaire-v1.protect.ngo/">Eclaire v1</a>
+    <!-- <a href="#">Partenaires</a>
+      <a href="#">Ressources utiles</a> -->
+  </nav>
 </header>
+
+<script>
+  const btn = document.querySelector(".hamburger") as HTMLButtonElement;
+  const menu = document.querySelector(".menu-mobile") as HTMLDivElement;
+  const navCont = document.querySelector(".navCont") as HTMLElement;
+  const inlineMenu = document.querySelector(".menu") as HTMLElement;
+  const navInner = document.querySelector(".nav") as HTMLElement;
+
+  function checkOverflow() {
+    if (!navInner || !inlineMenu) return;
+    if (window.innerWidth <= 768) {
+      navCont.classList.add("nav-compact");
+      return;
+    }
+    const wasCompact = navCont.classList.contains("nav-compact");
+    navCont.classList.remove("nav-compact");
+    const overflow = navInner.scrollWidth - navInner.clientWidth;
+    const shouldBeCompact = wasCompact ? overflow > 10 : overflow > 0;
+    navCont.classList.toggle("nav-compact", shouldBeCompact);
+  }
+
+  const resizeObserver = new ResizeObserver(() => {
+    checkOverflow();
+  });
+  resizeObserver.observe(navInner);
+
+  window.addEventListener("load", checkOverflow);
+
+  btn.addEventListener("click", () => {
+    const isOpen = menu.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(isOpen));
+    document.body.classList.toggle("mobile-menu-open", isOpen);
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        const height = menu.scrollHeight + 15;
+        document.documentElement.style.setProperty(
+          "--mobile-menu-height",
+          `${height}px`,
+        );
+      });
+    } else {
+      document.documentElement.style.setProperty("--mobile-menu-height", "0px");
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target instanceof Element && !e.target.closest("header")) {
+      menu.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("mobile-menu-open");
+      document.documentElement.style.setProperty("--mobile-menu-height", "0px");
+    }
+  });
+</script>
 
 <style>
   .navCont {
     width: 100%;
-    height: 10vh;
+    background-color: rgba(var(--bg-color-1), 0.5);
+    overflow: hidden;
   }
   .nav {
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
-    height: 100%;
+    justify-content: space-between;
+  }
+  .nav div {
+    display: flex;
+    align-items: center;
   }
   .logo {
     width: auto;
-    height: 10vh;
+    height: 7vh;
   }
   .logo-min {
     width: auto;
@@ -39,17 +126,89 @@ import EclaireI from "../assets/eclaire_i.svg";
     margin: auto;
     padding: 1.5vh;
   }
-  .nav div {
+  .menu {
     margin-right: 1vw;
     display: flex;
-    gap: 2vw;
+    gap: 1vw;
+    align-items: center;
   }
-  .nav div a {
+  .menu a,
+  .menu-mobile a {
     color: var(--color-1);
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 1rem;
+    display: block;
+    padding: 5px 10px;
+    border-radius: 12px;
+    background-color: rgba(var(--bg-color-1), 1);
+    white-space: nowrap;
   }
-  .nav div a:hover {
+  .menu a:hover {
     color: rgba(var(--color-2), 1);
+    background-color: rgba(var(--bg-color-2), 1);
+  }
+  .menu-mobile {
+    display: flex;
+    max-height: 0;
+    flex-direction: column;
+    gap: 1vh;
+    align-items: center;
+    transition: ease-in-out 0.3s;
+  }
+  .side-bar-btn {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-right: 1vw;
+  }
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 1vw;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 3px;
+    border-radius: 5px;
+    background: rgba(var(--color-1), 1);
+    transition:
+      transform 0.3s,
+      opacity 0.3s;
+  }
+  .hamburger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .hamburger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+  .navCont.nav-compact .hamburger {
+    display: flex;
+  }
+  .navCont.nav-compact .menu {
+    display: none;
+  }
+  .navCont.nav-compact .menu-mobile.open {
+    padding-bottom: 1rem;
+    max-height: 400px;
+  }
+  @media (max-width: 768px) {
+    .hamburger {
+      display: flex;
+    }
+    .menu {
+      display: none;
+    }
+    .menu-mobile.open {
+      max-height: 500px;
+    }
   }
 </style>

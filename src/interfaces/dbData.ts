@@ -10,4 +10,9 @@ export interface Data {
   lat: number;
   lon: number;
   reason?: string;
+  upcomingEvent?: {
+    id: string;
+    title: string;
+    url: string | null;
+  } | null;
 }

@@ -11,6 +11,9 @@ importers:
       '@alpine-collective/toolkit-truncate':
         specifier: ^1.0.2
         version: 1.0.2
+      '@alpinejs/collapse':
+        specifier: ^3.15.12
+        version: 3.15.12
       '@astrojs/alpinejs':
         specifier: ^0.5.0
         version: 0.5.0(@types/alpinejs@3.13.11)(alpinejs@3.15.10)
@@ -53,6 +56,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@types/pg@8.20.0)(pg@8.20.0)
+      flatpickr:
+        specifier: ^4.6.13
+        version: 4.6.13
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -98,6 +104,9 @@ packages:
 
   '@alpine-collective/toolkit-truncate@1.0.2':
     resolution: {integrity: sha512-IiYuTZa1Q7mMKjX8en6pJedEPa7+J3CCKTkKAABhqRSMk61ydrQS6DG7vjR2Mz7eUvKVHou6goV0ynBxINwFtw==}
+
+  '@alpinejs/collapse@3.15.12':
+    resolution: {integrity: sha512-BKNANLtNXuWYOSAnajSKLPjTsmHRNrv0ALFTbpmqt2/klHFooPhctSwkhFVPQb7rZ8BjEKHmNaBwnSbgtpk6xg==}
 
   '@astrojs/alpinejs@0.5.0':
     resolution: {integrity: sha512-mORFY/ljzz6LPqkBPBd4v2i6yMhTkySgopIpVyKODEoJegp1PuX2Hri589P1oJzICGHSY8Q28OIyF/50Cf/lMQ==}
@@ -1470,6 +1479,9 @@ packages:
   file-uri-to-path@1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
 
+  flatpickr@4.6.13:
+    resolution: {integrity: sha512-97PMG/aywoYpB4IvbvUJi0RQi8vearvU0oov1WW3k0WZPBMrTQVqekSX5CjSG/M4Q3i6A/0FKXC7RyAoAUUSPw==}
+
   flattie@1.1.1:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
     engines: {node: '>=8'}
@@ -2366,6 +2378,8 @@ packages:
 snapshots:
 
   '@alpine-collective/toolkit-truncate@1.0.2': {}
+
+  '@alpinejs/collapse@3.15.12': {}
 
   '@astrojs/alpinejs@0.5.0(@types/alpinejs@3.13.11)(alpinejs@3.15.10)':
     dependencies:
@@ -3457,6 +3471,8 @@ snapshots:
       picomatch: 4.0.4
 
   file-uri-to-path@1.0.0: {}
+
+  flatpickr@4.6.13: {}
 
   flattie@1.1.1: {}
 

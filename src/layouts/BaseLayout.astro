@@ -29,18 +29,32 @@ const { title = "Default Title" } = Astro.props;
 </html>
 
 <style>
+  @import url("https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap");
+
   :root {
     --bg-color-1: 255, 255, 255;
+    --bg-color-2: 245, 245, 245;
     --color-1: 0, 0, 0;
     --color-2: 80, 80, 80;
   }
   html,
   body {
     font-family:
-      Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial,
-      sans-serif;
+      "Inter Tight", Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     margin: 0;
     width: 100%;
     height: 100%;
+    overflow-x: clip;
+  }
+  :global(.none) {
+    display: none !important;
+  }
+</style>
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 </style>

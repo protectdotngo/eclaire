@@ -1,28 +1,58 @@
 ---
 import MapSearch from "../components/MapSearch.astro";
 import Nav from "../components/Nav.astro";
-import SideBarCloseSVG from "../assets/layout-sidebar-left-collapse.svg";
-import SideBarOpenSVG from "../assets/layout-sidebar-left-expand.svg";
 ---
 
 <div class="side-bar" id="sideBar">
-  <Nav />
-  <div class="side-bar-btn-cont">
-    <SideBarOpenSVG class:list={"side-bar-btn none"} id={"sideBarOpen"} />
-    <SideBarCloseSVG class:list={"side-bar-btn"} id={"sideBarClose"} />
-  </div>
+  <Nav showPanelToggle={true} />
   <MapSearch />
 </div>
 <script>
+  const MOBILE_BREAKPOINT = 768;
+
+  function sideSVG() {
+    const sideBar = document.getElementById("sideBar");
+    const open = document.getElementById("sideBarOpen");
+    const close = document.getElementById("sideBarClose");
+    if (!sideBar || !open || !close) return;
+    if (sideBar.classList.contains("collapsed")) {
+      open.classList.remove("none");
+      close.classList.add("none");
+    } else {
+      open?.classList.add("none");
+      close?.classList.remove("none");
+    }
+  }
+
+  function applyMobileDefault() {
+    const sideBar = document.querySelector(".side-bar");
+    if (!sideBar) return;
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      sideBar.classList.add("collapsed");
+      sideSVG();
+    }
+  }
+  applyMobileDefault();
+  const map = document.querySelector(".main");
+  map?.addEventListener("click", (e) => {
+    if (
+      e.target instanceof Element &&
+      !e.target.closest(".side-bar") &&
+      window.innerWidth <= MOBILE_BREAKPOINT
+    ) {
+      const sideBar = document.getElementById("sideBar");
+      if (!sideBar) return;
+      sideBar.classList.add("collapsed");
+      sideSVG();
+    }
+  });
   const sideBarBtns = document.querySelectorAll(".side-bar-btn");
   sideBarBtns.forEach((item) => {
     item.addEventListener("click", () => {
-      const open = document.getElementById("sideBarOpen");
-      const close = document.getElementById("sideBarClose");
       const sideBar = document.getElementById("sideBar");
-      open?.classList.toggle("none");
-      close?.classList.toggle("none");
-      sideBar?.classList.toggle("collapsed");
+      if (!sideBar) return;
+      sideBar.classList.toggle("collapsed");
+      sideSVG();
     });
   });
 </script>
@@ -34,31 +64,53 @@ import SideBarOpenSVG from "../assets/layout-sidebar-left-expand.svg";
     display: flex;
     flex-direction: column;
     transition: max-width 0.3s ease;
+    background:
+      url("/decorations/protect.svg") no-repeat left center / auto 300px,
+      linear-gradient(
+        75deg,
+        rgb(255, 254, 230) 0%,
+        rgba(252, 232, 232, 1) 20%,
+        rgba(248, 222, 230, 1) 70%,
+        rgb(252, 235, 252) 100%
+      );
+  }
+  @media (max-width: 1100px) {
+    .side-bar {
+      max-width: 45vw;
+    }
+  }
+  @media (max-width: 1000px) {
+    .side-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 90%;
+      max-width: 500px;
+      min-width: 0;
+      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.12);
+      z-index: 2000;
+    }
   }
   .side-bar.collapsed {
     max-width: 60px;
   }
-  .side-bar.collapsed :global(.nav),
+  .side-bar.collapsed :global(.menu),
+  .side-bar.collapsed :global(.logo),
+  .side-bar.collapsed :global(.hamburger),
+  .side-bar.collapsed :global(.navCont.nav-compact .hamburger),
   .side-bar.collapsed :global(.map-search) {
     display: none;
   }
-  .side-bar.collapsed :global(.main) {
-    max-width: calc(100vw - 60px);
+  .side-bar.collapsed :global(.nav) {
+    flex-direction: column;
   }
   .side-bar.collapsed :global(.logo-min) {
     display: block;
   }
-  .side-bar-btn-cont {
-    width: 30px;
-    height: 30px;
-    margin-left: 1vw;
+  .side-bar.collapsed :global(.side-bar-btn) {
+    margin-right: 0;
   }
-  .side-bar-btn {
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-  .none {
-    display: none;
+  .side-bar.collapsed :global(.side-bar-btn) {
+    margin-bottom: 1vh;
   }
 </style>

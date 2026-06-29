@@ -1,22 +1,54 @@
 ---
 import FilterSVG from "../assets/filter.svg";
 import ChatSVG from "../assets/chat.svg";
-import LinkSVG from "../assets/link.svg";
 import XSVG from "../assets/cross.svg";
 import RefreshSVG from "../assets/refresh.svg";
+import EnterSVG from "../assets/corner-down-left.svg";
+import ArrowSVG from "../assets/circle-arrow-right.svg";
+import CalendarSVG from "../assets/calendar.svg";
+import PinSVG from "../assets/map-pin.svg";
+import SparkleSVG from "../assets/sparkle.svg";
 ---
 
 <section class="map-search">
   <div class="ai" id="ai">
-    <div class="ai-info">
-      <h2 class="ai-info-title" id="infoTitle">
-        Avec Éclaire, nous apportons des <span class="ai-info-title-highlight"
-          >réponses concrètes</span
-        > aux problèmes numériques, là où vous en avez besoin.
-      </h2>
-    </div>
-
     <div class="ai-response-cont" id="ai-response-cont">
+      <div class="ai-info" id="aiInfo">
+        <h2 class="ai-info-title">Avec Éclaire,</h2>
+        <p class="ai-info-subtitle">
+          Avec éclaire, nous apportons des <a href="#" class="ai-info-link"
+            >réponses concrètes</a
+          > là où vous en avez besoin.
+        </p>
+        <hr class="ai-info-separator" />
+        <div class="ai-info-desc">
+          <p>
+            Le projet Éclaire a pour ambition de répondre aux besoins numériques
+            des citoyennes et citoyens de Genève en leur proposant des solutions
+            accessibles et ancrées localement.
+          </p>
+          <p>
+            En partenariat avec la Ville de Genève et la République et Canton de
+            Genève, il vise à créer une plateforme ouverte et collaborative
+            permettant de cartographier et valoriser l'ensemble des acteurs et
+            services de l'inclusion numérique sur le territoire genevois,
+            renforçant ainsi leur visibilité et facilitant l'accès aux
+            ressources disponibles.
+          </p>
+          <p>
+            Reposant sur les principes de l'open source et de l'open data, la
+            plateforme garantit transparence du code, accessibilité et
+            réutilisabilité des données, tout en favorisant une collaboration
+            continue entre une communauté de contributeurs, indépendante de tout
+            fournisseur unique.
+          </p>
+          <p>
+            Ensemble, ces choix technologiques transforment Éclaire en un
+            véritable bien commun numérique, durable, adaptable et au service de
+            l'innovation citoyenne.
+          </p>
+        </div>
+      </div>
       <div
         class="ai-timeline"
         id="ai-timeline"
@@ -47,28 +79,40 @@ import RefreshSVG from "../assets/refresh.svg";
                   x-for="(org, i) in item.displayed"
                   :key="org.id ?? org.name + i"
                 >
-                  <div class="ai-reponse-element">
-                    <h3 x-text="org.displayName"></h3>
+                  <div
+                    class="org-card"
+                    :class="{ 'result-card-2' : i % 2 !== 0, 'result-card': i % 2 === 0  }"
+                  >
+                    <h3 class="result-card-title" x-text="org.displayName"></h3>
 
-                    <template x-if="org.reason">
-                      <p class="ai-response-reason" x-text="org.reason"></p>
+                    <template x-if="!org.streaming && org.upcomingEvent">
+                      <div class="event-inline-row">
+                        <span class="event-tag">ÉVÉNEMENT</span>
+                        <span
+                          class="event-inline-title"
+                          x-text="org.upcomingEvent.title"></span>
+                      </div>
                     </template>
 
+                    <!-- <template x-if="org.reason">
+                      <p class="result-card-reason" x-text="org.reason"></p>
+                    </template> -->
+
                     <template x-if="org.desc">
-                      <p x-data="{ expanded: false }">
+                      <p class="result-card-desc" x-data="{ expanded: false }">
                         <span
-                          x-text="expanded ? org.displayDesc : $truncate(org.displayDesc, { words: 20 })"
+                          x-text="expanded ? org.displayDesc : $truncate(org.displayDesc, { words: 15 })"
                         ></span>
                         <span class="cursor" x-show="org.streaming">▊</span>
                         <template x-if="!org.streaming">
-                          <span>
+                          <span class="read-more-wrap">
                             <span
-                              class="underline pointer"
+                              class="read-more-link"
                               x-show="!expanded"
                               @click="expanded = !expanded">Lire plus</span
                             >
                             <span
-                              class="underline pointer"
+                              class="read-more-link"
                               x-show="expanded"
                               @click="expanded = !expanded">Réduire</span
                             >
@@ -76,35 +120,39 @@ import RefreshSVG from "../assets/refresh.svg";
                         </template>
                       </p>
                     </template>
+                    <hr class="result-card-separator" x-show="!org.streaming" />
 
                     <div
-                      class="ai-response-btn-cont"
+                      class="result-card-buttons"
                       x-show="!org.streaming"
                       x-transition.opacity.duration.400ms
                     >
-                      <template x-if="org.id">
+                      <template x-if="org.upcomingEvent">
                         <a
-                          :href="'/calendar?org=' + org.id"
+                          :href="org.upcomingEvent.url"
                           target="_blank"
-                          class="ai-response-btn ai-response-btn-calendar"
+                          class="btn
+                        btn-event"
                         >
-                          Voir les événements
+                          <span>Voir l'événement</span>
+                          <span class="btn-arrow-circle">
+                            <ArrowSVG />
+                          </span>
                         </a>
                       </template>
                       <template x-if="org.domain">
                         <a
                           :href="org.domain"
                           target="_blank"
-                          class="ai-response-btn"
+                          class="btn btn-site"
                         >
-                          Visiter le site <LinkSVG />
+                          <span>Visiter le site</span>
+                          <span class="btn-arrow-circle">
+                            <ArrowSVG />
+                          </span>
                         </a>
                       </template>
                     </div>
-
-                    <template x-if="i < item.displayed.length - 1">
-                      <hr class="ai-response-separator" />
-                    </template>
                   </div>
                 </template>
               </div>
@@ -116,32 +164,44 @@ import RefreshSVG from "../assets/refresh.svg";
                   x-for="(ev, i) in item.displayed"
                   :key="ev.id ?? ev.title + i"
                 >
-                  <div class="ai-reponse-element">
-                    <h3 x-text="ev.displayTitle"></h3>
+                  <div
+                    class="event-card"
+                    :class="{ 'result-card-2' : i % 2 !== 0, 'result-card': i % 2 === 0  }"
+                  >
+                    <span class="event-tag">ÉVÉNEMENT</span>
+                    <h3 class="result-card-title" x-text="ev.displayTitle"></h3>
 
-                    <template x-if="ev.dateLabel">
-                      <p class="ai-event-date" x-text="ev.dateLabel"></p>
-                    </template>
-
-                    <template x-if="ev.location">
-                      <p class="ai-event-location" x-text="ev.location"></p>
-                    </template>
+                    <div class="event-meta">
+                      <template x-if="ev.dateLabel">
+                        <div class="event-meta-item">
+                          <CalendarSVG />
+                          <span x-text="ev.dateLabel"></span>
+                        </div>
+                      </template>
+                      <template x-if="ev.location">
+                        <div class="event-meta-item">
+                          <PinSVG />
+                          <span x-text="ev.location"></span>
+                        </div>
+                      </template>
+                    </div>
 
                     <template x-if="ev.content">
-                      <p x-data="{ expanded: false }">
+                      <p class="result-card-desc" x-data="{ expanded: false }">
                         <span
                           x-text="expanded ? ev.displayContent : $truncate(ev.displayContent, { words: 20 })"
                         ></span>
                         <span class="cursor" x-show="ev.streaming">▊</span>
                         <template x-if="!ev.streaming">
-                          <span>
+                          <span class="read-more-wrap">
                             <span
-                              class="underline pointer"
+                              class="read-more-link"
                               x-show="!expanded"
                               @click="expanded = !expanded">Lire plus</span
                             >
+
                             <span
-                              class="underline pointer"
+                              class="read-more-link"
                               x-show="expanded"
                               @click="expanded = !expanded">Réduire</span
                             >
@@ -149,132 +209,217 @@ import RefreshSVG from "../assets/refresh.svg";
                         </template>
                       </p>
                     </template>
-
                     <template
                       x-if="!ev.streaming && ev.orgs && ev.orgs.length > 0"
                     >
-                      <div class="ai-event-orgs">
-                        <span class="ai-event-orgs-label">Proposé par :</span>
+                      <div class="event-orgs-row">
+                        <span class="event-orgs-label">Proposé par :</span>
                         <template x-for="(o, oi) in ev.orgs" :key="o.id">
-                          <span class="ai-event-org">
+                          <span class="event-org-item">
                             <template x-if="o.domain">
                               <a
                                 :href="o.domain"
                                 target="_blank"
-                                class="ai-event-org-link"
-                                x-text="o.name"></a>
-                            </template>
-                            <template x-if="!o.domain">
-                              <span x-text="o.name"></span>
-                            </template>
-                            <template x-if="oi < ev.orgs.length - 1">
-                              <span>,&nbsp;</span>
-                            </template>
+                                class="event-org-link"
+                                x-text="o.name"></a></template
+                            >
                           </span>
+                          <template x-if="!o.domain">
+                            <span x-text="o.name"></span>
+                          </template>
+                          <template x-if="oi < ev.orgs.length - 1">
+                            <span>,&nbsp;</span>
+                          </template>
                         </template>
                       </div>
                     </template>
+                    <hr
+                      class="result-card-separator"
+                      x-show="!ev.streaming && ev.url"
+                    />
 
                     <div
-                      class="ai-response-btn-cont"
-                      x-show="!ev.streaming && ev.url"
+                      class="result-card-buttons"
+                      x-show="!ev.streaming"
                       x-transition.opacity.duration.400ms
                     >
                       <template x-if="ev.url">
-                        <a
-                          :href="ev.url"
-                          target="_blank"
-                          class="ai-response-btn"
-                        >
-                          Plus d'info <LinkSVG />
+                        <a :href="ev.url" target="_blank" class="btn btn-event">
+                          <span>Voir l'événement</span>
+                          <span class="btn-arrow-circle">
+                            <ArrowSVG />
+                          </span>
                         </a>
                       </template>
                     </div>
-
-                    <template x-if="i < item.displayed.length - 1">
-                      <hr class="ai-response-separator" />
-                    </template>
                   </div>
                 </template>
               </div>
             </template>
           </div>
         </template>
-
         <div class="ai-chat-thinking" x-show="thinking">
           <span></span><span></span><span></span>
         </div>
       </div>
     </div>
+  </div>
 
-    <form
-      class="ai-search"
-      id="aiForm"
-      onkeydown="if(event.keyCode === 13){document.getElementById('aiFormSubmit').click(); return false}"
-    >
-      <div class="ai-search-cont">
-        <input
-          type="text"
-          class="ai-search-bar"
-          id="search-bar"
-          name="search"
-          value=""
-          placeholder="Poser une question"
-        />
-        <XSVG id={"clear-search"} class={"none"} />
-        <button type="button" class="ai-search-btn" id="aiFormSubmit"
-          >Envoyer</button
+  <div class="search-section">
+    <div class="quick-questions" id="quickQuestions">
+      <span class="quick-questions-label">Questions régulièrement posées</span>
+      <div class="quick-questions-chips">
+        <button
+          type="button"
+          class="quick-question-chip"
+          data-question="Comment réparer mon téléphone ?"
         >
+          <span>Réparer mon téléphone</span>
+          <span class="chip-plus">
+            <SparkleSVG />
+          </span>
+        </button>
+        <button
+          type="button"
+          class="quick-question-chip"
+          data-question="Comment utiliser mon ordinateur ?"
+        >
+          <span>Utiliser mon ordinateur</span>
+          <span class="chip-plus">
+            <SparkleSVG />
+          </span>
+        </button>
+        <button
+          type="button"
+          class="quick-question-chip"
+          data-question="Comment paramétrer mes emails ?"
+        >
+          <span>Paramétrer mes emails</span>
+          <span class="chip-plus">
+            <SparkleSVG />
+          </span>
+        </button>
       </div>
-    </form>
+    </div>
 
-    <div class="ai-actions">
-      <button type="button" class="ai-reset-btn none" id="aiReset">
-        <RefreshSVG width={"18"} height={"18"} /> Nouvelle recherche
-      </button>
-      <div class="ai-swap swap">
-        <FilterSVG width={"23"} height={"27"} fill={"#34939D"} />
-        <span class="ai-swap-link"> ou afficher les filtres </span>
+    <div class="search" id="search">
+      <div class="search-bar-filters">
+        <form
+          class="ai-search"
+          id="aiForm"
+          onkeydown="if(event.keyCode === 13 && !document.getElementById('aiFormSubmit').disabled){document.getElementById('aiFormSubmit').click(); return false}"
+        >
+          <div class="ai-search-cont">
+            <input
+              type="text"
+              class="ai-search-bar"
+              id="search-bar"
+              name="search"
+              value=""
+              placeholder="Posez nous une question !"
+            />
+            <XSVG id={"clear-search"} class={"none"} />
+            <button type="button" class="ai-search-btn" id="aiFormSubmit">
+              <span>Envoyer</span><EnterSVG width={"18"} height={"18"} />
+            </button>
+          </div>
+        </form>
+
+        <div class="ai-actions">
+          <button type="button" class="none ai-reset-btn" id="aiReset">
+            <RefreshSVG width={"16"} height={"16"} /> Nouvelle recherche
+          </button>
+          <div class="ai-swap swap">
+            <FilterSVG width={"18"} height={"22"} />
+            <span class="ai-swap-link">Recherche par critères</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="filters none" id="filters">
-    <div class="filters-title">
-      <FilterSVG width={"23"} height={"27"} fill={"#2B4888"} />
-      <h2>Filtrer</h2>
-    </div>
-    <form class="filters-form" id="filters-form">
-      <div class="filter-form-cont">
-        <select
-          name="category"
-          id="category"
-          x-data="{ results: [] }"
-          @populate-categories.window="results = $event.detail"
-        >
-          <option value="" selected>-- Catégorie --</option>
-          <template x-for="item in results">
-            <option
-              :value="item"
-              x-text="item.charAt(0).toUpperCase()+item.slice(1)"></option>
-          </template>
-        </select>
-        <select
-          name="location"
-          id="location"
-          x-data="{ results: [] }"
-          @populate-locations.window="results = $event.detail"
-        >
-          <option value="" selected>-- Localité --</option>
-          <template x-for="item in results">
-            <option :value="item" x-text="item"></option>
-          </template>
-        </select>
+    <div class="filters-card">
+      <div class="filters-header">
+        <FilterSVG class="filters-svg" />
+        <h2 class="filters-title">Filtrer</h2>
       </div>
-    </form>
-    <div class="filters-swap swap">
-      <ChatSVG width={"32"} height={"31"} fill={"#34939D"} />
-      ou poser une question
+
+      <form class="filters-form" id="filters-form">
+        <div class="filter-field">
+          <label class="filter-label" for="category">Catégorie</label>
+          <div class="filter-select-wrap">
+            <select
+              name="category"
+              id="category"
+              class="filter-select"
+              x-data="{ results: [] }"
+              @populate-categories.window="results = $event.detail"
+            >
+              <option value="">Toutes les catégories</option>
+              <template x-for="item in results">
+                <option
+                  :value="item"
+                  x-text="item.charAt(0).toUpperCase()+item.slice(1)"></option>
+              </template>
+            </select>
+            <span class="filter-chevron">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="filter-field">
+          <label class="filter-label" for="location">Localité</label>
+          <div class="filter-select-wrap">
+            <select
+              name="location"
+              id="location"
+              class="filter-select"
+              x-data="{ results: [] }"
+              @populate-locations.window="results = $event.detail"
+            >
+              <option value="">Toutes les localités</option>
+              <template x-for="item in results">
+                <option :value="item" x-text="item"></option>
+              </template>
+            </select>
+            <span class="filter-chevron">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </form>
+      <button type="button" class="filters-reset none" id="filtersReset">
+        <RefreshSVG width={"16"} height={"16"} />
+        <span>Réinitialiser les filtres</span>
+      </button>
+      <button type="button" class="filters-swap swap">
+        <ChatSVG class="filters-swap-ai" />
+        <span>ou poser une question</span>
+      </button>
     </div>
   </div>
 </section>
@@ -292,12 +437,19 @@ import RefreshSVG from "../assets/refresh.svg";
     return marked.parse(text) as string;
   }
 
+  interface UpcomingEvent {
+    id: string;
+    title: string;
+    url: string | null;
+  }
+
   interface DisplayedItem {
     id?: string;
     domain?: string;
     name: string;
     desc?: string;
     reason?: string;
+    upcomingEvent?: UpcomingEvent | null;
     displayName: string;
     displayDesc: string;
     streaming: boolean;
@@ -322,6 +474,7 @@ import RefreshSVG from "../assets/refresh.svg";
     name: string;
     desc?: string;
     reason?: string;
+    upcomingEvent?: UpcomingEvent | null;
   }
 
   interface EventResult {
@@ -355,9 +508,8 @@ import RefreshSVG from "../assets/refresh.svg";
       const d = new Date(iso);
       if (isNaN(d.getTime())) return iso;
       const date = d.toLocaleDateString("fr-CH", {
-        weekday: "short",
         day: "numeric",
-        month: "short",
+        month: "long",
         year: "numeric",
       });
       const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
@@ -366,7 +518,7 @@ import RefreshSVG from "../assets/refresh.svg";
         hour: "2-digit",
         minute: "2-digit",
       });
-      return `${date} à ${time}`;
+      return `${date}, ${time}`;
     };
     if (startDate && endDate && startDate !== endDate) {
       return `${fmt(startDate)} — ${fmt(endDate)}`;
@@ -524,8 +676,12 @@ import RefreshSVG from "../assets/refresh.svg";
     item.addEventListener("click", () => {
       const filter = document.getElementById("filters");
       const ai = document.getElementById("ai");
+      const search = document.getElementById("search");
+      const questions = document.getElementById("quickQuestions");
       filter?.classList.toggle("none");
       ai?.classList.toggle("none");
+      search?.classList.toggle("none");
+      questions?.classList.toggle("none");
     });
   });
 </script>
@@ -580,7 +736,9 @@ import RefreshSVG from "../assets/refresh.svg";
   const filterForm = document.getElementById("filters-form") as HTMLFormElement;
   const searchBar = document.getElementById("search-bar") as HTMLInputElement;
   const clearSearch = document.getElementById("clear-search");
-  const infoTitle = document.getElementById("infoTitle");
+  const aiInfo = document.getElementById("aiInfo");
+  const filtersReset = document.getElementById("filtersReset");
+  //const quickQuestions = document.getElementById("quickQuestions");
 
   let history: ChatMsg[] = [];
   const orgIdsOnMap = new Set<string>();
@@ -592,6 +750,8 @@ import RefreshSVG from "../assets/refresh.svg";
 
   function setThinking(value: boolean) {
     window.dispatchEvent(new CustomEvent("chat-thinking", { detail: value }));
+    if (aiFormSubmit) (aiFormSubmit as HTMLButtonElement).disabled = value;
+    document.body.classList.toggle("chat-thinking", value);
   }
 
   function waitForOrgsDone(): Promise<void> {
@@ -620,7 +780,8 @@ import RefreshSVG from "../assets/refresh.svg";
     $mapData.set(initialOrgs);
     window.dispatchEvent(new CustomEvent("chat-reset"));
     aiReset?.classList.add("none");
-    infoTitle?.classList.remove("none");
+    aiInfo?.classList.remove("none");
+    //quickQuestions?.classList.remove("none");
   }
 
   async function populateFilters() {
@@ -661,7 +822,8 @@ import RefreshSVG from "../assets/refresh.svg";
   async function sendChatMessage(userText: string) {
     history.push({ role: "user", content: userText });
     dispatchChatMessage({ role: "user", content: userText });
-    infoTitle?.classList.add("none");
+    aiInfo?.classList.add("none");
+    //quickQuestions?.classList.add("none");
     setThinking(true);
 
     try {
@@ -780,10 +942,25 @@ import RefreshSVG from "../assets/refresh.svg";
     clearSearch.classList.add("none");
   });
 
+  document.querySelectorAll(".quick-question-chip").forEach((chip) => {
+    chip.addEventListener("click", async () => {
+      if ((aiFormSubmit as HTMLButtonElement)?.disabled) return;
+      const question = (chip as HTMLElement).dataset.question;
+      if (!question) return;
+      await sendChatMessage(question);
+    });
+  });
+
   filterForm?.addEventListener("change", async (e) => {
     e.preventDefault();
+    const formData = new FormData(filterForm);
+    const hasFilters = [...formData.values()].some((v) => v !== "");
+    if (hasFilters) {
+      filtersReset?.classList.remove("none");
+    } else {
+      filtersReset?.classList.add("none");
+    }
     try {
-      const formData = new FormData(filterForm);
       const res = await fetch("/api/dataFilter", {
         method: "POST",
         body: formData,
@@ -797,182 +974,362 @@ import RefreshSVG from "../assets/refresh.svg";
       console.error("Failed to load filtered orgs:", err);
     }
   });
+
+  filtersReset?.addEventListener("click", () => {
+    filterForm?.reset();
+    $mapData.set(initialOrgs);
+    filtersReset?.classList.add("none");
+  });
 </script>
 
 <style>
-  .map-search {
-    width: 90%;
-    background-color: rgb(var(--bg-color-1));
-    margin-top: auto;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 4vh;
+  .map-search,
+  .map-search * {
+    box-sizing: border-box;
   }
+
+  .map-search {
+    width: 100%;
+    margin: auto auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ai {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ai-info {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    flex-shrink: 0;
+  }
+
+  .ai-info-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    color: #1f2937;
+  }
+
+  .ai-info-subtitle {
+    font-size: 0.85rem;
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ai-info-link {
+    color: #2b4888;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  .ai-info-separator {
+    margin: 0.75rem 0;
+    border: none;
+    border-top: 1px solid rgba(43, 72, 136, 0.2);
+  }
+
+  .ai-info-desc p {
+    font-size: 0.78rem;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0 0 0.6rem;
+  }
+  .ai-info-desc p:last-child {
+    margin-bottom: 0;
+  }
+
   .ai-response-cont {
-    overflow-y: scroll;
-    max-height: 67vh;
-    padding: 0 10px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding: 0.5rem 1.5rem;
+  }
+  @media (max-width: 768px) {
+    :global(body.mobile-menu-open) .ai-response-cont {
+      max-height: calc(70vh - var(--mobile-menu-height, 0px));
+    }
   }
   .ai-timeline {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 8px 0;
+    gap: 1rem;
+    padding: 0.5rem 0;
   }
-  .ai-response-element {
-    padding: 0 10px;
+
+  .result-card {
+    background-color: white;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
-  :global(.ai-response-element h3) {
-    margin-bottom: 1vh;
+  .result-card-2 {
+    background-color: rgba(52, 113, 157, 0.1);
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
-  :global(.ai-response-element p) {
-    margin-top: 0;
+  .ai-orgs-block,
+  .ai-events-block {
+    background: white;
+    border-left: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 12px;
+    overflow: hidden;
   }
-  :global(.ai-response-btn) {
-    background-color: #34939d;
-    color: white;
-    font-size: 1rem;
-    margin-bottom: 1vh;
-    border: none;
+
+  .result-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.5rem;
+    color: #1f2937;
+    line-height: 1.3;
+  }
+
+  .result-card-reason {
+    font-style: italic;
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .result-card-desc {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0.25rem 0 0.75rem;
+  }
+
+  .read-more-wrap {
+    display: inline;
+  }
+  .read-more-link {
+    color: #1f2937;
+    text-decoration: underline;
     cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 7px;
+    font-style: italic;
+  }
+  .read-more-link:hover {
+    color: #2b4888;
+  }
+
+  .result-card-separator {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0.75rem 0;
+  }
+
+  .event-tag {
+    display: inline-block;
+    background-color: #c73b5d;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.7rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  .event-inline-row {
     display: flex;
     align-items: center;
-    text-decoration: none;
+    gap: 0.5rem;
+    margin: 0.4rem 0 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1.5px solid #c73b5d;
+    flex-wrap: wrap;
   }
-  :global(.ai-response-btn-cont) {
+  .event-inline-title {
+    color: #c73b5d;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .event-meta {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0.5rem 0 0.75rem;
   }
-  :global(.ai-response-btn-calendar) {
-    background-color: #2b4888;
-  }
-  :global(.ai-response-separator) {
-    border: 1.5px solid rgb(190, 190, 190);
-    border-radius: 2px;
-    margin-top: 0;
-  }
-  .ai-info-title {
-    margin-top: 0;
-    font-size: 1.3rem;
-  }
-
-  .ai-orgs-block {
-    background-color: rgba(52, 147, 157, 0.06);
-    border-left: 3px solid #34939d;
-    border-radius: 6px;
-    padding: 12px 8px;
-  }
-
-  .ai-events-block {
-    background-color: rgba(124, 58, 237, 0.06);
-    border-left: 3px solid #7c3aed;
-    border-radius: 6px;
-    padding: 12px 8px;
-  }
-
-  .ai-event-date {
-    font-weight: 600;
-    color: #7c3aed;
-    font-size: 0.95rem;
-    margin-bottom: 4px;
-  }
-
-  .ai-event-location {
+  .event-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.9rem;
     color: #4b5563;
-    margin-bottom: 4px;
+  }
+  .event-meta-item svg {
+    flex-shrink: 0;
+    color: #4b5563;
   }
 
-  .ai-event-orgs {
+  .event-orgs-row {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 4px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
   }
-
-  .ai-event-orgs-label {
+  .event-orgs-label {
     color: #4b5563;
     font-weight: 500;
   }
-
-  .ai-event-org {
+  .event-org-item {
     color: #374151;
   }
-
-  :global(.ai-event-org-link) {
-    color: #7c3aed;
+  :global(.event-org-link) {
+    color: #c73b5d;
     text-decoration: underline;
   }
+  :global(.event-org-link:hover) {
+    color: #a02e4a;
+  }
 
-  :global(.ai-event-org-link:hover) {
-    color: #5b21b6;
+  .result-card-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  :global(.btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
+  }
+  :global(.btn:hover) {
+    transform: translateY(-1px);
+  }
+  :global(.btn-event) {
+    background-color: #c73b5d;
+  }
+  :global(.btn-event:hover) {
+    background-color: #a02e4a;
+  }
+  :global(.btn-site) {
+    background-color: #2b4888;
+  }
+  :global(.btn-site:hover) {
+    background-color: #1e3466;
+  }
+  :global(.btn-arrow-circle) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .ai-chat-msg {
     max-width: 85%;
     width: fit-content;
-    padding: 8px 14px;
+    padding: 0.7rem 1rem;
     border-radius: 14px;
     font-size: 0.95rem;
     line-height: 1.4;
+    position: relative;
   }
   .ai-chat-msg-user {
     align-self: flex-end;
     background-color: #2b4888;
     color: white;
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 0;
     margin-left: auto;
+  }
+  .ai-chat-msg-user::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: -10px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 14px 18px 0;
+    border-color: transparent transparent #2b4888 transparent;
   }
   .ai-chat-msg-assistant {
     align-self: flex-start;
-    background-color: rgba(52, 147, 157, 0.15);
+    background-color: rgba(255, 255, 255, 1);
     color: #1f2937;
-    border-bottom-left-radius: 4px;
+    border-bottom-left-radius: 0;
     margin-right: auto;
+  }
+  .ai-chat-msg-assistant::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -14px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 18px 14px;
+    border-color: transparent transparent rgba(255, 255, 255, 1) transparent;
   }
   .ai-chat-msg-assistant ul,
   .ai-chat-msg-assistant ol {
     margin: 6px 0;
     padding-left: 20px;
   }
-
   .ai-chat-msg-assistant li {
     margin: 2px 0;
   }
-
   .ai-chat-msg-assistant p {
     margin: 4px 0;
   }
-
   .ai-chat-msg-assistant p:first-child {
     margin-top: 0;
   }
-
   .ai-chat-msg-assistant p:last-child {
     margin-bottom: 0;
   }
-
   .ai-chat-msg-assistant strong {
     font-weight: 600;
   }
-
   .ai-chat-msg-assistant code {
     background-color: rgba(0, 0, 0, 0.06);
     padding: 1px 4px;
     border-radius: 3px;
     font-size: 0.9em;
   }
+
   .ai-chat-thinking {
     align-self: flex-start;
     display: flex;
     gap: 4px;
     padding: 12px 14px;
-    background-color: rgba(52, 147, 157, 0.15);
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 14px;
     border-bottom-left-radius: 4px;
     width: fit-content;
@@ -980,7 +1337,7 @@ import RefreshSVG from "../assets/refresh.svg";
   .ai-chat-thinking span {
     width: 8px;
     height: 8px;
-    background-color: #34939d;
+    background-color: #2b4888;
     border-radius: 50%;
     animation: chat-dot 1.4s infinite ease-in-out both;
   }
@@ -1003,142 +1360,370 @@ import RefreshSVG from "../assets/refresh.svg";
     }
   }
 
-  .ai-response-reason {
-    font-style: italic;
-    color: #4b5563;
-    font-size: 0.9rem;
-    margin-bottom: 4px;
+  .quick-questions {
+    padding: 0.5rem 1.5rem;
+    flex-shrink: 0;
+  }
+  .quick-questions-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  .quick-questions-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+  }
+  .quick-questions-chips::-webkit-scrollbar {
+    height: 4px;
+  }
+  .quick-questions-chips::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+  .quick-question-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.4rem 0.4rem 0.85rem;
+    background-color: white;
+    color: #1f2937;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1000px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .quick-question-chip:hover {
+    border-color: #2b4888;
+    background-color: rgba(255, 255, 255, 0.7);
+  }
+  .quick-question-chip:disabled,
+  .quick-question-chip[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .chip-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: #1f2937;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background-color: #1f2937;
+    padding: 3px;
+  }
+  .chip-plus svg {
+    stroke: white;
+    fill: white;
+  }
+
+  :global(body.chat-thinking) .quick-question-chip,
+  :global(body.chat-thinking) .ai-search-btn {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .search-section {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .search {
+    width: 100%;
+    padding: 0 1.5rem 0.5em;
+    flex-shrink: 0;
+  }
+
+  .search-bar-filters {
+    width: 100%;
+    border: 1px solid rgba(43, 72, 136, 0.4);
+    margin: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: white;
   }
 
   .ai-search-cont {
     width: 100%;
-    margin: 2vh auto auto auto;
     display: flex;
+    align-items: center;
     flex-direction: row;
-    border-radius: 10px;
-    border-right: none;
-    border-color: rgb(190, 190, 190);
-    border-style: solid;
-    border-width: 1px;
-  }
-  .ai-search-cont svg {
-    cursor: pointer;
-    width: 2.5rem;
-    height: 100%;
-    margin: auto;
     background-color: white;
-  }
-  .ai-search-cont:focus-within {
-    outline: 1px solid #34939d;
-    border-color: #34939d;
-  }
-  .ai-search-cont:focus-within .ai-search-btn {
-    border-radius: 0 7px 7px 0;
+    min-width: 0;
   }
   .ai-search-bar {
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
     border: none;
-    border-radius: 10px 0 0 10px;
-    font-size: 1.05rem;
-    padding: 10px;
-    padding-right: 0;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: transparent;
+    color: #1f2937;
+  }
+  :global(#clear-search) {
+    cursor: pointer;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0 0.5rem;
+  }
+  .ai-search-bar::placeholder {
+    color: #9ca3af;
   }
   .ai-search-bar:focus {
     outline: none;
   }
   .ai-search-btn {
-    width: 20%;
-    min-width: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
     border: none;
-    border-radius: 0 9px 9px 0;
     cursor: pointer;
-    background-color: #34939d;
+    background-color: rgba(43, 72, 136, 0.5);
     color: white;
-    font-size: 1.05rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.4rem;
+    margin: 0.4rem;
+    border-radius: 10px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: ease-in-out 0.1s;
+  }
+  .ai-search-btn:hover {
+    background-color: rgba(43, 72, 136, 0.7);
+  }
+  .ai-search-btn:disabled {
+    background-color: rgba(43, 72, 136, 0.25);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .ai-search-btn :global(svg) {
+    background-color: transparent;
   }
 
   .ai-actions {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 1vw;
+    justify-content: center;
+    column-gap: 0.75rem;
     flex-wrap: wrap;
+    background-color: #34719d;
+    padding: 0 1rem;
   }
   .ai-reset-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0.4rem;
     background-color: transparent;
-    color: #2b4888;
-    border: 1px solid #2b4888;
-    border-radius: 8px;
-    padding: 6px 12px;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
     cursor: pointer;
-    font-size: 0.95rem;
-    margin-top: 1vh;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
   }
   .ai-reset-btn:hover {
-    background-color: rgba(43, 72, 136, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
-  .filters-title {
-    width: fit-content;
-    padding: 2vh;
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    gap: 0.5vw;
-    background-color: rgba(43, 72, 136, 0.2);
-    border-radius: 10px;
-    color: #2b4888;
-    margin-bottom: 3vh;
-  }
-  .filters-title h2 {
-    margin: auto;
-  }
-  .filter-form-cont {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 2vh;
-  }
-  .filter-form-cont select {
-    width: 100%;
-    text-align: center;
-    font-size: 1.2rem;
-    border-radius: 10px;
-    padding: 1vh;
-    border-color: rgb(228, 227, 227);
-    border-style: solid;
-    border-width: 1px;
-  }
-  .none {
-    display: none;
-  }
   .ai-swap,
   .filters-swap {
     cursor: pointer;
-    width: fit-content;
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
-    gap: 1vw;
-    margin-top: 1vh;
-    text-decoration: underline;
-    height: 4vh;
+    gap: 0.1rem;
+    padding: 0.6rem 0;
+    color: white;
+    font-size: 0.9rem;
+    width: fit-content;
   }
-  .ai-swap svg,
-  .filters-swap svg {
-    width: 1.4rem;
+  .ai-swap :global(svg),
+  .filters-swap :global(svg) {
+    color: white;
+    fill: white;
+    width: 1.5rem;
   }
-  .pointer {
+  .ai-swap-link {
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+  }
+
+  .filters {
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+  }
+
+  .filters-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .filters-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(43, 72, 136, 0.15);
+  }
+
+  .filters-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #34719d;
+  }
+
+  .filters-svg {
+    width: 25px;
+    fill: #34719d;
+    stroke: #34719d;
+  }
+
+  .filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .filter-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .filter-select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    font-size: 0.95rem;
+    color: #1f2937;
+    background-color: rgba(43, 72, 136, 0.04);
+    border: 1px solid rgba(43, 72, 136, 0.15);
+    border-radius: 8px;
     cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
   }
-  .underline {
+
+  .filter-select:hover {
+    background-color: rgba(43, 72, 136, 0.08);
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: #2b4888;
+    background-color: white;
+  }
+
+  .filter-chevron {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2b4888;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filters-swap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background-color: transparent;
+    color: #34719d;
+    border: 1px solid rgba(43, 72, 136, 0.3);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .filters-swap:hover {
+    background-color: rgba(43, 72, 136, 0.05);
+    border-color: #2b4888;
+  }
+
+  .filters-swap span {
     text-decoration: underline;
+  }
+
+  .filters-swap-ai {
+    width: 40px;
+    fill: transparent;
+    stroke: #34719d;
+  }
+
+  .filters-reset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.75rem;
+    background-color: transparent;
+    color: #c73b5d;
+    border: 1px solid rgba(199, 59, 93, 0.3);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .filters-reset:hover {
+    background-color: rgba(199, 59, 93, 0.05);
+    border-color: #c73b5d;
+  }
+
+  .filters-reset :global(svg) {
+    flex-shrink: 0;
   }
 </style>

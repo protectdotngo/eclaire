@@ -11,6 +11,14 @@
   import "leaflet.markercluster/dist/MarkerCluster.Default.css";
   import type { Data } from "../interfaces/dbData";
 
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+  L.Icon.Default.mergeOptions({
+    iconUrl: "/leaflet/marker-icon.png",
+    iconRetinaUrl: "/leaflet/marker-icon-2x.png",
+    shadowUrl: "/leaflet/marker-shadow.png",
+  });
+
   const map = L.map("mapSection").setView([46.2044, 6.1432], 12);
   const Stadia_OSMBright = L.tileLayer(
     "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.{ext}",

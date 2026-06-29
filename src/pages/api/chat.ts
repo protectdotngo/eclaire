@@ -2,6 +2,7 @@ import "dotenv/config";
 import type { APIRoute } from "astro";
 import {
   and,
+  asc,
   eq,
   gte,
   ilike,
@@ -146,6 +147,59 @@ export const POST: APIRoute = async ({ request }) => {
         .filter((x): x is Data => x !== null);
     } catch (err) {
       console.error("Failed to hydrate orgs:", err);
+    }
+  }
+  if (hydratedOrgs.length > 0) {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const orgIdsToLookup = hydratedOrgs.map((o) => o.id);
+
+      const upcomingRows = await db
+        .select({
+          orgId: orgsEventsInTest.orgId,
+          eventId: eventsInTest.id,
+          eventTitle: eventsInTest.title,
+          eventUrl: eventsInTest.url,
+          eventStartDate: eventsInTest.startDate,
+        })
+        .from(orgsEventsInTest)
+        .innerJoin(eventsInTest, eq(eventsInTest.id, orgsEventsInTest.eventId))
+        .where(
+          and(
+            inArray(orgsEventsInTest.orgId, orgIdsToLookup),
+            or(
+              gte(eventsInTest.startDate, today),
+              isNull(eventsInTest.startDate),
+            ),
+          ),
+        )
+        .orderBy(asc(eventsInTest.startDate));
+
+      const firstEventByOrg = new Map<
+        string,
+        { id: string; title: string; url: string | null }
+      >();
+      for (const row of upcomingRows) {
+        if (!firstEventByOrg.has(row.orgId)) {
+          firstEventByOrg.set(row.orgId, {
+            id: row.eventId,
+            title: row.eventTitle ?? "Sans titre",
+            url: row.eventUrl,
+          });
+        }
+      }
+
+      for (const org of hydratedOrgs) {
+        (
+          org as unknown as {
+            upcomingEvent: typeof firstEventByOrg extends Map<string, infer V>
+              ? V | null
+              : never;
+          }
+        ).upcomingEvent = firstEventByOrg.get(org.id) ?? null;
+      }
+    } catch (err) {
+      console.error("Failed to fetch upcoming events:", err);
     }
   }
 
