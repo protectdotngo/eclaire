@@ -1,6 +1,6 @@
 ---
-import { DISPLAY_BUCKETS } from "../lib/calendarConfig";
-import { AUDIENCE_TAGS } from "../lib/audienceTags";
+import { DISPLAY_BUCKETS } from "../data/calendarConfig";
+import { AUDIENCE_TAGS } from "../data/audienceTags";
 import ArrowSVG from "../assets/circle-arrow-right.svg";
 import SearchSVG from "../assets/search.svg";
 import ChevronDownSVG from "../assets/chevron-down.svg";
@@ -314,8 +314,8 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
   import flatpickr from "flatpickr";
   import { French } from "flatpickr/dist/l10n/fr.js";
   import "flatpickr/dist/flatpickr.min.css";
-  import { DISPLAY_BUCKETS } from "../lib/calendarConfig";
-  import { AUDIENCE_TAGS } from "../lib/audienceTags";
+  import { DISPLAY_BUCKETS } from "../data/calendarConfig";
+  import { AUDIENCE_TAGS } from "../data/audienceTags";
 
   interface RawEvent {
     id: string;

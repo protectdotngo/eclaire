@@ -1,6 +1,6 @@
 ---
-import { PARTNERS } from "../lib/eclaire-v1/partners";
-import { RESOURCES } from "../lib/eclaire-v1/resources";
+import { PARTNERS } from "../data/eclaire-v1/partners";
+import { RESOURCES } from "../data/eclaire-v1/resources";
 
 const partnerById = new Map(PARTNERS.map((p) => [p.id, p]));
 
@@ -86,7 +86,7 @@ const resourcesWithPartner = RESOURCES.map((r) => {
 
 <script>
   import Alpine from "alpinejs";
-  import { RESOURCES } from "../lib/eclaire-v1/resources";
+  import { RESOURCES } from "../data/eclaire-v1/resources";
 
   document.addEventListener("alpine:init", () => {
     Alpine.data("resourcesPage", () => ({

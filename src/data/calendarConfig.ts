@@ -73,28 +73,3 @@ export const DISPLAY_BUCKETS: DisplayBucket[] = [
     },
   },
 ];
-
-export function getCalendarId(
-  eventCategories: string[] | null | undefined,
-): string {
-  if (!eventCategories || eventCategories.length === 0) return "other";
-  for (const bucket of DISPLAY_BUCKETS) {
-    if (eventCategories.some((c) => bucket.categories.includes(c))) {
-      return bucket.calendarId;
-    }
-  }
-  return "other";
-}
-
-export function buildScheduleXCalendars() {
-  return Object.fromEntries(
-    DISPLAY_BUCKETS.map((b) => [
-      b.calendarId,
-      {
-        colorName: b.calendarId,
-        lightColors: b.colors.light,
-        darkColors: b.colors.dark,
-      },
-    ]),
-  );
-}

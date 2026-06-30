@@ -3,7 +3,6 @@
 </section>
 <script>
   import { $mapData } from "../lib/mapStore";
-  import { $filterStore } from "../lib/filterStore";
   import L from "leaflet";
   import "leaflet.markercluster";
   import "leaflet/dist/leaflet.css";
@@ -79,9 +78,6 @@
   map.addLayer(markers);
 
   $mapData.subscribe((marks) => {
-    if (marks) fillMap(marks);
-  });
-  $filterStore.subscribe((marks) => {
     if (marks) fillMap(marks);
   });
 
