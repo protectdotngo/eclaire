@@ -65,7 +65,20 @@ async function ensureCache(): Promise<void> {
 export async function buildSystemPrompt(): Promise<string> {
   const template = await loadTemplate();
   await ensureCache();
-  return template.replace(PLACEHOLDER, cachedOrgsJson!);
+
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const dayOfWeek = today.toLocaleDateString("fr-FR", { weekday: "long" });
+  const formattedDate = today.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const dateHeader = `# CONTEXTE TEMPOREL\n\nAujourd'hui est le ${formattedDate} (${todayStr}, jour de la semaine: ${dayOfWeek}).\n\n`;
+
+  return dateHeader + template.replace(PLACEHOLDER, cachedOrgsJson!);
 }
 
 export async function getValidOrgIds(): Promise<Set<string>> {

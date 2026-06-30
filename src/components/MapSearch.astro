@@ -16,9 +16,10 @@ import SparkleSVG from "../assets/sparkle.svg";
       <div class="ai-info" id="aiInfo">
         <h2 class="ai-info-title">Avec Éclaire,</h2>
         <p class="ai-info-subtitle">
-          Avec éclaire, nous apportons des <a href="#" class="ai-info-link"
-            >réponses concrètes</a
-          > là où vous en avez besoin.
+          Avec éclaire, nous apportons des <span class="ai-info-highlight"
+            >réponses concrètes</span
+          >
+          là où vous en avez besoin.
         </p>
         <hr class="ai-info-separator" />
         <div class="ai-info-desc">
@@ -65,7 +66,16 @@ import SparkleSVG from "../assets/sparkle.svg";
             <template x-if="item.kind === 'message'">
               <div :class="'ai-chat-msg ai-chat-msg-' + item.role">
                 <template x-if="item.role === 'assistant'">
-                  <div x-html="renderMarkdown(item.content)"></div>
+                  <div>
+                    <span x-show="item.streaming" x-text="item.displayContent"
+                    ></span>
+                    <span class="cursor" x-show="item.streaming">▊</span>
+                    <div
+                      x-show="!item.streaming"
+                      x-html="renderMarkdown(item.content)"
+                    >
+                    </div>
+                  </div>
                 </template>
                 <template x-if="item.role === 'user'">
                   <span x-text="item.content"></span>
@@ -109,13 +119,8 @@ import SparkleSVG from "../assets/sparkle.svg";
                             <span
                               class="read-more-link"
                               x-show="!expanded"
-                              @click="expanded = !expanded">Lire plus</span
-                            >
-                            <span
-                              class="read-more-link"
-                              x-show="expanded"
-                              @click="expanded = !expanded">Réduire</span
-                            >
+                              @click="expanded = !expanded"
+                              x-text="expanded ? Réduire : Lire plus"></span>
                           </span>
                         </template>
                       </p>
@@ -151,6 +156,16 @@ import SparkleSVG from "../assets/sparkle.svg";
                             <ArrowSVG />
                           </span>
                         </a>
+                      </template>
+                      <template x-if="org.lat && org.lon">
+                        <button
+                          type="button"
+                          class="btn-zoom"
+                          @click="$dispatch('map-focus-org', { id: org.id, lat: org.lat, lon: org.lon })"
+                        >
+                          <span>Voir sur la carte</span>
+                          <PinSVG />
+                        </button>
                       </template>
                     </div>
                   </div>
@@ -197,14 +212,10 @@ import SparkleSVG from "../assets/sparkle.svg";
                             <span
                               class="read-more-link"
                               x-show="!expanded"
-                              @click="expanded = !expanded">Lire plus</span
+                              @click="expanded = !expanded"
+                              x-text="expanded ? Réduire : Lire plus"
                             >
-
-                            <span
-                              class="read-more-link"
-                              x-show="expanded"
-                              @click="expanded = !expanded">Réduire</span
-                            >
+                            </span>
                           </span>
                         </template>
                       </p>
@@ -495,7 +506,13 @@ import SparkleSVG from "../assets/sparkle.svg";
   }
 
   type TimelineItem =
-    | { kind: "message"; role: "user" | "assistant"; content: string }
+    | {
+        kind: "message";
+        role: "user" | "assistant";
+        content: string;
+        displayContent: string;
+        streaming: boolean;
+      }
     | { kind: "orgs"; displayed: DisplayedItem[] }
     | { kind: "events"; displayed: DisplayedEvent[] };
 
@@ -536,13 +553,61 @@ import SparkleSVG from "../assets/sparkle.svg";
 
       init() {},
 
-      addMessage(msg: ChatMsg) {
+      async addMessage(msg: ChatMsg) {
+        if (msg.role === "user") {
+          this.items.push({
+            kind: "message",
+            role: msg.role,
+            content: msg.content,
+            displayContent: msg.content,
+            streaming: false,
+          });
+          this.scrollToBottom();
+          return;
+        }
+
         this.items.push({
           kind: "message",
           role: msg.role,
           content: msg.content,
+          displayContent: "",
+          streaming: true,
         });
+        const msgRef = this.items[this.items.length - 1] as {
+          kind: "message";
+          role: "user" | "assistant";
+          content: string;
+          displayContent: string;
+          streaming: boolean;
+        };
+
+        await this.typeIntoMessage(msgRef, msg.content, 12);
+        msgRef.streaming = false;
         this.scrollToBottom();
+
+        window.dispatchEvent(new CustomEvent("message-done"));
+      },
+
+      typeIntoMessage(
+        obj: { displayContent: string },
+        fullText: string,
+        msPerChar: number,
+      ): Promise<void> {
+        return new Promise((resolve) => {
+          let i = 0;
+          const tick = () => {
+            const chunk = Math.max(1, Math.floor(Math.random() * 4) + 1);
+            i = Math.min(i + chunk, fullText.length);
+            obj.displayContent = fullText.slice(0, i);
+            this.scrollToBottom();
+            if (i < fullText.length) {
+              setTimeout(tick, msPerChar + Math.random() * 20);
+            } else {
+              resolve();
+            }
+          };
+          tick();
+        });
       },
 
       async addOrgs(orgs: SearchResult[]) {
@@ -774,6 +839,16 @@ import SparkleSVG from "../assets/sparkle.svg";
     });
   }
 
+  function waitForMessageDone(): Promise<void> {
+    return new Promise((resolve) => {
+      const handler = () => {
+        window.removeEventListener("message-done", handler);
+        resolve();
+      };
+      window.addEventListener("message-done", handler);
+    });
+  }
+
   function resetConversation() {
     history = [];
     orgIdsOnMap.clear();
@@ -838,14 +913,37 @@ import SparkleSVG from "../assets/sparkle.svg";
 
       setThinking(false);
 
-      for (const block of result.blocks) {
+      let eventsFound = false;
+      let skipNextText = false; // ← new flag
+
+      const blocks = result.blocks;
+      const eventSearchIdx = blocks.findIndex((b) => b.type === "event_search");
+      const hasFallbackOrgs =
+        eventSearchIdx !== -1 &&
+        blocks.slice(eventSearchIdx + 1).some((b) => b.type === "orgs");
+
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+
         if (block.type === "text" && block.content) {
+          if (skipNextText) {
+            skipNextText = false;
+            continue;
+          }
+          const donePromise = waitForMessageDone();
           dispatchChatMessage({ role: "assistant", content: block.content });
+          await donePromise;
         } else if (
           block.type === "orgs" &&
           result.orgs &&
           result.orgs.length > 0
         ) {
+          const isAfterEventSearch =
+            eventSearchIdx !== -1 && i > eventSearchIdx;
+          if (isAfterEventSearch && eventsFound) {
+            continue;
+          }
+
           const blockIds = new Set((block.items ?? []).map((i) => i.id));
           const orgsForBlock = result.orgs.filter((o) => blockIds.has(o.id));
 
@@ -872,6 +970,7 @@ import SparkleSVG from "../assets/sparkle.svg";
           result.events &&
           result.events.length > 0
         ) {
+          eventsFound = true;
           const donePromise = waitForEventsDone();
           window.dispatchEvent(
             new CustomEvent("events-result", { detail: result.events }),
@@ -882,22 +981,38 @@ import SparkleSVG from "../assets/sparkle.svg";
           block.type === "event_search" &&
           (!result.events || result.events.length === 0)
         ) {
-          const filters = block.filters;
-          let filtersDescription = "";
-          if (filters?.city) filtersDescription += ` à ${filters.city}`;
-          if (filters?.categories?.length) {
-            filtersDescription += ` dans le domaine "${filters.categories[0]}"`;
+          eventsFound = false;
+
+          if (hasFallbackOrgs) {
+            // Bridge message; suppress the LLM's "Voilà ce que j'ai trouvé" that follows
+            skipNextText = true;
+            const donePromise = waitForMessageDone();
+            dispatchChatMessage({
+              role: "assistant",
+              content:
+                "Je n'ai pas trouvé d'événements correspondants. Voici plutôt des organisations qui pourraient t'aider :",
+            });
+            await donePromise;
+          } else {
+            const filters = block.filters;
+            let filtersDescription = "";
+            if (filters?.city) filtersDescription += ` à ${filters.city}`;
+            if (filters?.categories?.length) {
+              filtersDescription += ` dans le domaine "${filters.categories[0]}"`;
+            }
+            if (filters?.keywords?.length) {
+              filtersDescription += ` sur "${filters.keywords.join(", ")}"`;
+            }
+            const donePromise = waitForMessageDone();
+            dispatchChatMessage({
+              role: "assistant",
+              content: filtersDescription
+                ? `Je n'ai trouvé aucun événement${filtersDescription} sur cette période. Tu veux que j'élargisse les critères ?`
+                : "Je n'ai trouvé aucun événement sur cette période. Tu veux que j'élargisse la recherche ?",
+            });
+            await donePromise;
+            aiReset?.classList.remove("none");
           }
-          if (filters?.keywords?.length) {
-            filtersDescription += ` sur "${filters.keywords.join(", ")}"`;
-          }
-          dispatchChatMessage({
-            role: "assistant",
-            content: filtersDescription
-              ? `Je n'ai trouvé aucun événement${filtersDescription} sur cette période. Tu veux que j'élargisse les critères ?`
-              : "Je n'ai trouvé aucun événement sur cette période. Tu veux que j'élargisse la recherche ?",
-          });
-          aiReset?.classList.remove("none");
         }
       }
 
@@ -908,11 +1023,13 @@ import SparkleSVG from "../assets/sparkle.svg";
     } catch (err) {
       console.error("Chat call failed:", err);
       setThinking(false);
+      const donePromise = waitForMessageDone();
       dispatchChatMessage({
         role: "assistant",
         content:
           "Désolé, je n'ai pas pu obtenir de réponse. Tu peux réessayer ?",
       });
+      await donePromise;
     }
   }
 
@@ -1029,9 +1146,9 @@ import SparkleSVG from "../assets/sparkle.svg";
     line-height: 1.4;
   }
 
-  .ai-info-link {
-    color: #2b4888;
-    text-decoration: underline;
+  .ai-info-highlight {
+    color: #34719d;
+    text-decoration: none;
     font-weight: 500;
   }
 
@@ -1211,6 +1328,14 @@ import SparkleSVG from "../assets/sparkle.svg";
     gap: 0.5rem;
     margin-top: 0.5rem;
   }
+  .result-card-buttons * {
+    margin: auto;
+  }
+  @media (max-width: 430px) {
+    .result-card-buttons * {
+      margin: 0;
+    }
+  }
   :global(.btn) {
     display: inline-flex;
     align-items: center;
@@ -1249,6 +1374,34 @@ import SparkleSVG from "../assets/sparkle.svg";
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 50%;
+    flex-shrink: 0;
+  }
+  :global(.btn-zoom) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    background-color: white;
+    color: #2b4888;
+    border: 1.5px solid rgba(43, 72, 136, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.15s ease;
+    text-decoration: none;
+  }
+
+  :global(.btn-zoom:hover) {
+    background-color: rgba(43, 72, 136, 0.05);
+    border-color: #2b4888;
+    transform: translateY(-1px);
+  }
+
+  :global(.btn-zoom svg) {
     flex-shrink: 0;
   }
 
@@ -1329,7 +1482,7 @@ import SparkleSVG from "../assets/sparkle.svg";
     display: flex;
     gap: 4px;
     padding: 12px 14px;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 1);
     border-radius: 14px;
     border-bottom-left-radius: 4px;
     width: fit-content;

@@ -45,29 +45,34 @@
   map.zoomControl.setPosition("bottomleft");
 
   const markers = L.markerClusterGroup();
+  const markersList = new Map<string, L.Marker>();
 
   function fillMap(marks: readonly Data[]) {
-    if (marks.length > 0) {
-      markers.clearLayers();
-      for (const item of marks) {
-        if (item.lat && item.lon) {
-          markers.addLayer(
-            L.marker([item.lat, item.lon]).bindPopup(
-              '<a style="text-decoration:none; color:black;" target="_blank" href="' +
-                item.domain +
-                '"><h3>' +
-                item.name +
-                "</h3><p>" +
-                item.address +
-                "</p>",
-            ),
-          );
-        }
+    if (marks.length === 0) return;
+    markers.clearLayers();
+    markersList.clear();
+
+    for (const item of marks) {
+      if (typeof item.lat !== "number" || typeof item.lon !== "number") {
+        continue;
       }
-      map.addLayer(markers);
-      map.fitBounds(markers.getBounds(), {
-        maxZoom: 16,
-      });
+      const marker = L.marker([item.lat, item.lon]);
+      marker.bindPopup(
+        '<a style="text-decoration:none; color:black;" target="_blank" href="' +
+          item.domain +
+          '"><h3>' +
+          item.name +
+          "</h3><p>" +
+          item.address +
+          "</p>",
+      );
+      markers.addLayer(marker);
+      markersList.set(item.id, marker);
+    }
+    map.addLayer(markers);
+    if (markers.getLayers().length > 0) {
+      const bounds = markers.getBounds();
+      map.fitBounds(bounds, { maxZoom: 16 });
     }
   }
 
@@ -85,6 +90,32 @@
     if (e.propertyName === "max-width") {
       map.invalidateSize();
     }
+  });
+
+  window.addEventListener("map-focus-org", (e: Event) => {
+    const org = (e as CustomEvent).detail;
+    if (!org || typeof org.lat !== "number" || typeof org.lon !== "number")
+      return;
+
+    if (window.innerWidth <= 1000) {
+      document.querySelector(".side-bar")?.classList.add("collapsed");
+      document.body.classList.add("chat-panel-collapsed");
+    }
+
+    setTimeout(
+      () => {
+        const marker = markersList.get(org.id);
+        if (!marker) return;
+        map.flyTo([org.lat, org.lon], 17, {
+          duration: 0.75,
+          easeLinearity: 0.5,
+        });
+        map.once("moveend", () => {
+          marker.openPopup();
+        });
+      },
+      window.innerWidth <= 1000 ? 320 : 0,
+    );
   });
 </script>
 <style>

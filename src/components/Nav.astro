@@ -4,12 +4,12 @@ import EclaireI from "../assets/eclaire-i.svg";
 import OpenSideBar from "../assets/layout-sidebar-left-expand.svg";
 import CloseSideBar from "../assets/layout-sidebar-left-collapse.svg";
 
-const { showPanelToggle = false } = Astro.props;
+const { showPanelToggle = false, showV1 = false } = Astro.props;
 ---
 
 <header class="navCont">
   <div class="nav">
-    <a href="/">
+    <a href={showV1 ? "/eclaire-v1" : "/"}>
       <EclaireLogo class="logo" />
       <EclaireI class="logo-min" />
     </a>
@@ -19,13 +19,28 @@ const { showPanelToggle = false } = Astro.props;
         <span></span>
         <span></span>
       </button>
-      <nav class="menu">
-        <a href="/">Accueil</a>
-        <a href="/calendar">Calendrier</a>
-        <a href="https://eclaire-v1.protect.ngo/">Eclaire v1</a>
-        <!-- <a href="#">Partenaires</a>
-        <a href="#">Ressources utiles</a> -->
-      </nav>
+      {
+        !showV1 && (
+          <nav class="menu">
+            <a href="/">Accueil</a>
+            <a href="/calendrier">Calendrier</a>
+            <a href="/sous-le-capot">Sous le capot</a>
+            <a href="/eclaire-v1">Eclaire v1</a>
+          </nav>
+        )
+      }
+      {
+        showV1 && (
+          <nav class="menu">
+            <a href="/eclaire-v1">Accueil</a>
+            <a href="/eclaire-v1#partenaires">Partenaires</a>
+            <a href="/eclaire-v1/ressources">Ressources utiles</a>
+            <a href="/" class="menu-return">
+              Retour au site
+            </a>
+          </nav>
+        )
+      }
       {
         showPanelToggle && (
           <>
@@ -36,13 +51,28 @@ const { showPanelToggle = false } = Astro.props;
       }
     </div>
   </div>
-  <nav class="menu-mobile">
-    <a href="/">Accueil</a>
-    <a href="/calendar">Calendrier</a>
-    <a href="https://eclaire-v1.protect.ngo/">Eclaire v1</a>
-    <!-- <a href="#">Partenaires</a>
-      <a href="#">Ressources utiles</a> -->
-  </nav>
+  {
+    !showV1 && (
+      <nav class="menu-mobile">
+        <a href="/">Accueil</a>
+        <a href="/calendrier">Calendrier</a>
+        <a href="/sous-le-capot">Sous le capot</a>
+        <a href="/eclaire-v1">Eclaire v1</a>
+      </nav>
+    )
+  }
+  {
+    showV1 && (
+      <nav class="menu-mobile">
+        <a href="/eclaire-v1">Accueil</a>
+        <a href="/eclaire-v1#partenaires">Partenaires</a>
+        <a href="/eclaire-v1/ressources">Ressources utiles</a>
+        <a href="/" class="menu-return">
+          Retour au site
+        </a>
+      </nav>
+    )
+  }
 </header>
 
 <script>
@@ -142,8 +172,12 @@ const { showPanelToggle = false } = Astro.props;
     border-radius: 12px;
     background-color: rgba(var(--bg-color-1), 1);
     white-space: nowrap;
+    transition:
+      background-color 0.2s ease-in-out,
+      color 0.2s ease-in-out;
   }
-  .menu a:hover {
+  .menu a:hover,
+  .menu-mobile a:hover {
     color: rgba(var(--color-2), 1);
     background-color: rgba(var(--bg-color-2), 1);
   }
@@ -154,6 +188,19 @@ const { showPanelToggle = false } = Astro.props;
     gap: 1vh;
     align-items: center;
     transition: ease-in-out 0.3s;
+  }
+  .menu .menu-return,
+  .menu-mobile .menu-return {
+    background-color: rgba(var(--color-1), 1);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .menu .menu-return:hover,
+  .menu-mobile .menu-return:hover {
+    background-color: rgba(var(--color-1), 0.85);
+    color: white;
   }
   .side-bar-btn {
     width: 30px;

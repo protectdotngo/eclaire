@@ -278,7 +278,10 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
               x-show="event.categories && event.categories.length > 0"
             >
               <template x-for="cat in event.categories" :key="cat">
-                <span class="event-tag" x-text="cat"></span>
+                <span
+                  class="event-tag"
+                  :style="getCategoryStyle(cat)"
+                  x-text="cat"></span>
               </template>
             </div>
 
@@ -301,7 +304,9 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
     </template>
   </div>
 
-  <div class="loading-state" x-show="loading">Chargement des événements...</div>
+  <div class="loading-state" x-show="loading" :class="{ 'animate': loading }">
+    <span>Chargement des événements...</span><HourglassSVG />
+  </div>
 </section>
 
 <script>
@@ -825,6 +830,11 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
       toggleExpand(id: string) {
         this.expandedId = this.expandedId === id ? null : id;
       },
+      getCategoryStyle(catName: string): string {
+        const cat = ALL_CATEGORIES.find((c) => c.name === catName);
+        if (!cat) return "";
+        return `background-color: ${cat.bg}; color: ${cat.text}; border: 1px solid ${cat.color}33;`;
+      },
     }));
   });
 </script>
@@ -1243,11 +1253,6 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
       auto 1000px,
       auto 1000px;
   }
-  @media (max-width: 768px) {
-    .event-list::before {
-      display: none;
-    }
-  }
 
   .event-row {
     background: white;
@@ -1436,9 +1441,18 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
   }
 
   .loading-state {
+    display: flex;
+    flex-direction: column;
     text-align: center;
     padding: 3rem 1rem;
     color: #6b7280;
+    gap: 2.5vh;
+  }
+  .loading-state svg {
+    margin: auto;
+  }
+  .loading-state.animate svg {
+    animation: spin-with-pause 0.8s ease-in-out infinite;
   }
 
   @media (max-width: 768px) {
