@@ -18,6 +18,16 @@
     shadowUrl: "/leaflet/marker-shadow.png",
   });
 
+  function escapeHtml(s: string): string {
+    if (!s) return "";
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   const map = L.map("mapSection").setView([46.2044, 6.1432], 12);
   const Stadia_OSMBright = L.tileLayer(
     "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.{ext}",
@@ -57,13 +67,10 @@
       }
       const marker = L.marker([item.lat, item.lon]);
       marker.bindPopup(
-        '<a style="text-decoration:none; color:black;" target="_blank" href="' +
-          item.domain +
-          '"><h3>' +
-          item.name +
-          "</h3><p>" +
-          item.address +
-          "</p>",
+        `<a class="popup-link" target="_blank" href="${escapeHtml(item.domain ?? "")}">
+          <h3 class="popup-title">${escapeHtml(item.name)}</h3>
+          <p class="popup-address">${escapeHtml(item.address ?? "")}</p>
+        </a>`,
       );
       markers.addLayer(marker);
       markersList.set(item.id, marker);
@@ -117,5 +124,31 @@
 <style>
   .mapSection {
     height: 100vh;
+  }
+</style>
+<style is:global>
+  .popup-link {
+    text-decoration: none;
+    color: #1f2937;
+    display: block;
+  }
+  .popup-link:hover .popup-title {
+    color: #2b4888;
+  }
+  .popup-title {
+    font-size: 1.3rem;
+    margin: 0 0 0.4rem;
+    color: #1f2937;
+    transition: color 0.15s ease;
+    text-align: center;
+  }
+  .popup-address {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.4;
+  }
+  .popup-address::first-letter {
+    text-transform: capitalize;
   }
 </style>

@@ -1,0 +1,126 @@
+---
+import SparkleSVG from "../../../assets/sparkle.svg";
+---
+
+<div class="quick-questions" id="quickQuestions">
+  <span class="quick-questions-label">Questions régulièrement posées</span>
+  <div class="quick-questions-chips">
+    <button
+      type="button"
+      class="quick-question-chip"
+      data-question="Comment réparer mon téléphone ?"
+    >
+      <span>Réparer mon téléphone</span>
+      <span class="chip-plus">
+        <SparkleSVG />
+      </span>
+    </button>
+    <button
+      type="button"
+      class="quick-question-chip"
+      data-question="Comment utiliser mon ordinateur ?"
+    >
+      <span>Utiliser mon ordinateur</span>
+      <span class="chip-plus">
+        <SparkleSVG />
+      </span>
+    </button>
+    <button
+      type="button"
+      class="quick-question-chip"
+      data-question="Comment paramétrer mes emails ?"
+    >
+      <span>Paramétrer mes emails</span>
+      <span class="chip-plus">
+        <SparkleSVG />
+      </span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .quick-questions {
+    padding: 0.5rem 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .quick-questions-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+
+  .quick-questions-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+  }
+
+  .quick-questions-chips::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .quick-questions-chips::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+
+  .quick-question-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.4rem 0.4rem 0.85rem;
+    background: rgba(52, 113, 157, 0.3);
+    color: #1f2937;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .quick-question-chip:hover {
+    border-color: #2b4888;
+    background: rgba(68, 148, 206, 0.3);
+  }
+
+  .quick-question-chip:disabled,
+  .quick-question-chip[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .chip-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: #1f2937;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background-color: #1f2937;
+    padding: 3px;
+  }
+
+  .chip-plus svg {
+    stroke: white;
+    fill: white;
+  }
+
+  :global(body.chat-thinking) .quick-question-chip {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+
+---
+
+<section class="tech-section">
+  <h2 class="tech-section-title">
+    Histoire du projet : la recherche vectorielle
+  </h2>
+
+  <p>
+    Aux débuts du projet, la recherche d'organisations utilisait une approche
+    par <em>embeddings vectoriels</em> : chaque description d'organisation était convertie
+    en vecteur de 1024 dimensions via un modèle d'embedding, et les requêtes utilisateur
+    étaient comparées par similarité cosinus à l'ensemble du corpus (extension PostgreSQL
+    <code>pgvector</code>).
+  </p>
+
+  <p>
+    Cette approche fonctionnait bien pour des recherches sémantiques floues,
+    mais s'est révélée moins adaptée aux requêtes structurées (« événements à
+    Carouge mardi prochain », « ateliers pour seniors ») qui dominent les usages
+    réels. L'architecture actuelle de planification de requêtes par l'assistant
+    donne de meilleurs résultats sur ces cas, tout en restant plus simple à
+    maintenir.
+  </p>
+
+  <p>
+    Le code de l'approche vectorielle reste accessible dans l'historique Git du
+    projet pour les personnes intéressées par cette technique.
+  </p>
+</section>
+
+<style>
+  .tech-section {
+    margin-bottom: 3.5rem;
+  }
+
+  .tech-section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 1.25rem;
+    color: #1f2937;
+  }
+
+  .tech-section p {
+    font-size: 0.98rem;
+    color: #374151;
+    line-height: 1.7;
+    margin: 0 0 1rem;
+  }
+
+  .tech-section em {
+    font-style: italic;
+    color: #2b4888;
+    font-weight: 500;
+  }
+
+  .tech-section code {
+    background-color: rgba(43, 72, 136, 0.08);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    color: #2b4888;
+  }
+
+  @media (max-width: 768px) {
+    .tech-section-title {
+      font-size: 1.3rem;
+    }
+  }
+</style>

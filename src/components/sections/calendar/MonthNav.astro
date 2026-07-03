@@ -1,0 +1,114 @@
+---
+import ChevronRightSVG from "../../../assets/chevron-right.svg";
+import ChevronLeftSVG from "../../../assets/chevron-left.svg";
+import RefreshSVG from "../../../assets/refresh.svg";
+---
+
+<div class="month-nav">
+  <button
+    type="button"
+    class="month-nav-btn"
+    :class="(!includePast && isCurrentMonth) ? 'month-nav-btn-disabled' : ''"
+    :disabled="!includePast && isCurrentMonth"
+    @click="prevMonth()"
+    aria-label="Mois précédent"
+  >
+    <ChevronLeftSVG />
+  </button>
+  <h2 class="month-nav-title" x-text="currentMonthLabel"></h2>
+  <button
+    type="button"
+    class="month-nav-btn"
+    @click="nextMonth()"
+    aria-label="Mois suivant"
+  >
+    <ChevronRightSVG />
+  </button>
+  <button
+    type="button"
+    class="month-nav-today"
+    @click="goToToday()"
+    x-show="!isCurrentMonth"
+    x-transition.opacity.duration.200ms
+  >
+    <RefreshSVG />
+    <span>Aujourd'hui</span>
+  </button>
+</div>
+
+<style>
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    margin: 2rem 0 1.5rem;
+  }
+
+  .month-nav-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f2937;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .month-nav-btn:hover {
+    background: #f3f4f6;
+    border-color: #2b4888;
+  }
+
+  .month-nav-btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .month-nav-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    color: #1f2937;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .month-nav-today {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #2b4888;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+    margin-left: 0.5rem;
+  }
+
+  .month-nav-today:hover {
+    background: rgba(43, 72, 136, 0.05);
+    border-color: #2b4888;
+  }
+
+  .month-nav-today svg {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .month-nav-title {
+      font-size: 1.4rem;
+    }
+  }
+</style>

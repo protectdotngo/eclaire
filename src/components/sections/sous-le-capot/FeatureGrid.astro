@@ -1,0 +1,92 @@
+---
+import ArchiveSVG from "../../../assets/archive.svg";
+import BlendSVG from "../../../assets/blend-mode.svg";
+import DBSVG from "../../../assets/database.svg";
+---
+
+<div class="tech-grid">
+  <article class="tech-card">
+    <div class="tech-card-icon">
+      <ArchiveSVG />
+    </div>
+    <h3 class="tech-card-title">Collecte automatisée</h3>
+    <p>
+      Des workflows de scraping interrogent régulièrement les sites des
+      organisations partenaires pour extraire événements et actualités.
+      L'extraction est assistée par modèle de langage, qui transforme les pages
+      web brutes en données structurées (titre, date, lieu, catégorie).
+    </p>
+  </article>
+
+  <article class="tech-card">
+    <div class="tech-card-icon">
+      <DBSVG />
+    </div>
+    <h3 class="tech-card-title">Stockage relationnel</h3>
+    <p>
+      Une base PostgreSQL structurée en trois tables principales (organisations,
+      événements, actualités) reliées par des tables de jonction. La
+      déduplication des événements s'appuie sur une contrainte composite (URL de
+      base + date de début) qui évite la ré-importation lors des cycles de
+      scraping.
+    </p>
+  </article>
+
+  <article class="tech-card">
+    <div class="tech-card-icon">
+      <BlendSVG />
+    </div>
+    <h3 class="tech-card-title">Interface unifiée</h3>
+    <p>
+      Le front-end combine une carte interactive (Leaflet), un assistant
+      conversationnel adossé à un modèle de langage, et un calendrier
+      d'événements avec filtres multi-critères. Astro génère un site largement
+      statique, hydraté par Alpine.js pour les interactions.
+    </p>
+  </article>
+</div>
+
+<style>
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .tech-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .tech-card-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(43, 72, 136, 0.08);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2b4888;
+    margin-bottom: 0.75rem;
+  }
+
+  .tech-card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: #1f2937;
+  }
+
+  .tech-card p {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.55;
+    margin: 0;
+  }
+</style>

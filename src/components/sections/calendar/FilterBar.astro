@@ -1,0 +1,100 @@
+---
+import SearchSVG from "../../../assets/search.svg";
+import ChevronDownSVG from "../../../assets/chevron-down.svg";
+---
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <SearchSVG class:list={"search-icon"} />
+    <input
+      type="search"
+      class="search-input"
+      placeholder="Rechercher un événement..."
+      x-model="searchQuery"
+      @input.debounce.150ms=""
+    />
+  </div>
+
+  <button
+    type="button"
+    class="filter-toggle"
+    :class="filtersOpen ? 'filter-toggle-open' : ''"
+    @click="filtersOpen = !filtersOpen"
+    :aria-expanded="filtersOpen"
+  >
+    <span>Catégories</span>
+    <ChevronDownSVG class:list={"chevron"} />
+  </button>
+</div>
+
+<style>
+  .filter-bar {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 0.77rem 1rem 0.77rem 2.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: white;
+    color: #1f2937;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #2b4888;
+  }
+
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #1f2937;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .filter-toggle:hover {
+    background: #f8fafc;
+    border-color: #2b4888;
+  }
+
+  .filter-toggle .chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .filter-toggle-open .chevron {
+    transform: rotate(180deg);
+  }
+</style>

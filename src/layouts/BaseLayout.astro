@@ -30,6 +30,10 @@ const { title = "Default Title" } = Astro.props;
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap");
+  @font-face {
+    font-family: "FoundersGroteskSemibold";
+    src: url("/fonts/FoundersGrotesk-Semibold.otf") format("opentype");
+  }
 
   :root {
     --bg-color-1: 255, 255, 255;
@@ -47,14 +51,28 @@ const { title = "Default Title" } = Astro.props;
     height: 100%;
     overflow-x: clip;
   }
-  :global(.none) {
-    display: none !important;
-  }
 </style>
 <style is:global>
   *,
   *::before,
   *::after {
     box-sizing: border-box;
+  }
+  .none {
+    display: none !important;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family:
+      "FoundersGroteskSemibold", "Inter Tight", Inter, Roboto, "Helvetica Neue",
+      "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+  }
+  input {
+    font-family:
+      "Inter Tight", Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
   }
 </style>

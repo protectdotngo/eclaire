@@ -1,0 +1,116 @@
+<div class="filter-section-label">Sélectionnés</div>
+<div class="selected-chips">
+  <template x-for="f in activeFilters" :key="f.key">
+    <button
+      type="button"
+      class="chip chip-selected"
+      :style="f.color ? `--chip-color:${f.color};--chip-bg:${f.bg};--chip-text:${f.text}` : ''"
+      :class="f.type === 'category' ? 'chip-category' : f.type === 'audience' ? 'chip-audience' : 'chip-neutral'"
+      @click="removeFilter(f)"
+    >
+      <template x-if="f.type === 'category'">
+        <span class="dot"></span>
+      </template>
+      <span x-text="f.label"></span>
+      <span class="chip-x" aria-hidden="true">×</span>
+    </button>
+  </template>
+  <template x-if="activeFilters.length === 0">
+    <span class="selected-empty">Aucun filtre actif</span>
+  </template>
+</div>
+
+<style>
+  .filter-section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  .selected-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f3f4f6;
+    border-radius: 10px;
+    align-items: center;
+  }
+
+  .selected-empty {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    background: white;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      opacity 0.15s ease;
+    border: 1.5px solid;
+  }
+
+  .chip .dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .chip-x {
+    margin-left: 0.15rem;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.7;
+  }
+
+  .chip-category {
+    border-color: var(--chip-color);
+    color: var(--chip-color);
+  }
+
+  .chip-category .dot {
+    background: var(--chip-color);
+  }
+
+  .chip-category.chip-selected {
+    background: var(--chip-bg);
+    color: var(--chip-text);
+  }
+
+  .chip-audience {
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .chip-audience.chip-selected {
+    background: #1e293b;
+    color: white;
+    border-color: #1e293b;
+  }
+
+  .chip-neutral {
+    border-color: #cbd5e1;
+    color: #475569;
+    background: white;
+  }
+
+  .chip-neutral.chip-selected {
+    background: #2b4888;
+    color: white;
+    border-color: #2b4888;
+  }
+</style>

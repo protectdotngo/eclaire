@@ -1,0 +1,280 @@
+---
+
+---
+
+<section class="tech-section">
+  <h2 class="tech-section-title">Vue d'ensemble de l'architecture</h2>
+  <p class="tech-section-intro">
+    Éclaire repose sur trois composants principaux, conçus pour fonctionner
+    indépendamment tout en se nourrissant mutuellement :
+  </p>
+
+  <div class="arch-diagram-html">
+    <div class="arch-label">FLUX DE DONNÉES</div>
+
+    <div class="arch-row">
+      <div class="arch-box">
+        <h3>Collecte</h3>
+        <p>Scraping automatisé</p>
+        <p>Extraction IA</p>
+        <span class="arch-box-label">n8n</span>
+      </div>
+
+      <div class="arch-arrow" aria-hidden="true">
+        <svg viewBox="0 0 60 12" xmlns="http://www.w3.org/2000/svg">
+          <line
+            x1="0"
+            y1="6"
+            x2="55"
+            y2="6"
+            stroke="#2b4888"
+            stroke-width="2"
+            stroke-dasharray="4 4"></line>
+          <polygon points="60,6 50,1 50,11" fill="#2b4888"></polygon>
+        </svg>
+      </div>
+
+      <div class="arch-box">
+        <h3>Base de données</h3>
+        <p>Organisations</p>
+        <p>Événements, news</p>
+        <span class="arch-box-label">PostgreSQL</span>
+      </div>
+
+      <div class="arch-arrow" aria-hidden="true">
+        <svg viewBox="0 0 60 12" xmlns="http://www.w3.org/2000/svg">
+          <line
+            x1="0"
+            y1="6"
+            x2="55"
+            y2="6"
+            stroke="#2b4888"
+            stroke-width="2"
+            stroke-dasharray="4 4"></line>
+          <polygon points="60,6 50,1 50,11" fill="#2b4888"></polygon>
+        </svg>
+      </div>
+
+      <div class="arch-box">
+        <h3>Interface</h3>
+        <p>Carte interactive</p>
+        <p>Recherche IA</p>
+        <span class="arch-box-label">Astro + Alpine</span>
+      </div>
+    </div>
+
+    <div class="arch-down-arrow" aria-hidden="true">
+      <svg viewBox="0 0 12 60" xmlns="http://www.w3.org/2000/svg">
+        <line
+          x1="6"
+          y1="0"
+          x2="6"
+          y2="55"
+          stroke="#2b4888"
+          stroke-width="2"
+          stroke-dasharray="4 4"></line>
+        <polygon points="6,60 1,50 11,50" fill="#2b4888"></polygon>
+      </svg>
+    </div>
+
+    <div class="arch-box arch-box-llm">
+      <h3>Assistant conversationnel</h3>
+      <span class="arch-box-label-light"
+        >Qwen 235B (planificateur de requêtes)</span
+      >
+    </div>
+  </div>
+</section>
+
+<style>
+  .tech-section {
+    margin-bottom: 3.5rem;
+  }
+
+  .tech-section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 1.25rem;
+    color: #1f2937;
+  }
+
+  .tech-section-intro {
+    font-size: 1.05rem;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .arch-diagram-html {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    margin: 1.5rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .arch-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .arch-box {
+    flex: 1;
+    background: white;
+    border: 2px solid #2b4888;
+    border-radius: 10px;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 130px;
+  }
+
+  .arch-box h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  .arch-box p {
+    margin: 0.1rem 0;
+    font-size: 0.78rem;
+    color: #4b5563;
+    line-height: 1.3;
+  }
+
+  .arch-box-label {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: #6b7280;
+  }
+
+  .arch-arrow {
+    flex-shrink: 0;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+  }
+
+  .arch-arrow svg {
+    width: 100%;
+    height: 12px;
+  }
+
+  .arch-down-arrow {
+    margin: 0.5rem 0;
+    height: 50px;
+  }
+
+  .arch-down-arrow svg {
+    height: 50px;
+    width: 12px;
+  }
+
+  .arch-box-llm {
+    background: #c73b5d;
+    border-color: #c73b5d;
+    max-width: 320px;
+    padding: 1rem 1.5rem;
+    min-height: auto;
+  }
+
+  .arch-box-llm h3 {
+    color: white;
+  }
+
+  .arch-box-label-light {
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  @media (max-width: 768px) {
+    .tech-section-title {
+      font-size: 1.3rem;
+    }
+
+    .arch-row {
+      flex-direction: column;
+      width: 100%;
+      max-width: 320px;
+      gap: 0;
+    }
+
+    .arch-box {
+      width: 100%;
+      min-height: auto;
+      padding: 1.25rem 1rem;
+    }
+
+    .arch-arrow {
+      width: 12px;
+      height: 50px;
+      padding: 0.5rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arch-arrow::before {
+      content: "";
+      display: block;
+      width: 2px;
+      height: 30px;
+      background-image: linear-gradient(
+        to bottom,
+        #2b4888 50%,
+        transparent 50%
+      );
+      background-size: 2px 8px;
+      background-repeat: repeat-y;
+      margin: 0 auto;
+    }
+
+    .arch-arrow::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 8px 5px 0 5px;
+      border-color: #2b4888 transparent transparent transparent;
+      margin: 0 auto;
+    }
+
+    .arch-arrow svg {
+      display: none;
+    }
+
+    .arch-box-llm {
+      width: 100%;
+      max-width: 320px;
+      padding: 1.25rem 1rem;
+    }
+  }
+</style>

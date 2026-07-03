@@ -1,0 +1,126 @@
+---
+import { type CollectionEntry, render } from "astro:content";
+
+interface Props {
+  partner: CollectionEntry<"partners">;
+}
+
+const { partner } = Astro.props;
+const { Content } = await render(partner);
+---
+
+<a
+  href={partner.data.url}
+  target="_blank"
+  rel="noopener"
+  class="v1-partner-card"
+>
+  <div class="v1-partner-meta">
+    {
+      partner.data.name ? (
+        <h3 class="v1-partner-name" set:html={partner.data.name} />
+      ) : (
+        <h3 class="v1-partner-name">{partner.data.name}</h3>
+      )
+    }
+    {
+      partner.data.address && (
+        <p class="v1-partner-address">{partner.data.address}</p>
+      )
+    }
+    <img
+      src={partner.data.logo}
+      alt={`Logo ${partner.data.name}`}
+      class="v1-partner-logo"
+      loading="lazy"
+    />
+  </div>
+  <div class="v1-partner-description">
+    <Content />
+  </div>
+</a>
+
+<style>
+  .v1-partner-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 2rem;
+    align-items: start;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .v1-partner-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(43, 72, 136, 0.1);
+    border-color: rgba(43, 72, 136, 0.25);
+  }
+
+  .v1-partner-card:hover .v1-partner-name {
+    color: #2b4888;
+  }
+
+  .v1-partner-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .v1-partner-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1f2937;
+    transition: color 0.15s ease;
+  }
+
+  .v1-partner-address {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: #6b7280;
+    margin: 0;
+    font-style: italic;
+  }
+
+  .v1-partner-logo {
+    max-width: 140px;
+    max-height: 60px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: left;
+    margin-top: 0.25rem;
+  }
+
+  .v1-partner-description {
+    margin: 0;
+  }
+
+  .v1-partner-description :global(p) {
+    margin: 0 0 0.75rem;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: #4b5563;
+  }
+
+  .v1-partner-description :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    .v1-partner-card {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 1.25rem;
+    }
+  }
+</style>

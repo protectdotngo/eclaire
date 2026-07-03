@@ -1,0 +1,407 @@
+---
+import ArrowSVG from "../../../assets/circle-arrow-right.svg";
+import PinSVG from "../../../assets/map-pin.svg";
+import ClockSVG from "../../../assets/clock.svg";
+import HourglassSVG from "../../../assets/hourglass-empty.svg";
+---
+
+<div class="event-list" x-show="!loading">
+  <template x-if="visibleEvents.length === 0">
+    <div class="empty-state">
+      Aucun événement ce mois-ci. Tu peux changer de mois ou ajuster les
+      filtres.
+    </div>
+  </template>
+
+  <template x-for="event in visibleEvents" :key="event.id">
+    <article
+      class="event-row"
+      :class="{'event-row-expanded': expandedId === event.id, 'event-row-past': event.isPast}"
+    >
+      <button
+        type="button"
+        class="event-row-clickable"
+        @click="toggleExpand(event.id)"
+      >
+        <div class="event-date-col">
+          <div class="event-date-block">
+            <div class="event-date-day" x-text="event.startDay"></div>
+            <div class="event-date-month" x-text="event.startMonth"></div>
+          </div>
+          <template x-if="event.hasEnd">
+            <div class="event-date-block event-date-block-end">
+              <div class="event-date-day" x-text="event.endDay"></div>
+              <div class="event-date-month" x-text="event.endMonth"></div>
+            </div>
+          </template>
+        </div>
+
+        <div class="event-body-col">
+          <h3 class="event-title" x-text="event.title"></h3>
+          <template x-if="event.location">
+            <div class="event-location">
+              <PinSVG />
+              <span x-text="event.location"></span>
+            </div>
+          </template>
+        </div>
+
+        <div class="event-desc-col">
+          <p
+            class="event-desc-preview"
+            x-show="expandedId !== event.id"
+            x-text="event.shortContent"
+          >
+          </p>
+        </div>
+      </button>
+
+      <div class="event-expanded" x-show="expandedId === event.id" x-collapse>
+        <div class="event-expanded-inner">
+          <p
+            class="event-content"
+            x-show="event.content"
+            x-text="event.content"
+          >
+          </p>
+
+          <div class="event-times" x-show="event.timeLabel">
+            <ClockSVG />
+            <span x-text="event.timeLabel"></span>
+          </div>
+
+          <div
+            class="event-tags"
+            x-show="event.categories && event.categories.length > 0"
+          >
+            <template x-for="cat in event.categories" :key="cat">
+              <span
+                class="event-tag"
+                :style="getCategoryStyle(cat)"
+                x-text="cat"></span>
+            </template>
+          </div>
+
+          <template x-if="event.url">
+            <a
+              :href="event.url"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-event"
+            >
+              <span>Voir l'événement</span>
+              <span class="btn-arrow-circle">
+                <ArrowSVG />
+              </span>
+            </a>
+          </template>
+        </div>
+      </div>
+    </article>
+  </template>
+</div>
+
+<div class="loading-state" x-show="loading" :class="{ 'animate': loading }">
+  <span>Chargement des événements...</span>
+  <HourglassSVG />
+</div>
+
+<style>
+  .event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: relative;
+  }
+
+  .event-list::before {
+    content: "";
+    position: fixed;
+    inset: 0 -5rem;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      url("/decorations/protect3.svg"), url("/decorations/protect2.svg");
+    background-repeat: repeat-y, repeat-y;
+    background-position:
+      right -2rem top 100px,
+      left -4rem top 400px;
+    background-size:
+      auto 1000px,
+      auto 1000px;
+  }
+
+  .event-row {
+    background: white;
+    border: 1px solid #1e293b;
+    border-radius: 0;
+    overflow: hidden;
+    transition:
+      box-shadow 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .event-row:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .event-row:hover .event-date-col {
+    border-color: #cbd5e1;
+  }
+
+  .event-row-expanded {
+    border-color: #2b4888;
+  }
+
+  .event-row-clickable {
+    display: grid;
+    grid-template-columns: 110px 1fr 1.2fr;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+  }
+
+  .event-row.event-row-past {
+    opacity: 0.7;
+  }
+
+  .event-row.event-row-past:hover {
+    opacity: 1;
+  }
+
+  .event-date-col {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #1e293b;
+    font-family:
+      "FoundersGroteskSemibold", "Inter Tight", Inter, Roboto, "Helvetica Neue",
+      "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+  }
+
+  .event-date-block {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    line-height: 1;
+    height: fit-content;
+    color: #1f2937;
+  }
+
+  .event-date-block-end {
+    color: #9ca3af;
+  }
+
+  .event-date-day {
+    font-size: 2.5rem;
+    font-weight: 800;
+    height: fit-content;
+    width: inherit;
+    text-align: left;
+  }
+
+  .event-date-block-end .event-date-day {
+    color: #9ca3af;
+  }
+
+  .event-date-month {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.15rem;
+  }
+
+  .event-body-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+    margin: 1rem 1.25rem;
+  }
+
+  .event-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #1f2937;
+    line-height: 1.3;
+  }
+
+  .event-location {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .event-location svg {
+    flex-shrink: 0;
+  }
+
+  .event-desc-col {
+    min-width: 0;
+  }
+
+  .event-desc-preview {
+    margin: 0.5rem 1rem 0.5rem 0;
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .event-expanded {
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+
+  .event-expanded-inner {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .event-content {
+    margin: 0;
+    font-size: 1rem;
+    color: #1f2937;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .event-times {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .event-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .event-tag {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    background: rgba(43, 72, 136, 0.08);
+    color: #2b4888;
+    border-radius: 999px;
+  }
+
+  .event-tag::first-letter {
+    text-transform: capitalize;
+  }
+
+  :global(.btn) {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem 0.4rem 0.7rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  :global(.btn:hover) {
+    transform: translateY(-1px);
+  }
+
+  :global(.btn-event) {
+    background-color: #dc436b;
+  }
+
+  :global(.btn-event:hover) {
+    background-color: #a02e4a;
+  }
+
+  :global(.btn-arrow-circle) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+    background: white;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+    gap: 2.5vh;
+  }
+
+  .loading-state svg {
+    margin: auto;
+  }
+
+  @keyframes spin-with-pause {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    60%,
+    100% {
+      transform: rotate(180deg);
+    }
+  }
+
+  .loading-state.animate svg {
+    animation: spin-with-pause 0.8s ease-in-out infinite;
+  }
+
+  @media (max-width: 768px) {
+    .event-row-clickable {
+      grid-template-columns: 80px 1fr;
+      gap: 0.75rem;
+    }
+
+    .event-desc-col {
+      display: none;
+    }
+
+    .event-date-day {
+      font-size: 1.5rem;
+    }
+  }
+</style>

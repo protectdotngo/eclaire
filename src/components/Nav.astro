@@ -9,7 +9,7 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
 
 <header class="navCont">
   <div class="nav">
-    <a href={showV1 ? "/eclaire-v1" : "/"}>
+    <a href="/">
       <EclaireLogo class="logo" />
       <EclaireI class="logo-min" />
     </a>
@@ -19,28 +19,24 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
         <span></span>
         <span></span>
       </button>
-      {
-        !showV1 && (
-          <nav class="menu">
-            <a href="/">Accueil</a>
-            <a href="/calendrier">Calendrier</a>
-            <a href="/sous-le-capot">Sous le capot</a>
-            <a href="/eclaire-v1">Eclaire v1</a>
-          </nav>
-        )
-      }
-      {
-        showV1 && (
-          <nav class="menu">
-            <a href="/eclaire-v1">Accueil</a>
-            <a href="/eclaire-v1#partenaires">Partenaires</a>
-            <a href="/eclaire-v1/ressources">Ressources utiles</a>
-            <a href="/" class="menu-return">
-              Retour au site
-            </a>
-          </nav>
-        )
-      }
+      <nav class="menu">
+        <a href="/" class="menu-link">Accueil</a>
+        <a href="/calendrier" class="menu-link">Calendrier</a>
+        <a href="/sous-le-capot" class="menu-link">Sous le capot</a>
+        <a href="/eclaire-v1" class="menu-link">Eclaire v1</a>
+        {
+          showV1 && (
+            <>
+              <a href="/eclaire-v1#partenaires" class="menu-link">
+                Partenaires
+              </a>
+              <a href="/eclaire-v1/ressources" class="menu-link">
+                Ressources utiles
+              </a>
+            </>
+          )
+        }
+      </nav>
       {
         showPanelToggle && (
           <>
@@ -51,28 +47,24 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
       }
     </div>
   </div>
-  {
-    !showV1 && (
-      <nav class="menu-mobile">
-        <a href="/">Accueil</a>
-        <a href="/calendrier">Calendrier</a>
-        <a href="/sous-le-capot">Sous le capot</a>
-        <a href="/eclaire-v1">Eclaire v1</a>
-      </nav>
-    )
-  }
-  {
-    showV1 && (
-      <nav class="menu-mobile">
-        <a href="/eclaire-v1">Accueil</a>
-        <a href="/eclaire-v1#partenaires">Partenaires</a>
-        <a href="/eclaire-v1/ressources">Ressources utiles</a>
-        <a href="/" class="menu-return">
-          Retour au site
-        </a>
-      </nav>
-    )
-  }
+  <nav class="menu-mobile">
+    <a href="/" class="menu-link">Accueil</a>
+    <a href="/calendrier" class="menu-link">Calendrier</a>
+    <a href="/sous-le-capot" class="menu-link">Sous le capot</a>
+    <a href="/eclaire-v1" class="menu-link">Eclaire v1</a>
+    {
+      showV1 && (
+        <>
+          <a href="/eclaire-v1#partenaires" class="menu-link">
+            Partenaires
+          </a>
+          <a href="/eclaire-v1/ressources" class="menu-link">
+            Ressources utiles
+          </a>
+        </>
+      )
+    }
+  </nav>
 </header>
 
 <script>
@@ -129,11 +121,13 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
   });
 </script>
 
-<style>
+<style is:global>
   .navCont {
+    position: relative;
     width: 100%;
-    background-color: rgba(var(--bg-color-1), 0.5);
+    background: rgba(255, 255, 255, 0.5);
     overflow: hidden;
+    z-index: 10;
   }
   .nav {
     display: flex;
@@ -147,11 +141,11 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
   }
   .logo {
     width: auto;
-    height: 7vh;
+    height: 9vh;
   }
   .logo-min {
     width: auto;
-    height: 7vh;
+    height: 9vh;
     display: none;
     margin: auto;
     padding: 1.5vh;
@@ -162,24 +156,22 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
     gap: 1vw;
     align-items: center;
   }
-  .menu a,
-  .menu-mobile a {
+  .menu-link {
     color: var(--color-1);
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 1.1rem;
     display: block;
     padding: 5px 10px;
     border-radius: 12px;
-    background-color: rgba(var(--bg-color-1), 1);
+    background: rgba(var(--bg-color-1), 1);
     white-space: nowrap;
     transition:
-      background-color 0.2s ease-in-out,
-      color 0.2s ease-in-out;
+      background 0.2s ease-in-out,
+      color 0.15s ease-in-out;
   }
-  .menu a:hover,
-  .menu-mobile a:hover {
+  .menu-link:hover {
     color: rgba(var(--color-2), 1);
-    background-color: rgba(var(--bg-color-2), 1);
+    background: rgba(var(--bg-color-2), 1);
   }
   .menu-mobile {
     display: flex;
@@ -188,19 +180,6 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
     gap: 1vh;
     align-items: center;
     transition: ease-in-out 0.3s;
-  }
-  .menu .menu-return,
-  .menu-mobile .menu-return {
-    background-color: rgba(var(--color-1), 1);
-    color: white;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .menu .menu-return:hover,
-  .menu-mobile .menu-return:hover {
-    background-color: rgba(var(--color-1), 0.85);
-    color: white;
   }
   .side-bar-btn {
     width: 30px;

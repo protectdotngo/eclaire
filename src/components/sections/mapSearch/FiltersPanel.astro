@@ -1,0 +1,233 @@
+---
+import FilterSVG from "../../../assets/filter.svg";
+import ChatSVG from "../../../assets/chat.svg";
+import RefreshSVG from "../../../assets/refresh.svg";
+import ChevronSVG from "../../../assets/chevron-down.svg";
+---
+
+<div class="filters none" id="filters">
+  <div class="filters-card">
+    <div class="filters-header">
+      <FilterSVG class="filters-svg" />
+      <h2 class="filters-title">Filtrer</h2>
+    </div>
+
+    <form class="filters-form" id="filters-form">
+      <div class="filter-field">
+        <label class="filter-label" for="category">Catégorie</label>
+        <div class="filter-select-wrap">
+          <select
+            name="category"
+            id="category"
+            class="filter-select"
+            x-data="{ results: [] }"
+            @populate-categories.window="results = $event.detail"
+          >
+            <option value="">Toutes les catégories</option>
+            <template x-for="item in results">
+              <option
+                :value="item"
+                x-text="item.charAt(0).toUpperCase()+item.slice(1)"></option>
+            </template>
+          </select>
+          <span class="filter-chevron">
+            <ChevronSVG />
+          </span>
+        </div>
+      </div>
+
+      <div class="filter-field">
+        <label class="filter-label" for="location">Localité</label>
+        <div class="filter-select-wrap">
+          <select
+            name="location"
+            id="location"
+            class="filter-select"
+            x-data="{ results: [] }"
+            @populate-locations.window="results = $event.detail"
+          >
+            <option value="">Toutes les localités</option>
+            <template x-for="item in results">
+              <option :value="item" x-text="item"></option>
+            </template>
+          </select>
+          <span class="filter-chevron">
+            <ChevronSVG />
+          </span>
+        </div>
+      </div>
+    </form>
+    <button type="button" class="filters-reset none" id="filtersReset">
+      <RefreshSVG width={"16"} height={"16"} />
+      <span>Réinitialiser les filtres</span>
+    </button>
+    <button type="button" class="filters-swap swap">
+      <ChatSVG class="filters-swap-ai" />
+      <span>ou poser une question</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .filters {
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+    text-align: left;
+  }
+
+  .filters-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .filters-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(43, 72, 136, 0.15);
+  }
+
+  .filters-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #34719d;
+  }
+
+  .filters-svg {
+    width: 25px;
+    fill: #34719d;
+    stroke: #34719d;
+  }
+
+  .filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .filter-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .filter-select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    font-size: 0.95rem;
+    color: #1f2937;
+    background-color: rgba(43, 72, 136, 0.04);
+    border: 1px solid rgba(43, 72, 136, 0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .filter-select:hover {
+    background-color: rgba(43, 72, 136, 0.08);
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: #2b4888;
+    background-color: white;
+  }
+
+  .filter-chevron {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2b4888;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filters-swap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background-color: transparent;
+    color: #34719d;
+    border: 1px solid rgba(43, 72, 136, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .filters-swap:hover {
+    background-color: rgba(43, 72, 136, 0.05);
+    border-color: #2b4888;
+  }
+
+  .filters-swap span {
+    text-decoration: underline;
+  }
+
+  .filters-swap-ai {
+    width: 40px;
+    fill: transparent;
+    stroke: #34719d;
+  }
+
+  .filters-reset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.75rem;
+    background-color: transparent;
+    color: #c73b5d;
+    border: 1px solid rgba(199, 59, 93, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .filters-reset:hover {
+    background-color: rgba(199, 59, 93, 0.05);
+    border-color: #c73b5d;
+  }
+
+  .filters-reset :global(svg) {
+    flex-shrink: 0;
+  }
+</style>

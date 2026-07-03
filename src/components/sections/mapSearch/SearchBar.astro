@@ -1,0 +1,182 @@
+---
+import FilterSVG from "../../../assets/filter.svg";
+import XSVG from "../../../assets/cross.svg";
+import RefreshSVG from "../../../assets/refresh.svg";
+import EnterSVG from "../../../assets/corner-down-left.svg";
+---
+
+<div class="search" id="search">
+  <div class="search-bar-filters">
+    <form
+      class="ai-search"
+      id="aiForm"
+      onkeydown="if(event.keyCode === 13 && !document.getElementById('aiFormSubmit').disabled){document.getElementById('aiFormSubmit').click(); return false}"
+    >
+      <div class="ai-search-cont">
+        <input
+          type="text"
+          class="ai-search-bar"
+          id="search-bar"
+          name="search"
+          value=""
+          placeholder="Posez nous une question !"
+        />
+        <XSVG id={"clear-search"} class={"none"} />
+        <button type="button" class="ai-search-btn" id="aiFormSubmit">
+          <span>Envoyer</span><EnterSVG width={"18"} height={"18"} />
+        </button>
+      </div>
+    </form>
+
+    <div class="ai-actions">
+      <button type="button" class="none ai-reset-btn" id="aiReset">
+        <RefreshSVG width={"16"} height={"16"} /> Nouvelle recherche
+      </button>
+      <div class="ai-swap swap">
+        <FilterSVG width={"18"} height={"22"} />
+        <span class="ai-swap-link">Recherche par critères</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .search {
+    width: 100%;
+    padding: 0 1.5rem 0.5em;
+    flex-shrink: 0;
+  }
+
+  .search-bar-filters {
+    width: 100%;
+    border: 1px solid rgba(43, 72, 136, 0.4);
+    margin: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: white;
+  }
+
+  .ai-search-cont {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    background-color: white;
+    min-width: 0;
+  }
+
+  .ai-search-bar {
+    flex: 1 1 0;
+    min-width: 0;
+    border: none;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: transparent;
+    color: #1f2937;
+  }
+
+  .ai-search-bar::placeholder {
+    color: #34719d;
+    opacity: 0.6;
+  }
+
+  :global(#clear-search) {
+    cursor: pointer;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0 0.5rem;
+  }
+
+  .ai-search-bar:focus {
+    outline: none;
+  }
+
+  .ai-search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    border: none;
+    cursor: pointer;
+    background-color: rgba(43, 72, 136, 0.5);
+    color: white;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    padding: 0.25rem 0.4rem;
+    margin: 0.4rem;
+    border-radius: 10px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: ease-in-out 0.1s;
+  }
+
+  .ai-search-btn:hover {
+    background-color: rgba(43, 72, 136, 0.7);
+  }
+
+  .ai-search-btn:disabled {
+    background-color: rgba(43, 72, 136, 0.25);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  :global(body.chat-thinking) .ai-search-btn {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .ai-search-btn :global(svg) {
+    background-color: transparent;
+  }
+
+  .ai-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background-color: #34719d;
+    padding: 0.5rem 1rem;
+  }
+
+  .ai-reset-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .ai-reset-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .ai-swap {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.1rem;
+    color: white;
+    font-size: 0.9rem;
+    width: fit-content;
+  }
+
+  .ai-swap :global(svg) {
+    color: white;
+    fill: white;
+    width: 1.5rem;
+  }
+
+  .ai-swap-link {
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+import { getEntry } from "astro:content";
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const partner = await getEntry("partners", id);
+---
+
+{
+  partner && (
+    <span class="v1-resource-card-badge" set:html={partner.data.name} />
+  )
+}
+
+<style>
+  .v1-resource-card-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.6rem;
+    background: #dc436b;
+    color: white;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .v1-resource-card-badge :global(sup) {
+    font-size: 0.7em;
+  }
+</style>
