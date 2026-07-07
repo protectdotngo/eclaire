@@ -1,9 +1,6 @@
 import { $mapData } from "./mapStore";
 import type { Data } from "../interfaces/dbData";
-import type {
-  ChatMsg,
-  ChatApiResponse,
-} from "../interfaces/mapSearchUtils";
+import type { ChatMsg, ChatApiResponse } from "../interfaces/mapSearchUtils";
 
 export function initMapSearchController() {
   const aiForm = document.getElementById("aiForm") as HTMLFormElement;
@@ -26,6 +23,9 @@ export function initMapSearchController() {
   function setThinking(value: boolean) {
     window.dispatchEvent(new CustomEvent("chat-thinking", { detail: value }));
     if (aiFormSubmit) (aiFormSubmit as HTMLButtonElement).disabled = value;
+    document.querySelectorAll(".quick-question-chip").forEach((chip) => {
+      (chip as HTMLButtonElement).disabled = value;
+    });
     document.body.classList.toggle("chat-thinking", value);
   }
 
@@ -122,12 +122,17 @@ export function initMapSearchController() {
 
       let eventsFound = false;
       let skipNextText = false;
+      let skipAfterOrgsText = false;
 
       const blocks = result.blocks;
       const eventSearchIdx = blocks.findIndex((b) => b.type === "event_search");
       const hasFallbackOrgs =
         eventSearchIdx !== -1 &&
         blocks.slice(eventSearchIdx + 1).some((b) => b.type === "orgs");
+      const orgsBlockIdx = blocks.findIndex(
+        (b, i) =>
+          b.type === "orgs" && eventSearchIdx !== -1 && i > eventSearchIdx,
+      );
 
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
@@ -135,6 +140,9 @@ export function initMapSearchController() {
         if (block.type === "text" && block.content) {
           if (skipNextText) {
             skipNextText = false;
+            continue;
+          }
+          if (skipAfterOrgsText && orgsBlockIdx !== -1 && i > orgsBlockIdx) {
             continue;
           }
           const donePromise = waitForMessageDone();
@@ -192,6 +200,7 @@ export function initMapSearchController() {
 
           if (hasFallbackOrgs) {
             skipNextText = true;
+            skipAfterOrgsText = true;
             const donePromise = waitForMessageDone();
             dispatchChatMessage({
               role: "assistant",

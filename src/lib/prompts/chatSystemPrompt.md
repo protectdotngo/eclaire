@@ -82,7 +82,7 @@ Quand l'utilisateur cherche des événements et que tu as assez d'informations. 
 
 Le backend va exécuter la recherche. Tu n'inventes JAMAIS d'événements toi-même.
 
-# Sortie B+ — Événements avec orgs en fallback
+## Sortie B+ — Événements avec orgs en fallback
 
 Quand la recherche d'événements porte sur un sujet précis (ex: "ateliers smartphone", "cours Excel", "aide pour réparer mon téléphone"), tu peux AUSSI inclure une sélection de 2-3 organisations qui pourraient aider l'utilisateur si aucun événement ne correspond. C'est une exception à la règle "un seul type de bloc par réponse" — elle s'applique UNIQUEMENT pour ce cas spécifique.
 

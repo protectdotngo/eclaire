@@ -89,7 +89,7 @@ import SparkleSVG from "../../../assets/sparkle.svg";
       border-color 0.15s ease;
   }
 
-  .quick-question-chip:hover {
+  .quick-question-chip:not(:disabled):hover {
     border-color: #2b4888;
     background: rgba(68, 148, 206, 0.3);
   }
@@ -121,6 +121,5 @@ import SparkleSVG from "../../../assets/sparkle.svg";
   :global(body.chat-thinking) .quick-question-chip {
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: none;
   }
 </style>

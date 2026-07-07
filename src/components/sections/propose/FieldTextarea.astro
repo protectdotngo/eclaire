@@ -1,0 +1,67 @@
+---
+interface Props {
+  name: string;
+  label: string;
+  required?: boolean;
+  placeholder?: string;
+  rows?: number;
+}
+
+const { name, label, required = false, placeholder, rows = 5 } = Astro.props;
+---
+
+<div class="field">
+  <label class="field-label" for={name}>
+    {label}
+    {required && <span class="field-required">*</span>}
+  </label>
+  <textarea
+    id={name}
+    name={name}
+    rows={rows}
+    class="field-textarea"
+    placeholder={placeholder}
+    required={required}
+    x-model={`formData.${name}`}></textarea>
+</div>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .field-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .field-required {
+    color: #c73b5d;
+    margin-left: 0.15rem;
+  }
+
+  .field-textarea {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+    color: #1f2937;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .field-textarea:focus {
+    outline: none;
+    border-color: #2b4888;
+    box-shadow: 0 0 0 3px rgba(43, 72, 136, 0.12);
+  }
+</style>

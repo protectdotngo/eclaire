@@ -1,0 +1,88 @@
+---
+import FieldText from "./FieldText.astro";
+import FieldSelect from "./FieldSelect.astro";
+---
+
+<div class="proposal-section">
+  <h2 class="proposal-section-title">À propos de toi</h2>
+
+  <FieldSelect
+    name="submitter_type"
+    label="Tu es"
+    required
+    model="formData.submitter_type"
+  >
+    <option value="">Sélectionne...</option>
+    <option value="organisation">Une organisation</option>
+    <option value="particulier">Un particulier</option>
+  </FieldSelect>
+
+  <FieldSelect
+    name="action"
+    label="Tu souhaites"
+    required
+    model="formData.action"
+    changeHandler="onActionChange()"
+  >
+    <option value="">Sélectionne...</option>
+    <option value="propose">Proposer une nouvelle organisation</option>
+    <option value="modify">Modifier une organisation existante</option>
+  </FieldSelect>
+
+  <div x-show="formData.action === 'modify'" x-transition>
+    <FieldSelect
+      name="modifying_org"
+      label="Organisation à modifier"
+      visualRequired
+      model="formData.modifying_org_id"
+      changeHandler="onOrgSelected()"
+    >
+      <option value="">Sélectionne une organisation...</option>
+      <template x-for="org in allOrgs" :key="org.id">
+        <option :value="org.id" x-text="org.name"></option>
+      </template>
+    </FieldSelect>
+  </div>
+
+  <FieldText
+    name="submitter_name"
+    label="Ton nom"
+    required
+    placeholder="Prénom et nom"
+  />
+
+  <FieldText
+    name="submitter_email"
+    label="Ton email"
+    type="email"
+    required
+    placeholder="pour te recontacter si besoin"
+  />
+</div>
+
+<style>
+  .proposal-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .proposal-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #34719d;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(43, 72, 136, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    .proposal-section {
+      padding: 1.25rem;
+    }
+  }
+</style>

@@ -22,8 +22,9 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
       <nav class="menu">
         <a href="/" class="menu-link">Accueil</a>
         <a href="/calendrier" class="menu-link">Calendrier</a>
+        <a href="/proposer" class="menu-link">Suggestions</a>
         <a href="/sous-le-capot" class="menu-link">Sous le capot</a>
-        <a href="/eclaire-v1" class="menu-link">Eclaire v1</a>
+        <a href="/eclaire-v1" class="menu-link">Présentation du projet</a>
         {
           showV1 && (
             <>
@@ -39,19 +40,32 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
       </nav>
       {
         showPanelToggle && (
-          <>
-            <CloseSideBar class="side-bar-btn icon" id="sideBarClose" />
-            <OpenSideBar class="side-bar-btn icon none" id="sideBarOpen" />
-          </>
+          <button
+            type="button"
+            class="side-bar-btn-wrap"
+            id="sideBarClose"
+            aria-label="Fermer le panneau"
+          >
+            <CloseSideBar class="side-bar-btn icon" />
+          </button>
+          <button
+            type="button"
+            class="side-bar-btn-wrap none"
+            id="sideBarOpen"
+            aria-label="Ouvrir le panneau"
+          >
+            <OpenSideBar class="side-bar-btn icon" />
+          </button>
         )
       }
     </div>
   </div>
-  <nav class="menu-mobile">
+  <nav class="menu-mobile" inert>
     <a href="/" class="menu-link">Accueil</a>
     <a href="/calendrier" class="menu-link">Calendrier</a>
+    <a href="/proposer" class="menu-link">Suggestions</a>
     <a href="/sous-le-capot" class="menu-link">Sous le capot</a>
-    <a href="/eclaire-v1" class="menu-link">Eclaire v1</a>
+    <a href="/eclaire-v1" class="menu-link">Présentation du projet</a>
     {
       showV1 && (
         <>
@@ -97,6 +111,11 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
   btn.addEventListener("click", () => {
     const isOpen = menu.classList.toggle("open");
     btn.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen) {
+    menu.removeAttribute("inert");
+  } else {
+    menu.setAttribute("inert", "");
+  }
     document.body.classList.toggle("mobile-menu-open", isOpen);
     if (isOpen) {
       requestAnimationFrame(() => {
@@ -114,6 +133,7 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
   document.addEventListener("click", (e) => {
     if (e.target instanceof Element && !e.target.closest("header")) {
       menu.classList.remove("open");
+      menu.setAttribute("inert", "");
       btn.setAttribute("aria-expanded", "false");
       document.body.classList.remove("mobile-menu-open");
       document.documentElement.style.setProperty("--mobile-menu-height", "0px");
@@ -181,11 +201,26 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
     align-items: center;
     transition: ease-in-out 0.3s;
   }
+  .side-bar-btn-wrap {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1vw;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+  }
   .side-bar-btn {
     width: 30px;
     height: 30px;
     cursor: pointer;
-    margin-right: 1vw;
+  }
+  .side-bar-btn-warp:hover .side-bar-btn {
+    stroke: rgb(var(--color-2))
   }
   .hamburger {
     display: none;
@@ -206,6 +241,9 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
     transition:
       transform 0.3s,
       opacity 0.3s;
+  }
+  .hamburger:hover span {
+    background: rgba(var(--color-2), 1);
   }
   .hamburger[aria-expanded="true"] span:nth-child(1) {
     transform: translateY(8px) rotate(45deg);

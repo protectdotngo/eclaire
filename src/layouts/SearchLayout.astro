@@ -24,15 +24,6 @@ import Nav from "../components/Nav.astro";
     }
   }
 
-  function applyMobileDefault() {
-    const sideBar = document.querySelector(".side-bar");
-    if (!sideBar) return;
-    if (window.innerWidth <= MOBILE_BREAKPOINT) {
-      sideBar.classList.add("collapsed");
-      sideSVG();
-    }
-  }
-  applyMobileDefault();
   const map = document.querySelector(".main");
   map?.addEventListener("click", (e) => {
     if (
@@ -46,7 +37,7 @@ import Nav from "../components/Nav.astro";
       sideSVG();
     }
   });
-  const sideBarBtns = document.querySelectorAll(".side-bar-btn");
+  const sideBarBtns = document.querySelectorAll(".side-bar-btn-wrap");
   sideBarBtns.forEach((item) => {
     item.addEventListener("click", () => {
       const sideBar = document.getElementById("sideBar");

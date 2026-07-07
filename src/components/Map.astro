@@ -29,6 +29,10 @@
   }
 
   const map = L.map("mapSection").setView([46.2044, 6.1432], 12);
+  map.removeControl(map.attributionControl);
+  L.control
+    .attribution({ prefix: '<a href="https://leafletjs.com/">Leaflet</a>' })
+    .addTo(map);
   const Stadia_OSMBright = L.tileLayer(
     "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.{ext}",
     {
@@ -69,6 +73,7 @@
       marker.bindPopup(
         `<a class="popup-link" target="_blank" href="${escapeHtml(item.domain ?? "")}">
           <h3 class="popup-title">${escapeHtml(item.name)}</h3>
+          <p class="popup-desc">${escapeHtml(item.desc)}</p>
           <p class="popup-address">${escapeHtml(item.address ?? "")}</p>
         </a>`,
       );
@@ -136,17 +141,29 @@
     color: #2b4888;
   }
   .popup-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     margin: 0 0 0.4rem;
     color: #1f2937;
     transition: color 0.15s ease;
     text-align: center;
   }
+  .popup-desc {
+    font-size: 0.9rem;
+    color: #1f2937;
+    margin: 0 0 0.4rem;
+    white-space: wrap;
+  }
   .popup-address {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #6b7280;
-    margin: 0;
-    line-height: 1.4;
+    margin: 0 0 0.4rem;
+    font-style: italic;
+  }
+  .popup-contact {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0 0 0.4rem;
+    white-space: wrap;
   }
   .popup-address::first-letter {
     text-transform: capitalize;

@@ -1,0 +1,150 @@
+---
+import SubmitterSection from "./sections/propose/SubmitterSection.astro";
+import OrgFieldsSection from "./sections/propose/OrgFieldsSection.astro";
+---
+
+<section class="proposal-page" x-data="proposalForm()" x-init="init()">
+  <header class="proposal-hero">
+    <h1 class="proposal-title">
+      PROPOSER UNE <span class="proposal-title-accent">ORGANISATION</span>
+    </h1>
+    <p class="proposal-subtitle">
+      Aide-nous à enrichir l'annuaire en proposant une nouvelle organisation ou
+      en suggérant une modification.
+    </p>
+  </header>
+
+  <form class="proposal-form" id="proposalForm" @submit.prevent="submitForm()">
+    <SubmitterSection />
+    <OrgFieldsSection />
+
+    <div class="proposal-actions">
+      <button type="submit" class="proposal-submit" :disabled="submitting">
+        <span x-show="!submitting">Envoyer la proposition</span>
+        <span x-show="submitting">Envoi en cours...</span>
+      </button>
+      <p class="proposal-error" x-show="error" x-text="error"></p>
+    </div>
+  </form>
+</section>
+
+<script>
+  import Alpine from "alpinejs";
+  import { createProposalForm } from "../lib/proposalFormState";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("proposalForm", createProposalForm);
+  });
+</script>
+
+<style>
+  .proposal-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+    position: relative;
+    z-index: 0;
+  }
+
+  .proposal-page::before {
+    content: "";
+    position: fixed;
+    inset: 0 -5rem;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      url("/decorations/protect3.svg"), url("/decorations/protect2.svg");
+    background-repeat: repeat-y, repeat-y;
+    background-position:
+      right -2rem top 0,
+      left -4rem top 500px;
+    background-size:
+      auto 1000px,
+      auto 1000px;
+  }
+
+  .proposal-page > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .proposal-hero {
+    margin-bottom: 2.5rem;
+  }
+
+  .proposal-title {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 0.75rem;
+    color: #1f2937;
+    letter-spacing: -0.01em;
+  }
+
+  .proposal-title-accent {
+    color: #34719d;
+    border-bottom: 3px solid #34719d;
+    padding-bottom: 0.1rem;
+  }
+
+  .proposal-subtitle {
+    font-size: 1rem;
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .proposal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .proposal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .proposal-submit {
+    padding: 0.75rem 1.5rem;
+    background: #34719d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .proposal-submit:hover:not(:disabled) {
+    background: #1e3266;
+    transform: translateY(-1px);
+  }
+
+  .proposal-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .proposal-error {
+    color: #c73b5d;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .proposal-page {
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .proposal-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
