@@ -12,7 +12,7 @@ const { name, label, placeholder, type = "text" } = Astro.props;
 <div class="field">
   <label class="field-label">{label}</label>
   <div class="array-items">
-    <template x-for="(item, idx) in formData[{name}]" :key="idx">
+    <template x-for={`(item, idx) in formData.${name}`} :key="idx">
       <div class="array-item">
         <input
           type={type}
@@ -103,17 +103,17 @@ const { name, label, placeholder, type = "text" } = Astro.props;
 
   .array-remove:hover {
     background: rgba(199, 59, 93, 0.08);
-    border-color: #c73b5d;
-    color: #c73b5d;
+    border-color: #dc436b;
+    color: #dc436b;
   }
 
   .array-add {
     align-self: flex-start;
     padding: 0.4rem 0.85rem;
     background: transparent;
-    border: 1.5px dashed #2b4888;
+    border: 1.5px dashed #34719d;
     border-radius: 999px;
-    color: #2b4888;
+    color: #34719d;
     font-size: 0.85rem;
     cursor: pointer;
     font-family: inherit;
