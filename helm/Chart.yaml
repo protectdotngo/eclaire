@@ -1,0 +1,10 @@
+apiVersion: v2
+name: micropachycephalosaurus
+description: Helm chart for the micropachycephalosaurus Astro (Node SSR) application
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
+dependencies:
+  - name: common
+    version: 2.x.x
+    repository: oci://registry-1.docker.io/bitnamicharts

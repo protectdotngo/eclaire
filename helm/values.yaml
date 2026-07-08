@@ -1,0 +1,131 @@
+# Default values for micropachycephalosaurus.
+# Sensitive values (secrets, dockerConfig) are left empty here and supplied at
+# deploy time by Argo CD (Application values, a referenced secret manager, etc.).
+
+## @section Image
+image:
+  registry: registry.gitlab.com
+  # Full image path, e.g. <group>/<project>
+  repository: cyberpeaceinstitute/micropachycephalosaurus
+  tag: latest
+  pullPolicy: IfNotPresent
+
+## Reference to the dockerconfigjson secret created by templates/secret-docker.yaml.
+## The actual credentials (.Values.dockerConfig) come from the encrypted secrets.yaml.
+imagePullSecrets: true
+
+## @section Deployment
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+## @section Service
+service:
+  type: ClusterIP
+  port: 80
+  # Container port the Astro Node server listens on (see Dockerfile EXPOSE/PORT).
+  targetPort: 4321
+
+## @section Networking
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: case.protect.ngo
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: case-protect-ngo-tls
+      hosts:
+        - case.protect.ngo
+
+## @section Probes
+## The app serves HTTP on the container port; adjust paths if a health endpoint exists.
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 20
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 6
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+## @section Scheduling
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+## @section Application configuration (non-sensitive)
+## These are injected as plain environment variables via a ConfigMap.
+config:
+  MODE: prod
+  CORS_ORIGIN: "*"
+  HOST: 0.0.0.0
+  PORT: "4321"
+  DB_URL: ""
+  DB_PORT: ""
+  DB_NAME: ""
+
+## @section Secrets (SENSITIVE — placeholders only)
+## DO NOT commit real values here. Set them via the Argo CD Application
+## (e.g. spec.source.helm.values / valuesObject, or a secret-management plugin).
+## The keys below document the expected shape.
+secrets:
+  OPENAI_API_KEY: ""
+  ACCESS_KEY_ID: ""
+  ACCESS_KEY_SECRET: ""
+  VERIFY_GCP_PROJECT_ID: ""
+  VERIFY_GCP_CREDENTIALS_EMAIL: ""
+  VERIFY_GCP_CREDENTIALS_PRIVATE_KEY: ""
+  SCALEWAY_API_KEY: ""
+  SCW_SECRET_KEY: ""
+  DB_USER: ""
+  DB_PASS: ""
+  ELASTICSEARCH_USER: ""
+  ELASTICSEARCH_PASS: ""
+
+## Base64-encoded .dockerconfigjson for pulling the image from GitLab's registry.
+## SENSITIVE — supply via Argo CD, never commit it here.
+dockerConfig: ""

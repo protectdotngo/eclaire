@@ -1,0 +1,20 @@
+{{ .Chart.Name }} {{ .Chart.AppVersion }} has been deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Application: Astro Node SSR server (container port {{ .Values.service.targetPort }}).
+
+{{- if .Values.ingress.enabled }}
+
+Reachable via Ingress:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else if eq .Values.service.type "ClusterIP" }}
+
+Port-forward to reach it locally:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "common.names.fullname" . }} 8080:{{ .Values.service.port }}
+  open http://127.0.0.1:8080
+{{- end }}
+
+Reminder: the application secrets (.Values.secrets.*) and the registry pull
+credential (.Values.dockerConfig) must be provided by your Argo CD Application;
+they are intentionally empty in values.yaml.
