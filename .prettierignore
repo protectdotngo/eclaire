@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+pnpm-workspace.yaml
+.pnpm-store/
+
+helm/
+drizzle/meta
