@@ -40,22 +40,24 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
       </nav>
       {
         showPanelToggle && (
-          <button
-            type="button"
-            class="side-bar-btn-wrap"
-            id="sideBarClose"
-            aria-label="Fermer le panneau"
-          >
-            <CloseSideBar class="side-bar-btn icon" />
-          </button>
-          <button
-            type="button"
-            class="side-bar-btn-wrap none"
-            id="sideBarOpen"
-            aria-label="Ouvrir le panneau"
-          >
-            <OpenSideBar class="side-bar-btn icon" />
-          </button>
+          <Fragment>
+            <button
+              type="button"
+              class="side-bar-btn-wrap"
+              id="sideBarClose"
+              aria-label="Fermer le panneau"
+            >
+              <CloseSideBar class="side-bar-btn icon" />
+            </button>
+            <button
+              type="button"
+              class="side-bar-btn-wrap none"
+              id="sideBarOpen"
+              aria-label="Ouvrir le panneau"
+            >
+              <OpenSideBar class="side-bar-btn icon" />
+            </button>
+          </Fragment>
         )
       }
     </div>
@@ -112,10 +114,10 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
     const isOpen = menu.classList.toggle("open");
     btn.setAttribute("aria-expanded", String(isOpen));
     if (isOpen) {
-    menu.removeAttribute("inert");
-  } else {
-    menu.setAttribute("inert", "");
-  }
+      menu.removeAttribute("inert");
+    } else {
+      menu.setAttribute("inert", "");
+    }
     document.body.classList.toggle("mobile-menu-open", isOpen);
     if (isOpen) {
       requestAnimationFrame(() => {
@@ -220,7 +222,7 @@ const { showPanelToggle = false, showV1 = false } = Astro.props;
     cursor: pointer;
   }
   .side-bar-btn-warp:hover .side-bar-btn {
-    stroke: rgb(var(--color-2))
+    stroke: rgb(var(--color-2));
   }
   .hamburger {
     display: none;

@@ -18,10 +18,10 @@ export const GET: APIRoute = async () => {
         desc: orgsInTest.desc,
       })
       .from(orgsInTest);
-    return new Response(
-      JSON.stringify({ message: "Success", data: result }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ message: "Success", data: result }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.log(err);
     return new Response(

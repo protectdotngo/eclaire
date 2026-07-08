@@ -36,10 +36,10 @@ export const POST: APIRoute = async ({ request }) => {
       .from(orgsInTest)
       .where(and(...conditions));
 
-    return new Response(
-      JSON.stringify({ message: "Success", data: result }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ message: "Success", data: result }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.log(err);
     return new Response(

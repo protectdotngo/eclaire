@@ -33,11 +33,11 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
           type="button"
           class="chip chip-category"
           data-cat={cat.name}
-          :class="formData.categories.includes($el.dataset.cat) ? 'chip-active' : ''"
+          x-bind:class="formData.categories.includes($el.dataset.cat) ? 'chip-active' : ''"
           style={`--chip-color:${cat.color};--chip-bg:${cat.bg};--chip-text:${cat.text}`}
           @click="toggleCategory($el.dataset.cat)"
         >
-          <span class="dot"></span>
+          <span class="dot" />
           <span>{cat.label}</span>
         </button>
       ))
@@ -45,9 +45,7 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
   </div>
 
   <label class="field-label" style="margin-top: 1rem;">Publics visés</label>
-  <p class="field-hint">
-    Sélectionne les publics que ton organisation cible.
-  </p>
+  <p class="field-hint">Sélectionne les publics que ton organisation cible.</p>
   <div class="chip-row">
     {
       AUDIENCES.map((aud) => (
@@ -55,7 +53,7 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
           type="button"
           class="chip chip-audience"
           data-aud={aud.name}
-          :class="formData.audience.includes($el.dataset.aud) ? 'chip-active' : ''"
+          x-bind:class="formData.audience.includes($el.dataset.aud) ? 'chip-active' : ''"
           @click="toggleAudience($el.dataset.aud)"
         >
           {aud.label}
