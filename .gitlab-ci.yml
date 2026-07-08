@@ -1,7 +1,7 @@
 stages:
   - test
   - build
-  # - deploy
+  - deploy
 
 Run tests:
   stage: test
@@ -36,32 +36,32 @@ Build Docker image:
       .
     - docker push -a $CI_REGISTRY_IMAGE
 
-# Trigger ArgoCD sync:
-#   stage: deploy
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
-#   image: alpine:latest
-#   before_script:
-#     - apk add --no-cache curl
-#     - 'echo "id len: ${#CLOUDFLARE_AUTH_ID} / secret len: ${#CLOUDFLARE_AUTH_SECRET}"'
-#     - |
-#       curl -sSL -o /usr/local/bin/argocd https://$ARGOCD_SERVER/download/argocd-linux-amd64 \
-#       --header "CF-Access-Client-Id: $CLOUDFLARE_AUTH_ID" \
-#       --header "CF-Access-Client-Secret: $CLOUDFLARE_AUTH_SECRET"
-#     - chmod +x /usr/local/bin/argocd
-#   script:
-#     - |
-#       argocd app sync "$ARGOCD_APP" \
-#         --server "$ARGOCD_SERVER" \
-#         --grpc-web \
-#         --auth-token "$ARGOCD_AUTH_TOKEN" \
-#         --header "CF-Access-Client-Id: $CLOUDFLARE_AUTH_ID" \
-#         --header "CF-Access-Client-Secret: $CLOUDFLARE_AUTH_SECRET"
-#     - |
-#       argocd app wait "$ARGOCD_APP" \
-#         --server "$ARGOCD_SERVER" \
-#         --grpc-web \
-#         --auth-token "$ARGOCD_AUTH_TOKEN" \
-#         --header "CF-Access-Client-Id: $CLOUDFLARE_AUTH_ID" \
-#         --header "CF-Access-Client-Secret: $CLOUDFLARE_AUTH_SECRET" \
-#         --health --timeout 300
+Trigger ArgoCD sync:
+  stage: deploy
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+    - 'echo "id len: ${#CLOUDFLARE_AUTH_ID} / secret len: ${#CLOUDFLARE_AUTH_SECRET}"'
+    - |
+      curl -sSL -o /usr/local/bin/argocd https://$ARGOCD_SERVER/download/argocd-linux-amd64 \
+      --header "CF-Access-Client-Id: $CLOUDFLARE_AUTH_ID" \
+      --header "CF-Access-Client-Secret: $CLOUDFLARE_AUTH_SECRET"
+    - chmod +x /usr/local/bin/argocd
+  script:
+    - |
+      argocd app sync "$ARGOCD_APP" \
+        --server "$ARGOCD_SERVER" \
+        --grpc-web \
+        --auth-token "$ARGOCD_AUTH_TOKEN" \
+        --header "CF-Access-Client-Id: $CLOUDFLARE_AUTH_ID" \
+        --header "CF-Access-Client-Secret: $CLOUDFLARE_AUTH_SECRET"
+    - |
+      argocd app wait "$ARGOCD_APP" \
+        --server "$ARGOCD_SERVER" \
+        --grpc-web \
+        --auth-token "$ARGOCD_AUTH_TOKEN" \
+        --header "CF-Access-Client-Id: $CLOUDFLARE_AUTH_ID" \
+        --header "CF-Access-Client-Secret: $CLOUDFLARE_AUTH_SECRET" \
+        --health --timeout 300
