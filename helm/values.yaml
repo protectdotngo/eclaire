@@ -100,31 +100,20 @@ serviceAccount:
 ## @section Application configuration (non-sensitive)
 ## These are injected as plain environment variables via a ConfigMap.
 config:
-  MODE: prod
-  CORS_ORIGIN: "*"
-  HOST: 0.0.0.0
-  PORT: "4321"
-  DB_URL: ""
-  DB_PORT: ""
-  DB_NAME: ""
+  SCW_DB_HOST: ""
+  SCW_DB_PORT: ""
+  SCW_DB_NAME: ""
+  SCW_API_LNK: ""
+  SCW_API_LLM_LNK: ""
 
 ## @section Secrets (SENSITIVE — placeholders only)
 ## DO NOT commit real values here. Set them via the Argo CD Application
 ## (e.g. spec.source.helm.values / valuesObject, or a secret-management plugin).
 ## The keys below document the expected shape.
 secrets:
-  OPENAI_API_KEY: ""
-  ACCESS_KEY_ID: ""
-  ACCESS_KEY_SECRET: ""
-  VERIFY_GCP_PROJECT_ID: ""
-  VERIFY_GCP_CREDENTIALS_EMAIL: ""
-  VERIFY_GCP_CREDENTIALS_PRIVATE_KEY: ""
-  SCALEWAY_API_KEY: ""
-  SCW_SECRET_KEY: ""
-  DB_USER: ""
-  DB_PASS: ""
-  ELASTICSEARCH_USER: ""
-  ELASTICSEARCH_PASS: ""
+  SCW_API_KEY: ""
+  SCW_DB_USER: ""
+  SCW_DB_PASS: ""
 
 ## Base64-encoded .dockerconfigjson for pulling the image from GitLab's registry.
 ## SENSITIVE — supply via Argo CD, never commit it here.
