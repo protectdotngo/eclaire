@@ -57,14 +57,14 @@ ingress:
   className: ""
   annotations: {}
   hosts:
-    - host: case.protect.ngo
+    - host: eclaire.protect.ngo
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: case-protect-ngo-tls
+    - secretName: eclaire-protect-ngo-tls
       hosts:
-        - case.protect.ngo
+        - eclaire.protect.ngo
 
 ## @section Probes
 ## The app serves HTTP on the container port; adjust paths if a health endpoint exists.

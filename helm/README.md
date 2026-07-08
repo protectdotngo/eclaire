@@ -73,7 +73,7 @@ kubectl create secret docker-registry tmp \
 ## Notes
 
 - The container listens on `4321` (`service.targetPort`); the Service exposes `80`.
-- Ingress is enabled for `case.protect.ngo` with TLS secret `case-protect-ngo-tls`.
+- Ingress is enabled for `eclaire.protect.ngo` with TLS secret `eclaire-protect-ngo-tls`.
   Set `ingress.className` and/or cert-manager annotations to match your cluster.
 - Liveness/readiness probes hit `/` — point them at a dedicated health endpoint if one exists.
 - Update `image.repository`/`image.tag` to match what the GitLab CI pipeline pushes.
