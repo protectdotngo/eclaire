@@ -12,6 +12,15 @@ export default defineConfig({
       entrypoint: "/alpine-config",
     }),
   ],
+  security: {
+    allowedDomains: [
+      {
+        hostname: "eclaire.protect.ngo",
+        protocol: "https",
+      },
+    ],
+    checkOrigin: false,
+  },
   adapter: node({
     mode: "standalone",
   }),
