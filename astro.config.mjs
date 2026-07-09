@@ -11,6 +11,9 @@ export default defineConfig({
       entrypoint: "/alpine-config",
     }),
   ],
+  security: {
+    checkOrigin: false,
+  },
   adapter: node({
     mode: "standalone",
   }),
