@@ -5,15 +5,13 @@ import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://eclaire.protect.ngo",
   output: "server",
   integrations: [
     alpinejs({
       entrypoint: "/alpine-config",
     }),
   ],
-  security: {
-    checkOrigin: false,
-  },
   adapter: node({
     mode: "standalone",
   }),
