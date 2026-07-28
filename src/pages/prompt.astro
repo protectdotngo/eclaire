@@ -1,9 +1,26 @@
 ---
+import { desc, sql } from "drizzle-orm";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Nav from "../components/Nav.astro";
 import { getEditableTemplate } from "../lib/chatPrompt";
+import { db } from "../lib/dbDrizzle";
+import { promptConfigInTest } from "../../drizzle/schema";
 
 const current = await getEditableTemplate();
+let versions: Array<{ id: string; createdAt: string; length: number }> = [];
+try {
+  versions = await db
+    .select({
+      id: promptConfigInTest.id,
+      createdAt: promptConfigInTest.createdAt,
+      length: sql<number>`length(${promptConfigInTest.content})`,
+    })
+    .from(promptConfigInTest)
+    .orderBy(desc(promptConfigInTest.createdAt))
+    .limit(50);
+} catch {
+  // table absente → pas d'historique
+}
 ---
 
 <BaseLayout title="Éclaire - Édition du prompt">
@@ -39,6 +56,37 @@ const current = await getEditableTemplate();
       </button>
       <span id="status" role="status"></span>
     </div>
+
+    {
+      versions.length > 0 && (
+        <section class="history">
+          <h2>Historique ({versions.length} versions)</h2>
+          <p class="meta">
+            « Charger » remplit l'éditeur avec la version choisie — elle ne
+            devient active qu'après « Enregistrer ».
+          </p>
+          <ol>
+            {versions.map((v, i) => (
+              <li>
+                <span class="v-date">
+                  {new Date(v.createdAt).toLocaleString("fr-CH")}
+                </span>
+                <span class="v-len">
+                  {v.length.toLocaleString("fr-CH")} car.
+                </span>
+                {i === 0 ? (
+                  <span class="v-active">active</span>
+                ) : (
+                  <button type="button" class="v-load" data-id={v.id}>
+                    Charger
+                  </button>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
   </main>
 </BaseLayout>
 
@@ -84,6 +132,28 @@ const current = await getEditableTemplate();
     if (confirm("Rétablir le prompt par défaut (fichier versionné) ?")) {
       submit({ reset: true });
     }
+  });
+
+  document.querySelectorAll<HTMLButtonElement>(".v-load").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/prompt?id=${btn.dataset.id}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
+        textarea.value = data.content;
+        textarea.scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        status.textContent = `Version du ${new Date(data.createdAt).toLocaleString("fr-CH")} chargée — cliquer « Enregistrer » pour la réactiver`;
+        status.className = "";
+      } catch (err) {
+        status.textContent =
+          err instanceof Error ? err.message : "Échec du chargement";
+        status.className = "error";
+      } finally {
+        btn.disabled = false;
+      }
+    });
   });
 </script>
 
@@ -149,5 +219,50 @@ const current = await getEditableTemplate();
   }
   #status.error {
     color: #c62828;
+  }
+  .history h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  .history ol {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    max-height: 20rem;
+    overflow-y: auto;
+  }
+  .history li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.9rem;
+  }
+  .history li:last-child {
+    border-bottom: none;
+  }
+  .v-date {
+    min-width: 11rem;
+  }
+  .v-len {
+    color: rgb(var(--color-2, 80, 80, 80));
+    min-width: 6rem;
+  }
+  .v-active {
+    font-weight: 600;
+    color: #1a7f37;
+  }
+  .v-load {
+    padding: 0.2rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    background: transparent;
+    cursor: pointer;
+  }
+  .v-load:disabled {
+    opacity: 0.5;
   }
 </style>

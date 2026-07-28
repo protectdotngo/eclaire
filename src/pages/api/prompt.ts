@@ -1,5 +1,6 @@
 import "dotenv/config";
 import type { APIRoute } from "astro";
+import { desc, eq, sql } from "drizzle-orm";
 import { db } from "../../lib/dbDrizzle";
 import { promptConfigInTest } from "../../../drizzle/schema";
 import {
@@ -9,9 +10,35 @@ import {
   invalidateCache,
 } from "../../lib/chatPrompt";
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
+  // ?id=<uuid> → contenu d'une version précise de l'historique
+  const id = url.searchParams.get("id");
+  if (id) {
+    const rows = await db
+      .select()
+      .from(promptConfigInTest)
+      .where(eq(promptConfigInTest.id, id))
+      .limit(1);
+    if (!rows[0]) return json({ error: "Version introuvable" }, 404);
+    return json({ content: rows[0].content, createdAt: rows[0].createdAt });
+  }
+
   const current = await getEditableTemplate();
-  return json(current);
+  let versions: Array<{ id: string; createdAt: string; length: number }> = [];
+  try {
+    versions = await db
+      .select({
+        id: promptConfigInTest.id,
+        createdAt: promptConfigInTest.createdAt,
+        length: sql<number>`length(${promptConfigInTest.content})`,
+      })
+      .from(promptConfigInTest)
+      .orderBy(desc(promptConfigInTest.createdAt))
+      .limit(50);
+  } catch {
+    // table absente → pas d'historique, le prompt par défaut reste utilisable
+  }
+  return json({ ...current, versions });
 };
 
 export const POST: APIRoute = async ({ request }) => {
