@@ -12,9 +12,9 @@ const current = await getEditableTemplate();
     <header>
       <h1>Prompt système du chat</h1>
       <p>
-        Ce texte est envoyé comme instructions au modèle à chaque question.
-        Les modifications s'appliquent immédiatement (sans redéploiement).
-        Le placeholder <code>[Insère ici le contenu de l'annuaire en JSON]</code>
+        Ce texte est envoyé comme instructions au modèle à chaque question. Les
+        modifications s'appliquent immédiatement (sans redéploiement). Le
+        placeholder <code>[Insère ici le contenu de l'annuaire en JSON]</code>
         est obligatoire : il est remplacé par l'annuaire des organisations.
       </p>
       <p class="meta">
@@ -29,7 +29,8 @@ const current = await getEditableTemplate();
       </p>
     </header>
 
-    <textarea id="prompt-content" spellcheck="false">{current.content}</textarea>
+    <textarea id="prompt-content" spellcheck="false">{current.content}</textarea
+    >
 
     <div class="actions">
       <button id="save-btn" type="button">Enregistrer</button>
@@ -78,9 +79,7 @@ const current = await getEditableTemplate();
     }
   }
 
-  saveBtn.addEventListener("click", () =>
-    submit({ content: textarea.value }),
-  );
+  saveBtn.addEventListener("click", () => submit({ content: textarea.value }));
   resetBtn.addEventListener("click", () => {
     if (confirm("Rétablir le prompt par défaut (fichier versionné) ?")) {
       submit({ reset: true });
