@@ -1,0 +1,51 @@
+# Copie de RÉFÉRENCE de l'Application ArgoCD (la source de vérité est le
+# cluster : `kubectl -n argocd get application micropachycephalosaurus -o yaml`).
+# Les valeurs sensibles sont remplacées par <SECRET> — ne jamais les committer.
+# Si l'Application doit être recréée, repartir de ce fichier et remplir les
+# secrets via l'UI ArgoCD.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: micropachycephalosaurus
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: eclaire
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: https://gitlab.com/cyberpeaceinstitute/micropachycephalosaurus.git
+    path: helm
+    targetRevision: HEAD # = branche main
+    helm:
+      parameters:
+        # dockerconfigjson base64 pour tirer l'image depuis le registry GitLab
+        - name: dockerConfig
+          value: <SECRET>
+        - name: image.pullPolicy
+          value: Always
+        # image.tag : NE PAS épingler en temps normal (défaut du chart = latest).
+        # Un épinglage temporaire sert à déployer une branche (tag = slug de la
+        # branche, buildé par la CI) — à retirer après merge dans main.
+        - name: ingress.className
+          value: ingress-traefik
+        # Endpoint PRIVÉ de l'instance Scaleway "pgvector" — ne pas remettre
+        # l'endpoint public : son ACL par IP casse à chaque re-scheduling.
+        - name: config.SCW_DB_HOST
+          value: 172.16.4.19
+        - name: config.SCW_DB_PORT
+          value: "5432"
+        - name: config.SCW_DB_NAME
+          value: eclaire
+        - name: config.SCW_API_LLM_LNK
+          value: https://api.scaleway.ai/d8776854-727f-49b1-96dd-586bca3a37a4/v1/chat/completions
+        - name: config.SCW_API_LNK
+          value: https://api.scaleway.ai/d8776854-727f-49b1-96dd-586bca3a37a4/v1/embeddings
+        - name: secrets.SCW_DB_USER
+          value: eclaire
+        - name: secrets.SCW_DB_PASS
+          value: <SECRET>
+        - name: secrets.SCW_API_KEY
+          value: <SECRET>
+  # Pas de syncPolicy automatique : la synchronisation est déclenchée par le
+  # job "Trigger ArgoCD sync" de la CI (push sur main), ou manuellement.
