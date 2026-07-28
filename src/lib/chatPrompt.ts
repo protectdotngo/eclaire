@@ -1,20 +1,60 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { desc } from "drizzle-orm";
 import { db } from "./dbDrizzle";
-import { orgsInTest } from "../../drizzle/schema";
+import { orgsInTest, promptConfigInTest } from "../../drizzle/schema";
 
 let cachedTemplate: string | null = null;
+let cachedTemplateAt = 0;
 let cachedOrgsJson: string | null = null;
 let cachedIds: Set<string> | null = null;
 let cachedAt = 0;
 const TTL = 5 * 60 * 1000;
 
-const PLACEHOLDER = "[Insère ici le contenu de l'annuaire en JSON]";
+export const PLACEHOLDER = "[Insère ici le contenu de l'annuaire en JSON]";
+
+export async function loadDefaultTemplate(): Promise<string> {
+  const p = path.resolve(process.cwd(), "src/lib/prompts/chatSystemPrompt.md");
+  return fs.readFile(p, "utf-8");
+}
+
+// The template stored in DB (edited via /prompt) wins; the bundled .md file
+// is the versioned default. DB errors (e.g. table not created yet) fall back
+// to the default so chat keeps working.
+export async function getEditableTemplate(): Promise<{
+  content: string;
+  source: "db" | "default";
+  updatedAt: string | null;
+}> {
+  try {
+    const rows = await db
+      .select()
+      .from(promptConfigInTest)
+      .orderBy(desc(promptConfigInTest.createdAt))
+      .limit(1);
+    if (rows[0]) {
+      return {
+        content: rows[0].content,
+        source: "db",
+        updatedAt: rows[0].createdAt,
+      };
+    }
+  } catch (err) {
+    console.error("prompt_config read failed, using default template:", err);
+  }
+  return {
+    content: await loadDefaultTemplate(),
+    source: "default",
+    updatedAt: null,
+  };
+}
 
 async function loadTemplate(): Promise<string> {
-  if (cachedTemplate) return cachedTemplate;
-  const p = path.resolve(process.cwd(), "src/lib/prompts/chatSystemPrompt.md");
-  cachedTemplate = await fs.readFile(p, "utf-8");
+  if (cachedTemplate && Date.now() - cachedTemplateAt < TTL) {
+    return cachedTemplate;
+  }
+  cachedTemplate = (await getEditableTemplate()).content;
+  cachedTemplateAt = Date.now();
   return cachedTemplate;
 }
 
@@ -87,6 +127,8 @@ export async function getValidOrgIds(): Promise<Set<string>> {
 }
 
 export function invalidateCache(): void {
+  cachedTemplate = null;
+  cachedTemplateAt = 0;
   cachedOrgsJson = null;
   cachedIds = null;
   cachedAt = 0;

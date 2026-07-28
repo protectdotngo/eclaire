@@ -15,6 +15,14 @@ import { sql } from "drizzle-orm";
 
 export const test = pgSchema("test");
 
+export const promptConfigInTest = test.table("prompt_config", {
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  content: text().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
+});
+
 export const propositionsInTest = test.table(
   "propositions",
   {
