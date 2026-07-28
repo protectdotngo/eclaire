@@ -23,7 +23,15 @@ Run tests:
 Build Docker image:
   stage: build
   rules:
+    # main → tags sha + latest (déploiement normal)
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
+      variables:
+        EXTRA_TAG: latest
+    # autres branches → tags sha + nom-de-branche (jamais latest),
+    # utilisable pour déployer une branche via l'override image.tag dans ArgoCD
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH'
+      variables:
+        EXTRA_TAG: $CI_COMMIT_REF_SLUG
   image: docker:24.0.5
   services:
     - docker:24.0.5-dind
@@ -32,7 +40,7 @@ Build Docker image:
     - docker build
       --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA
       -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-      -t $CI_REGISTRY_IMAGE:latest
+      -t $CI_REGISTRY_IMAGE:$EXTRA_TAG
       .
     - docker push -a $CI_REGISTRY_IMAGE
 
