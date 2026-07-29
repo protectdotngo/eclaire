@@ -18,7 +18,15 @@ import {
   orgsInTest,
   orgsEventsInTest,
 } from "../../../drizzle/schema";
-import { buildSystemPrompt, getValidOrgIds } from "../../lib/chatPrompt";
+import {
+  buildSystemPrompt,
+  getOrgsForMatching,
+  getValidOrgIds,
+} from "../../lib/chatPrompt";
+import {
+  candidatesPromptSection,
+  selectCandidates,
+} from "../../lib/orgCandidates";
 import {
   parseAndValidate,
   ensureLeadingText,
@@ -66,6 +74,20 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     systemPrompt = await buildSystemPrompt();
     validIds = await getValidOrgIds();
+
+    // Pré-sélection déterministe : oriente l'attention du LLM vers les orgs
+    // dont le desc correspond aux mots de la question (annuaire complet
+    // toujours fourni — aucune perte si le matching ne trouve rien).
+    const lastUserMsg = [...body.messages]
+      .reverse()
+      .find((m) => m.role === "user");
+    if (lastUserMsg) {
+      const candidates = selectCandidates(
+        lastUserMsg.content,
+        await getOrgsForMatching(),
+      );
+      systemPrompt += candidatesPromptSection(candidates);
+    }
   } catch (err) {
     console.error("Failed to load directory:", err);
     return json({ error: "Directory unavailable" }, 500);

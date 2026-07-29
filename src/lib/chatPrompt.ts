@@ -7,6 +7,7 @@ import { orgsInTest, promptConfigInTest } from "../../drizzle/schema";
 let cachedTemplate: string | null = null;
 let cachedTemplateAt = 0;
 let cachedOrgsJson: string | null = null;
+let cachedOrgs: OrgForMatching[] | null = null;
 let cachedIds: Set<string> | null = null;
 let cachedAt = 0;
 const TTL = 5 * 60 * 1000;
@@ -92,8 +93,22 @@ async function refreshOrgsCache(): Promise<void> {
   });
 
   cachedOrgsJson = JSON.stringify({ orgs: orgsForLLM });
+  cachedOrgs = orgsForLLM;
   cachedIds = ids;
   cachedAt = Date.now();
+}
+
+export interface OrgForMatching {
+  id: string;
+  name: string;
+  desc: string;
+  categories: string[] | null;
+  city: string | null;
+}
+
+export async function getOrgsForMatching(): Promise<OrgForMatching[]> {
+  await ensureCache();
+  return cachedOrgs!;
 }
 
 async function ensureCache(): Promise<void> {
@@ -130,6 +145,7 @@ export function invalidateCache(): void {
   cachedTemplate = null;
   cachedTemplateAt = 0;
   cachedOrgsJson = null;
+  cachedOrgs = null;
   cachedIds = null;
   cachedAt = 0;
 }
