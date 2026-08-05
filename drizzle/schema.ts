@@ -74,7 +74,7 @@ export const orgsNewsInTest = test.table(
       foreignColumns: [newsInTest.id],
       name: "orgs_news_news_id_foreign",
     }),
-	primaryKey({
+    primaryKey({
       columns: [table.orgId, table.newsId],
       name: "orgs_news_pkey",
     }),
@@ -98,7 +98,7 @@ export const orgsEventsInTest = test.table(
       foreignColumns: [eventsInTest.id],
       name: "orgs_events_event_id_foreign",
     }).onDelete("cascade"),
-	primaryKey({
+    primaryKey({
       columns: [table.orgId, table.eventId],
       name: "orgs_events_pkey",
     }),
