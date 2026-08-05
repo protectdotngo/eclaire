@@ -1,4 +1,4 @@
 import { atom } from "nanostores";
-import type { Data } from "../interfaces/dbData";
+import type { OrgWithChatContext } from "../interfaces";
 
-export const $mapData = atom<Data[]>([]);
+export const $mapData = atom<OrgWithChatContext[]>([]);

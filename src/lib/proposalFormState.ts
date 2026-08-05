@@ -1,3 +1,5 @@
+import type { Org } from "../interfaces";
+
 export const EMPTY_FORM = {
   submitter_type: "",
   action: "",
@@ -15,21 +17,8 @@ export const EMPTY_FORM = {
   events_url: "",
   news_url: "",
   socials: [] as string[],
+  contact: [] as string[],
 };
-
-export interface Org {
-  id: string;
-  name: string;
-  desc: string;
-  categories: string[];
-  domain: string;
-  address: string;
-  city: string;
-  rss: string | null;
-  events_url: string | null;
-  news_url: string | null;
-  socials: string[];
-}
 
 const AUDIENCE_SET = new Set([
   "seniors",
@@ -58,7 +47,7 @@ export function createProposalForm() {
         if (res.status !== 200) throw new Error(`Status ${res.status}`);
         const baseData = await res.json();
         this.allOrgs = (baseData.data ?? [])
-          .map((o: any) => ({
+          .map((o: Org) => ({
             id: o.id,
             name: o.name,
             desc: o.desc ?? "",
@@ -70,6 +59,7 @@ export function createProposalForm() {
             events_url: o.events_url ?? null,
             news_url: o.news_url ?? null,
             socials: o.socials ?? [],
+            contact: o.contact ?? [],
           }))
           .sort((a: Org, b: Org) => a.name.localeCompare(b.name, "fr"));
       } catch (err) {
@@ -116,6 +106,7 @@ export function createProposalForm() {
       this.formData.events_url = org.events_url ?? "";
       this.formData.news_url = org.news_url ?? "";
       this.formData.socials = [...org.socials];
+      this.formData.contact = [...org.contact];
     },
 
     resetOrgFields() {
@@ -130,6 +121,7 @@ export function createProposalForm() {
       this.formData.events_url = "";
       this.formData.news_url = "";
       this.formData.socials = [];
+      this.formData.contact = [];
     },
 
     toggleCategory(name: string) {
@@ -171,6 +163,11 @@ export function createProposalForm() {
         JSON.stringify(orig.socials.slice().sort())
       )
         return true;
+      if (
+        JSON.stringify(f.contact.filter((s) => s).sort()) !==
+        JSON.stringify((orig.contact ?? []).slice().sort())
+      )
+        return true;
       return false;
     },
 
@@ -192,6 +189,26 @@ export function createProposalForm() {
         return "Aucune modification n'a été apportée. Modifie au moins un champ pour soumettre.";
       }
       return "";
+    },
+
+    get canSubmit(): boolean {
+      const f = this.formData;
+
+      if (!f.submitter_type) return false;
+      if (!f.action) return false;
+      if (!f.submitter_name.trim()) return false;
+      if (!f.submitter_email.trim()) return false;
+
+      if (f.action === "modify" && !f.modifying_org_id) return false;
+
+      if (!f.name.trim()) return false;
+      if (!f.desc.trim()) return false;
+      if (f.categories.length === 0) return false;
+      if (!f.domain.trim()) return false;
+
+      if (f.action === "modify" && !this.hasChanges()) return false;
+
+      return true;
     },
 
     async submitForm() {
@@ -224,6 +241,7 @@ export function createProposalForm() {
         events_url: this.formData.events_url || null,
         news_url: this.formData.news_url || null,
         socials: this.formData.socials.filter((s: string) => s.trim() !== ""),
+        contact: this.formData.contact.filter((s: string) => s.trim() !== ""),
       };
 
       try {

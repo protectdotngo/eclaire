@@ -8,7 +8,10 @@
   import "leaflet/dist/leaflet.css";
   import "leaflet.markercluster/dist/MarkerCluster.css";
   import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-  import type { Data } from "../interfaces/dbData";
+  import type { OrgWithChatContext } from "../interfaces";
+  import MailSvgRaw from "../assets/mail.svg?raw";
+  import PhoneSvgRaw from "../assets/phone.svg?raw";
+  import { icon } from "leaflet";
 
   delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -16,6 +19,16 @@
     iconUrl: "/leaflet/marker-icon.png",
     iconRetinaUrl: "/leaflet/marker-icon-2x.png",
     shadowUrl: "/leaflet/marker-shadow.png",
+  });
+
+  var customIcon = L.icon({
+    iconUrl: "/leaflet/Pin.svg",
+    shadowUrl: "/leaflet/marker-shadow.png",
+    iconSize: [24, 30],
+    iconAnchor: [12, 30],
+    shadowSize: [29, 29],
+    shadowAnchor: [9, 29],
+    popupAnchor: [0, -27],
   });
 
   function escapeHtml(s: string): string {
@@ -26,6 +39,40 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  function formatContactHref(contact: string): string {
+    const trimmed = contact.trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      return `mailto:${trimmed}`;
+    }
+    const digitsOnly = trimmed.replace(/[\s().-]/g, "");
+    if (/^\+?\d{7,15}$/.test(digitsOnly)) {
+      return `tel:${digitsOnly}`;
+    }
+    return trimmed;
+  }
+
+  function getContactType(contact: string): "email" | "phone" | "other" {
+    const trimmed = contact.trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return "email";
+    const digitsOnly = trimmed.replace(/[\s().-]/g, "");
+    if (/^\+?\d{7,15}$/.test(digitsOnly)) return "phone";
+    return "other";
+  }
+
+  function renderContacts(contacts: string[] | undefined | null): string {
+    if (!contacts || contacts.length === 0) return "";
+    const items = contacts
+      .map((c) => {
+        const type = getContactType(c);
+        const href = formatContactHref(c);
+        const icon =
+          type === "email" ? MailSvgRaw : type === "phone" ? PhoneSvgRaw : "";
+        return `<a class="popup-contact-link" href="${escapeHtml(href)}">${icon}<span>${escapeHtml(c)}</span></a>`;
+      })
+      .join("");
+    return `<div class="popup-contact-row">${items}</div>`;
   }
 
   const map = L.map("mapSection").setView([46.2044, 6.1432], 12);
@@ -60,22 +107,38 @@
   const markers = L.markerClusterGroup();
   const markersList = new Map<string, L.Marker>();
 
-  function fillMap(marks: readonly Data[]) {
+  async function testPin() {
+    let pinIcon = new L.Icon.Default();
+    await new Promise<void>((resolve) => {
+      const test = new Image();
+      test.onload = () => {
+        pinIcon = customIcon;
+        resolve();
+      };
+      test.onerror = () => resolve();
+      test.src = "/leaflet/Pin.svg";
+    });
+    return pinIcon;
+  }
+
+  async function fillMap(marks: readonly OrgWithChatContext[]) {
     if (marks.length === 0) return;
     markers.clearLayers();
     markersList.clear();
-
+    const pinIcon = await testPin();
     for (const item of marks) {
       if (typeof item.lat !== "number" || typeof item.lon !== "number") {
         continue;
       }
-      const marker = L.marker([item.lat, item.lon]);
+      const marker = L.marker([item.lat, item.lon], { icon: pinIcon });
       marker.bindPopup(
         `<a class="popup-link" target="_blank" href="${escapeHtml(item.domain ?? "")}">
           <h3 class="popup-title">${escapeHtml(item.name)}</h3>
-          <p class="popup-desc">${escapeHtml(item.desc)}</p>
+        </a>
+        <a class="popup-link" target="_blank" href="https://www.google.com/maps?q=${item.lat},${item.lon}">
           <p class="popup-address">${escapeHtml(item.address ?? "")}</p>
-        </a>`,
+        </a>
+        ${renderContacts(item.contact)}`,
       );
       markers.addLayer(marker);
       markersList.set(item.id, marker);
@@ -142,30 +205,56 @@
   }
   .popup-title {
     font-size: 1.4rem;
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.2rem;
     color: #1f2937;
     transition: color 0.15s ease;
-    text-align: center;
+    text-align: left;
   }
   .popup-desc {
     font-size: 0.9rem;
     color: #1f2937;
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.2rem;
     white-space: wrap;
   }
   .popup-address {
-    font-size: 0.8rem;
-    color: #6b7280;
-    margin: 0 0 0.4rem;
-    font-style: italic;
-  }
-  .popup-contact {
     font-size: 0.9rem;
     color: #6b7280;
-    margin: 0 0 0.4rem;
-    white-space: wrap;
+    margin: 0 0 0.2rem;
+    font-style: italic;
+  }
+  .popup-address:hover {
+    color: #1f2937;
   }
   .popup-address::first-letter {
     text-transform: capitalize;
+  }
+  .popup-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0 0 0.2rem;
+  }
+
+  .popup-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: #34719d;
+    text-decoration: underline;
+    width: fit-content;
+    transition: color 0.15s ease;
+  }
+
+  .popup-contact-link:hover {
+    color: #2b4888;
+  }
+
+  .popup-contact-link:visited {
+    color: #34719d;
+  }
+
+  .popup-contact-link svg {
+    flex-shrink: 0;
   }
 </style>

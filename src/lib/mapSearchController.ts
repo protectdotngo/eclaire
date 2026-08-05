@@ -1,6 +1,9 @@
 import { $mapData } from "./mapStore";
-import type { Data } from "../interfaces/dbData";
-import type { ChatMsg, ChatApiResponse } from "../interfaces/mapSearchUtils";
+import type {
+  ChatMsg,
+  ChatApiResponse,
+  OrgWithChatContext,
+} from "../interfaces";
 
 export function initMapSearchController() {
   const aiForm = document.getElementById("aiForm") as HTMLFormElement;
@@ -14,7 +17,7 @@ export function initMapSearchController() {
 
   let history: ChatMsg[] = [];
   const orgIdsOnMap = new Set<string>();
-  let initialOrgs: Data[] = [];
+  let initialOrgs: OrgWithChatContext[] = [];
 
   function dispatchChatMessage(msg: ChatMsg) {
     window.dispatchEvent(new CustomEvent("chat-message", { detail: msg }));
@@ -76,7 +79,7 @@ export function initMapSearchController() {
       });
       if (res.status !== 200) throw new Error(`Status ${res.status}`);
       const baseData = await res.json();
-      const data: Data[] = baseData.data;
+      const data: OrgWithChatContext[] = baseData.data;
       initialOrgs = data;
       $mapData.set(data);
 
@@ -186,6 +189,7 @@ export function initMapSearchController() {
           result.events.length > 0
         ) {
           eventsFound = true;
+          if (hasFallbackOrgs) skipAfterOrgsText = true;
           const donePromise = waitForEventsDone();
           window.dispatchEvent(
             new CustomEvent("events-result", { detail: result.events }),
@@ -231,9 +235,18 @@ export function initMapSearchController() {
         }
       }
 
+      const paginationMeta =
+        result.events && result.events.length > 0
+          ? result.hasMoreEvents
+            ? ` [Plus d'événements disponibles. Prochain offset: ${
+                (result.eventOffset ?? 0) + 10
+              }.]`
+            : ` [Aucun autre événement disponible pour ces filtres.]`
+          : "";
+
       history.push({
         role: "assistant",
-        content: JSON.stringify({ blocks: result.blocks }),
+        content: JSON.stringify({ blocks: result.blocks }) + paginationMeta,
       });
     } catch (err) {
       console.error("Chat call failed:", err);
@@ -302,7 +315,7 @@ export function initMapSearchController() {
       });
       if (res.status !== 200) throw new Error(`Status ${res.status}`);
       const result = await res.json();
-      const data: Data[] = result.data;
+      const data: OrgWithChatContext[] = result.data;
       $mapData.set(data);
     } catch (err) {
       console.error("Failed to load filtered orgs:", err);

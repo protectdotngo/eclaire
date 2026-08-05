@@ -2,6 +2,8 @@
 import ArrowSVG from "../../../assets/circle-arrow-right.svg";
 import CalendarSVG from "../../../assets/calendar.svg";
 import PinSVG from "../../../assets/map-pin.svg";
+import PhoneSVG from "../../../assets/phone.svg";
+import MailSVG from "../../../assets/mail.svg";
 ---
 
 <div
@@ -111,6 +113,29 @@ import PinSVG from "../../../assets/map-pin.svg";
                   </template>
                 </p>
               </template>
+
+              <template
+                x-if="!org.streaming && org.contact && org.contact.length > 0"
+              >
+                <div class="org-contact-row">
+                  <template x-for="(c, ci) in org.contact" :key="ci">
+                    <a :href="formatContactHref(c)" class="org-contact-link">
+                      <template x-if="isEmail(c)">
+                        <span class="org-contact-icon">
+                          <MailSVG />
+                        </span>
+                      </template>
+                      <template x-if="isPhone(c)">
+                        <span class="org-contact-icon">
+                          <PhoneSVG />
+                        </span>
+                      </template>
+                      <span x-text="c"></span>
+                    </a>
+                  </template>
+                </div>
+              </template>
+
               <hr class="result-card-separator" x-show="!org.streaming" />
 
               <div
@@ -217,7 +242,7 @@ import PinSVG from "../../../assets/map-pin.svg";
                 <div class="event-orgs-row">
                   <span class="event-orgs-label">Proposé par :</span>
                   <template x-for="(o, oi) in ev.orgs" :key="o.id">
-                    <span class="event-org-item">
+                    <span class="event-org-wrap">
                       <template x-if="o.domain">
                         <a
                           :href="o.domain"
@@ -225,13 +250,13 @@ import PinSVG from "../../../assets/map-pin.svg";
                           class="event-org-link"
                           x-text="o.name"></a>
                       </template>
+                      <template x-if="!o.domain">
+                        <span x-text="o.name"></span>
+                      </template>
+                      <template x-if="oi < ev.orgs.length - 1">
+                        <span>,&nbsp;</span>
+                      </template>
                     </span>
-                    <template x-if="!o.domain">
-                      <span x-text="o.name"></span>
-                    </template>
-                    <template x-if="oi < ev.orgs.length - 1">
-                      <span>,&nbsp;</span>
-                    </template>
                   </template>
                 </div>
               </template>
@@ -333,6 +358,39 @@ import PinSVG from "../../../assets/map-pin.svg";
     border: none;
     border-top: 2px solid rgba(52, 113, 157, 0.2);
     margin: 0.75rem 0;
+  }
+
+  .org-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0.5rem 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .org-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #34719d;
+    text-decoration: underline;
+    transition: color 0.15s ease;
+    width: fit-content;
+  }
+
+  .org-contact-link:hover {
+    color: #2b4888;
+  }
+
+  .org-contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .org-contact-link:visited {
+    color: #34719d;
   }
 
   .event-tag {
@@ -498,7 +556,7 @@ import PinSVG from "../../../assets/map-pin.svg";
   }
 
   :global(.btn-site:hover) {
-    background-color: #1e3466;
+    background-color: #2b4888;
   }
 
   :global(.btn-arrow-circle) {

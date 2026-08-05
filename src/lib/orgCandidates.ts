@@ -2,13 +2,7 @@
 // dans le prompt système pour guider l'attention du LLM (l'annuaire complet
 // reste fourni : rater un match ⇒ comportement identique à avant, jamais pire).
 
-interface OrgLite {
-  id: string;
-  name: string;
-  desc: string;
-  categories: string[] | null;
-  city: string | null;
-}
+import type { OrgLite } from "../interfaces";
 
 // minuscules + suppression des accents + ponctuation → espaces
 export function normalize(s: string): string {

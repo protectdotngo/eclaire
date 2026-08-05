@@ -1,12 +1,12 @@
 import { marked } from "marked";
 import type {
+  OrgWithChatContext,
+  DisplayedOrg,
   DisplayedEvent,
-  DisplayedItem,
-  SearchResult,
-  EventResult,
-  ChatMsg,
+  EventWithOrgs,
   TimelineItem,
-} from "../interfaces/mapSearchUtils";
+  ChatMsg,
+} from "../interfaces";
 
 marked.setOptions({
   breaks: true,
@@ -111,15 +111,39 @@ export function createConversationTimeline() {
       });
     },
 
-    async addOrgs(orgs: SearchResult[]) {
+    isEmail(contact: string): boolean {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.trim());
+    },
+
+    isPhone(contact: string): boolean {
+      const digitsOnly = contact.trim().replace(/[\s().-]/g, "");
+      return /^\+?\d{7,15}$/.test(digitsOnly);
+    },
+
+    formatContactHref(contact: string): string {
+      const trimmed = contact.trim();
+      if (this.isEmail(trimmed)) {
+        return `mailto:${trimmed}`;
+      }
+      if (this.isPhone(trimmed)) {
+        const digitsOnly = trimmed.replace(/[\s().-]/g, "");
+        return `tel:${digitsOnly}`;
+      }
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+        return trimmed;
+      }
+      return trimmed;
+    },
+
+    async addOrgs(orgs: OrgWithChatContext[]) {
       this.items.push({ kind: "orgs", displayed: [] });
       const blockRef = this.items[this.items.length - 1] as {
         kind: "orgs";
-        displayed: DisplayedItem[];
+        displayed: DisplayedOrg[];
       };
 
       for (const org of orgs) {
-        const stub: DisplayedItem = {
+        const stub: DisplayedOrg = {
           ...org,
           displayName: "",
           displayDesc: "",
@@ -139,7 +163,7 @@ export function createConversationTimeline() {
       window.dispatchEvent(new CustomEvent("orgs-done"));
     },
 
-    async addEvents(events: EventResult[]) {
+    async addEvents(events: EventWithOrgs[]) {
       this.items.push({ kind: "events", displayed: [] });
       const blockRef = this.items[this.items.length - 1] as {
         kind: "events";
@@ -174,7 +198,7 @@ export function createConversationTimeline() {
     },
 
     typeInto(
-      obj: DisplayedItem,
+      obj: DisplayedOrg,
       key: "displayName" | "displayDesc",
       fullText: string,
       msPerChar: number,

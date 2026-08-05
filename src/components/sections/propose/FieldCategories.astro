@@ -44,7 +44,10 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
     }
   </div>
 
-  <label class="field-label" style="margin-top: 1rem;">Publics visés</label>
+  <label class="field-label-public">
+    Publics visés
+    <span class="field-required">*</span>
+  </label>
   <p class="field-hint">Sélectionne les publics que ton organisation cible.</p>
   <div class="chip-row">
     {
@@ -75,6 +78,13 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
     font-size: 0.85rem;
     font-weight: 600;
     color: #374151;
+  }
+
+  .field-label-public {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 1rem;
   }
 
   .field-required {

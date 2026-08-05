@@ -3,11 +3,12 @@ import path from "node:path";
 import { desc } from "drizzle-orm";
 import { db } from "./dbDrizzle";
 import { orgsInTest, promptConfigInTest } from "../../drizzle/schema";
+import type { OrgLite } from "../interfaces";
 
 let cachedTemplate: string | null = null;
 let cachedTemplateAt = 0;
 let cachedOrgsJson: string | null = null;
-let cachedOrgs: OrgForMatching[] | null = null;
+let cachedOrgs: OrgLite[] | null = null;
 let cachedIds: Set<string> | null = null;
 let cachedAt = 0;
 const TTL = 5 * 60 * 1000;
@@ -71,6 +72,7 @@ async function refreshOrgsCache(): Promise<void> {
       eventsUrl: orgsInTest.eventsUrl,
       newsUrl: orgsInTest.newsUrl,
       socials: orgsInTest.socials,
+      contact: orgsInTest.contact,
       address: orgsInTest.address,
       city: orgsInTest.city,
       lat: orgsInTest.lat,
@@ -86,7 +88,6 @@ async function refreshOrgsCache(): Promise<void> {
       name: r.name,
       desc: r.desc,
       categories: r.categories,
-      domain: r.domain,
       address: r.address,
       city: r.city,
     };
@@ -98,15 +99,7 @@ async function refreshOrgsCache(): Promise<void> {
   cachedAt = Date.now();
 }
 
-export interface OrgForMatching {
-  id: string;
-  name: string;
-  desc: string;
-  categories: string[] | null;
-  city: string | null;
-}
-
-export async function getOrgsForMatching(): Promise<OrgForMatching[]> {
+export async function getOrgsForMatching(): Promise<OrgLite[]> {
   await ensureCache();
   return cachedOrgs!;
 }

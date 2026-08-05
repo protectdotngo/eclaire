@@ -3,10 +3,11 @@ import { French } from "flatpickr/dist/l10n/fr.js";
 import { DISPLAY_BUCKETS } from "../data/calendarConfig";
 import { AUDIENCE_TAGS } from "../data/audienceTags";
 import type {
-  RawEvent,
-  ProcessedEvent,
   Org,
-} from "../interfaces/calendarUtils";
+  EventWithOrgIds,
+  ProcessedEvent,
+  OrgSummary,
+} from "../interfaces";
 
 export const ALL_CATEGORIES = DISPLAY_BUCKETS.flatMap((bucket) =>
   bucket.categories.map((cat) => ({
@@ -78,18 +79,18 @@ function hasTime(dateStr: string): boolean {
   return timePart !== "00:00:00";
 }
 
-export function processEvents(raw: RawEvent[]): ProcessedEvent[] {
+export function processEvents(raw: EventWithOrgIds[]): ProcessedEvent[] {
   const out: ProcessedEvent[] = [];
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   for (const e of raw) {
-    if (!e.start_date) continue;
-    const startDate = parseDate(e.start_date);
+    if (!e.startDate) continue;
+    const startDate = parseDate(e.startDate);
     if (!startDate) continue;
-    const endDate = e.end_date ? parseDate(e.end_date) : null;
-    const startHasTime = hasTime(e.start_date);
-    const endHasTime = e.end_date ? hasTime(e.end_date) : false;
+    const endDate = e.endDate ? parseDate(e.endDate) : null;
+    const startHasTime = hasTime(e.startDate);
+    const endHasTime = e.endDate ? hasTime(e.endDate) : false;
     const sameDay =
       !endDate ||
       (startDate.getFullYear() === endDate.getFullYear() &&
@@ -142,7 +143,7 @@ export function processEvents(raw: RawEvent[]): ProcessedEvent[] {
 export function createCalendarComponent() {
   return {
     allEvents: [] as ProcessedEvent[],
-    allOrgs: [] as Org[],
+    allOrgs: [] as OrgSummary[],
     loading: true,
     includePast: false,
     loadingPast: false,
@@ -220,7 +221,7 @@ export function createCalendarComponent() {
         });
         if (res.status !== 200) throw new Error(`Status ${res.status}`);
         const baseData = await res.json();
-        this.allOrgs = (baseData.data ?? []).map((o: any) => ({
+        this.allOrgs = (baseData.data ?? []).map((o: Org) => ({
           id: o.id,
           name: o.name,
         }));
@@ -331,7 +332,7 @@ export function createCalendarComponent() {
       });
     },
 
-    get filteredOrgs(): Org[] {
+    get filteredOrgs(): OrgSummary[] {
       const q = normalize(this.orgSearchQuery.trim());
       if (!q) return this.allOrgs.slice(0, 20);
       return this.allOrgs
@@ -425,7 +426,7 @@ export function createCalendarComponent() {
       this.expandedId = null;
     },
 
-    selectOrg(org: Org) {
+    selectOrg(org: OrgSummary) {
       this.selectedOrgId = org.id;
       this.selectedOrgName = org.name;
       this.expandedId = null;

@@ -19,7 +19,12 @@ import OrgFieldsSection from "./sections/propose/OrgFieldsSection.astro";
     <OrgFieldsSection />
 
     <div class="proposal-actions">
-      <button type="submit" class="proposal-submit" :disabled="submitting">
+      <button
+        type="submit"
+        class="proposal-submit"
+        :disabled="!canSubmit || submitting"
+        :title="!canSubmit ? 'Remplis tous les champs obligatoires pour continuer' : ''"
+      >
         <span x-show="!submitting">Envoyer la proposition</span>
         <span x-show="submitting">Envoi en cours...</span>
       </button>

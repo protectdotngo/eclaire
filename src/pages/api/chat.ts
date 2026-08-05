@@ -11,6 +11,7 @@ import {
   lte,
   or,
   sql,
+  arrayOverlaps,
 } from "drizzle-orm";
 import { db } from "../../lib/dbDrizzle";
 import {
@@ -27,21 +28,14 @@ import {
   candidatesPromptSection,
   selectCandidates,
 } from "../../lib/orgCandidates";
-import {
-  parseAndValidate,
-  ensureLeadingText,
-  type EventSearchFilters,
-} from "../../lib/chatValidation";
-import type { Data } from "../../interfaces/dbData";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
-
-interface RequestBody {
-  messages: Message[];
-}
+import { parseAndValidate, ensureLeadingText } from "../../lib/chatValidation";
+import type {
+  RequestBody,
+  EventSearchFilters,
+  OrgWithChatContext,
+  EventWithOrgs,
+  Event,
+} from "../../interfaces";
 
 const LLM_API_URL = process.env.SCW_API_LLM_LNK;
 const LLM_API_KEY = process.env.SCW_API_KEY;
@@ -143,11 +137,26 @@ export const POST: APIRoute = async ({ request }) => {
   }>;
   const allOrgIds = orgBlocks.flatMap((b) => b.items.map((i) => i.id));
 
-  let hydratedOrgs: Data[] = [];
+  let hydratedOrgs: OrgWithChatContext[] = [];
   if (allOrgIds.length > 0) {
     try {
       const rows = await db
-        .select()
+        .select({
+          id: orgsInTest.id,
+          name: orgsInTest.name,
+          desc: orgsInTest.desc,
+          categories: orgsInTest.categories,
+          domain: orgsInTest.domain,
+          events_url: orgsInTest.eventsUrl,
+          news_url: orgsInTest.newsUrl,
+          socials: orgsInTest.socials,
+          address: orgsInTest.address,
+          lat: orgsInTest.lat,
+          lon: orgsInTest.lon,
+          city: orgsInTest.city,
+          rss: orgsInTest.rss,
+          contact: orgsInTest.contact,
+        })
         .from(orgsInTest)
         .where(inArray(orgsInTest.id, allOrgIds));
 
@@ -164,13 +173,14 @@ export const POST: APIRoute = async ({ request }) => {
           return {
             ...row,
             reason: reasonById.get(id) ?? "",
-          } as unknown as Data;
+          } as unknown as OrgWithChatContext;
         })
-        .filter((x): x is Data => x !== null);
+        .filter((x): x is OrgWithChatContext => x !== null);
     } catch (err) {
       console.error("Failed to hydrate orgs:", err);
     }
   }
+
   if (hydratedOrgs.length > 0) {
     try {
       const today = new Date().toISOString().slice(0, 10);
@@ -228,10 +238,13 @@ export const POST: APIRoute = async ({ request }) => {
   const eventSearchBlock = response.blocks.find(
     (b) => b.type === "event_search",
   );
-  let events: any[] = [];
+  let eventsResult: { events: EventWithOrgs[]; hasMore: boolean } = {
+    events: [],
+    hasMore: false,
+  };
   if (eventSearchBlock && eventSearchBlock.type === "event_search") {
     try {
-      events = await runEventSearch(eventSearchBlock.filters);
+      eventsResult = await runEventSearch(eventSearchBlock.filters);
     } catch (err) {
       console.error("Event search failed:", err);
     }
@@ -240,42 +253,25 @@ export const POST: APIRoute = async ({ request }) => {
   return json({
     blocks: response.blocks,
     orgs: hydratedOrgs,
-    events,
+    events: eventsResult.events,
+    hasMoreEvents: eventsResult.hasMore,
+    eventOffset:
+      eventSearchBlock?.type === "event_search"
+        ? (eventSearchBlock.filters.offset ?? 0)
+        : 0,
     fabricatedIdsFiltered: parsed.fabricatedIds.length,
   });
 };
 
-async function runEventSearch(filters: EventSearchFilters) {
-  const conditions: any[] = [];
-
-  if (filters.date_from) {
-    conditions.push(
-      or(
-        gte(eventsInTest.startDate, filters.date_from),
-        isNull(eventsInTest.startDate),
-      ),
-    );
-  } else {
-    const today = new Date().toISOString().slice(0, 10);
-    conditions.push(
-      or(
-        gte(eventsInTest.endDate, today),
-        and(isNull(eventsInTest.endDate), gte(eventsInTest.startDate, today)),
-        and(isNull(eventsInTest.endDate), isNull(eventsInTest.startDate)),
-      ),
-    );
-  }
-  if (filters.date_to) {
-    conditions.push(
-      or(
-        lte(eventsInTest.startDate, filters.date_to),
-        isNull(eventsInTest.startDate),
-      ),
-    );
-  }
+async function runEventSearch(
+  filters: EventSearchFilters,
+): Promise<{ events: EventWithOrgs[]; hasMore: boolean }> {
+  const baseConditions: any[] = [];
+  const offset = filters.offset ?? 0;
+  const LIMIT = 10;
 
   if (filters.day_of_week !== undefined) {
-    conditions.push(
+    baseConditions.push(
       sql`EXTRACT(DOW FROM ${eventsInTest.startDate}) = ${filters.day_of_week}`,
     );
   }
@@ -286,19 +282,21 @@ async function runEventSearch(filters: EventSearchFilters) {
       afternoon: [12, 18],
       evening: [18, 23],
     }[filters.time_of_day];
-    conditions.push(
+    baseConditions.push(
       sql`EXTRACT(HOUR FROM ${eventsInTest.startDate}) >= ${hourRange[0]} AND EXTRACT(HOUR FROM ${eventsInTest.startDate}) < ${hourRange[1]}`,
     );
   }
 
   if (filters.categories && filters.categories.length > 0) {
-    conditions.push(
-      sql`${eventsInTest.categories} && ${filters.categories}::text[]`,
+    baseConditions.push(
+      arrayOverlaps(eventsInTest.categories, filters.categories),
     );
   }
 
   if (filters.audience) {
-    conditions.push(sql`${filters.audience} = ANY(${eventsInTest.categories})`);
+    baseConditions.push(
+      sql`${filters.audience} = ANY(${eventsInTest.categories})`,
+    );
   }
 
   if (filters.keywords && filters.keywords.length > 0) {
@@ -308,70 +306,74 @@ async function runEventSearch(filters: EventSearchFilters) {
         ilike(eventsInTest.content, `%${kw}%`),
       ),
     );
-    conditions.push(or(...keywordConditions));
+    baseConditions.push(or(...keywordConditions));
   }
 
-  const needsOrgJoin =
-    (filters.city && filters.city.length > 0) ||
-    (filters.org_ids && filters.org_ids.length > 0);
+  const today = new Date().toISOString().slice(0, 10);
 
-  let eventRows: Array<{
-    id: string;
-    url: string | null;
-    title: string | null;
-    content: string | null;
-    startDate: string | null;
-    endDate: string | null;
-    location: string | null;
-    categories: string[] | null;
-  }>;
-
-  if (needsOrgJoin) {
-    const orgConditions: any[] = [];
-    if (filters.city) {
-      orgConditions.push(ilike(orgsInTest.city, `%${filters.city}%`));
-    }
-    if (filters.org_ids && filters.org_ids.length > 0) {
-      orgConditions.push(inArray(orgsInTest.id, filters.org_ids));
-    }
-
-    eventRows = await db
-      .selectDistinct({
-        id: eventsInTest.id,
-        url: eventsInTest.url,
-        title: eventsInTest.title,
-        content: eventsInTest.content,
-        startDate: eventsInTest.startDate,
-        endDate: eventsInTest.endDate,
-        location: eventsInTest.location,
-        categories: eventsInTest.categories,
-      })
-      .from(eventsInTest)
-      .innerJoin(
-        orgsEventsInTest,
-        eq(orgsEventsInTest.eventId, eventsInTest.id),
-      )
-      .innerJoin(orgsInTest, eq(orgsInTest.id, orgsEventsInTest.orgId))
-      .where(and(...conditions, ...orgConditions))
-      .limit(10);
+  const datedConditions: any[] = [...baseConditions];
+  if (filters.date_from) {
+    datedConditions.push(gte(eventsInTest.startDate, filters.date_from));
   } else {
-    eventRows = await db
-      .select({
-        id: eventsInTest.id,
-        url: eventsInTest.url,
-        title: eventsInTest.title,
-        content: eventsInTest.content,
-        startDate: eventsInTest.startDate,
-        endDate: eventsInTest.endDate,
-        location: eventsInTest.location,
-        categories: eventsInTest.categories,
-      })
-      .from(eventsInTest)
-      .where(and(...conditions))
-      .limit(10);
+    datedConditions.push(
+      or(
+        gte(eventsInTest.endDate, today),
+        and(isNull(eventsInTest.endDate), gte(eventsInTest.startDate, today)),
+      ),
+    );
+  }
+  if (filters.date_to) {
+    datedConditions.push(lte(eventsInTest.startDate, filters.date_to));
+  }
+  datedConditions.push(sql`${eventsInTest.startDate} IS NOT NULL`);
+
+  const undatedConditions: any[] = [...baseConditions];
+  undatedConditions.push(isNull(eventsInTest.startDate));
+
+  const needsOrgJoin: boolean =
+    (filters.city && filters.city.length > 0) ||
+    (filters.org_ids && filters.org_ids.length > 0) ||
+    false;
+
+  const orgConditions: any[] = [];
+  if (filters.city) {
+    orgConditions.push(ilike(orgsInTest.city, `%${filters.city}%`));
+  }
+  if (filters.org_ids && filters.org_ids.length > 0) {
+    orgConditions.push(inArray(orgsInTest.id, filters.org_ids));
   }
 
-  if (eventRows.length === 0) return [];
+  const datedFetch: Event[] = await fetchEvents(
+    datedConditions,
+    orgConditions,
+    needsOrgJoin,
+    LIMIT + 1,
+    offset,
+  );
+  const hasMoreDated = datedFetch.length > LIMIT;
+  const dated = datedFetch.slice(0, LIMIT);
+
+  let undated: typeof dated = [];
+  let hasMoreUndated = false;
+  if (offset === 0 && !hasMoreDated) {
+    const remainingSlots = LIMIT - dated.length;
+    if (remainingSlots > 0) {
+      const undatedFetch = await fetchEvents(
+        undatedConditions,
+        orgConditions,
+        needsOrgJoin,
+        remainingSlots + 1,
+        0,
+      );
+      hasMoreUndated = undatedFetch.length > remainingSlots;
+      undated = undatedFetch.slice(0, remainingSlots);
+    }
+  }
+
+  const eventRows = [...dated, ...undated];
+  const hasMore = hasMoreDated || hasMoreUndated;
+
+  if (eventRows.length === 0) return { events: [], hasMore: false };
 
   const eventIds = eventRows.map((e) => e.id);
   const orgLinks = await db
@@ -400,10 +402,62 @@ async function runEventSearch(filters: EventSearchFilters) {
     });
   }
 
-  return eventRows.map((e) => ({
+  const events: EventWithOrgs[] = eventRows.map((e) => ({
     ...e,
     orgs: orgsByEvent.get(e.id) ?? [],
   }));
+
+  return { events, hasMore };
+}
+
+async function fetchEvents(
+  conditions: any[],
+  orgConditions: any[],
+  needsOrgJoin: boolean,
+  limit: number,
+  off: number,
+) {
+  if (limit <= 0) return [];
+  if (needsOrgJoin) {
+    return db
+      .selectDistinct({
+        id: eventsInTest.id,
+        url: eventsInTest.url,
+        title: eventsInTest.title,
+        content: eventsInTest.content,
+        startDate: eventsInTest.startDate,
+        endDate: eventsInTest.endDate,
+        location: eventsInTest.location,
+        categories: eventsInTest.categories,
+      })
+      .from(eventsInTest)
+      .innerJoin(
+        orgsEventsInTest,
+        eq(orgsEventsInTest.eventId, eventsInTest.id),
+      )
+      .innerJoin(orgsInTest, eq(orgsInTest.id, orgsEventsInTest.orgId))
+      .where(and(...conditions, ...orgConditions))
+      .orderBy(asc(eventsInTest.startDate))
+      .limit(limit)
+      .offset(off);
+  } else {
+    return db
+      .select({
+        id: eventsInTest.id,
+        url: eventsInTest.url,
+        title: eventsInTest.title,
+        content: eventsInTest.content,
+        startDate: eventsInTest.startDate,
+        endDate: eventsInTest.endDate,
+        location: eventsInTest.location,
+        categories: eventsInTest.categories,
+      })
+      .from(eventsInTest)
+      .where(and(...conditions))
+      .orderBy(asc(eventsInTest.startDate))
+      .limit(limit)
+      .offset(off);
+  }
 }
 
 function json(body: unknown, status = 200): Response {

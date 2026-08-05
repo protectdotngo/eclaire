@@ -1,27 +1,4 @@
-export type TextBlock = { type: "text"; content: string };
-export type OrgsBlock = {
-  type: "orgs";
-  items: { id: string; reason: string }[];
-};
-export type EventSearchBlock = {
-  type: "event_search";
-  filters: EventSearchFilters;
-};
-
-export interface EventSearchFilters {
-  date_from?: string;
-  date_to?: string;
-  day_of_week?: number;
-  time_of_day?: "morning" | "afternoon" | "evening";
-  categories?: string[];
-  keywords?: string[];
-  city?: string;
-  org_ids?: string[];
-  audience?: string;
-}
-
-export type Block = TextBlock | OrgsBlock | EventSearchBlock;
-export type ChatResponse = { blocks: Block[] };
+import type { Block, ChatResponse, EventSearchFilters } from "../interfaces";
 
 const MAX_ITEMS_PER_BLOCK = 5;
 
@@ -189,6 +166,13 @@ function sanitizeEventSearchFilters(
     (AUDIENCE_VALUES as readonly string[]).includes(raw.audience)
   ) {
     filters.audience = raw.audience;
+  }
+  if (
+    typeof raw.offset === "number" &&
+    Number.isInteger(raw.offset) &&
+    raw.offset >= 0
+  ) {
+    filters.offset = raw.offset;
   }
 
   return filters;

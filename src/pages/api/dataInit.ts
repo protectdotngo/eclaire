@@ -16,6 +16,11 @@ export const GET: APIRoute = async () => {
         lat: orgsInTest.lat,
         lon: orgsInTest.lon,
         desc: orgsInTest.desc,
+        rss: orgsInTest.rss,
+        events_url: orgsInTest.eventsUrl,
+        news_url: orgsInTest.newsUrl,
+        socials: orgsInTest.socials,
+        contact: orgsInTest.contact,
       })
       .from(orgsInTest);
     return new Response(JSON.stringify({ message: "Success", data: result }), {

@@ -35,8 +35,8 @@ export const GET: APIRoute = async ({ url }) => {
             url: eventsInTest.url,
             title: eventsInTest.title,
             content: eventsInTest.content,
-            start_date: eventsInTest.startDate,
-            end_date: eventsInTest.endDate,
+            startDate: eventsInTest.startDate,
+            endDate: eventsInTest.endDate,
             location: eventsInTest.location,
             categories: eventsInTest.categories,
           })
@@ -52,8 +52,8 @@ export const GET: APIRoute = async ({ url }) => {
             url: eventsInTest.url,
             title: eventsInTest.title,
             content: eventsInTest.content,
-            start_date: eventsInTest.startDate,
-            end_date: eventsInTest.endDate,
+            startDate: eventsInTest.startDate,
+            endDate: eventsInTest.endDate,
             location: eventsInTest.location,
             categories: eventsInTest.categories,
           })
