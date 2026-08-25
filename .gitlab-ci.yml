@@ -59,7 +59,7 @@ Trigger ArgoCD sync:
     - chmod +x /usr/local/bin/argocd
   script:
     - |
-      argocd app sync "$ARGOCD_APP" \
+      argocd app sync --force --replace "$ARGOCD_APP" \
         --server "$ARGOCD_SERVER" \
         --grpc-web \
         --auth-token "$ARGOCD_AUTH_TOKEN" \
