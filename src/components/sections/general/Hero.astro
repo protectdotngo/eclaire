@@ -1,0 +1,171 @@
+---
+interface Props {
+  title: string;
+  lead?: string;
+  lead2?: string;
+  body?: string;
+  image: string;
+  comp?: boolean;
+}
+
+const {
+  title,
+  lead = "",
+  lead2 = "",
+  body = "",
+  image,
+  comp = false,
+} = Astro.props;
+---
+
+<section class="image">
+  <div class="image-cont">
+    <div class="image-bg">
+      <img src={image} alt="" />
+    </div>
+    {
+      comp && (
+        <div class="image-box">
+          <slot />
+        </div>
+      )
+    }
+  </div>
+
+  <div class="hero-intro">
+    <h1 class="hero-intro-title" set:html={title} />
+    <p class="hero-intro-lead" set:html={lead} />
+    <p class="hero-intro-lead-2" set:html={lead2} />
+    <p class="hero-intro-body" set:html={body} />
+    <slot name="intro" />
+  </div>
+</section>
+
+<style>
+  .image {
+    position: relative;
+    width: 100%;
+    display: flex;
+    padding: 10rem 2rem 2rem 0;
+    box-sizing: border-box;
+    gap: 2rem;
+  }
+
+  .image-cont {
+    position: relative;
+    z-index: 2;
+    width: 60%;
+  }
+
+  .image-box {
+    background-color: rgba(var(--bg-color-1), 0.4);
+    backdrop-filter: blur(2px);
+    padding: 1rem;
+    border-radius: 12px;
+    width: 90%;
+    position: relative;
+    left: 10%;
+    top: 0;
+  }
+
+  .hero-intro {
+    position: relative;
+    z-index: 2;
+    width: 40%;
+    padding: 0.5rem 3rem;
+  }
+
+  .hero-intro-title {
+    margin: 0 0 1rem;
+    font-size: 2rem;
+    font-weight: 600;
+    color: transparent;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    background-clip: text;
+  }
+
+  .hero-intro-lead {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.4;
+  }
+
+  .hero-intro-lead-2 {
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.4;
+  }
+
+  .hero-intro-body {
+    margin: 0;
+    font-size: 1rem;
+    color: #374151;
+    line-height: 1.6;
+  }
+
+  .image-bg {
+    position: absolute;
+    top: -300px;
+    right: 0;
+    width: 100%;
+    height: 600px;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    transform: skew(-15deg) rotate(-15deg);
+  }
+
+  .image-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background-color: rgba(var(--color-main-2), 0.08);
+    transform: skew(15deg) rotate(15deg) scale(1.5) translateY(10%);
+  }
+
+  @media (max-width: 900px) {
+    .image {
+      flex-direction: column-reverse;
+      align-items: center;
+      padding: 10rem 2rem 2rem;
+    }
+    .image-cont {
+      width: 80%;
+    }
+    .image-box {
+      width: 100%;
+      left: 0;
+    }
+    .image-bg {
+      display: none;
+    }
+    .hero-intro {
+      width: 100%;
+      align-self: baseline;
+      padding: 0.5rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .image {
+      padding: 10rem 1rem 1rem;
+    }
+    .hero-intro {
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  @media (min-width: 2030) {
+    .image-bg {
+      height: 300%;
+      top: -180%;
+    }
+    .image-bg img {
+    }
+  }
+</style>

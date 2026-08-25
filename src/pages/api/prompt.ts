@@ -9,9 +9,10 @@ import {
   loadDefaultTemplate,
   invalidateCache,
 } from "../../lib/chatPrompt";
+import type { PromptVersion } from "../../interfaces";
 
 export const GET: APIRoute = async ({ url }) => {
-  // ?id=<uuid> → contenu d'une version précise de l'historique
+  // ?id=<uuid> → content of a specific version in the history
   const id = url.searchParams.get("id");
   if (id) {
     const rows = await db
@@ -20,11 +21,12 @@ export const GET: APIRoute = async ({ url }) => {
       .where(eq(promptConfigInTest.id, id))
       .limit(1);
     if (!rows[0]) return json({ error: "Version introuvable" }, 404);
-    return json({ content: rows[0].content, createdAt: rows[0].createdAt });
+    const { content, createdAt } = rows[0];
+    return json({ content, createdAt });
   }
 
   const current = await getEditableTemplate();
-  let versions: Array<{ id: string; createdAt: string; length: number }> = [];
+  let versions: PromptVersion[] = [];
   try {
     versions = await db
       .select({
@@ -36,7 +38,7 @@ export const GET: APIRoute = async ({ url }) => {
       .orderBy(desc(promptConfigInTest.createdAt))
       .limit(50);
   } catch {
-    // table absente → pas d'historique, le prompt par défaut reste utilisable
+    // Table not found → no history; the default prompt remains available
   }
   return json({ ...current, versions });
 };
@@ -71,12 +73,12 @@ export const POST: APIRoute = async ({ request }) => {
     await db.insert(promptConfigInTest).values({ content });
   } catch (err) {
     console.error("Failed to save prompt:", err);
-    // 42P01 = undefined_table : la migration n'a pas encore été exécutée
+    // 42P01 = undefined_table: the migration has not yet been performed
     if ((err as { cause?: { code?: string } })?.cause?.code === "42P01") {
       return json(
         {
           error:
-            "Table test.prompt_config manquante — exécuter la migration drizzle/0001_prompt_config.sql (droits admin requis)",
+            "The test.prompt_config table is missing — run the drizzle/0001_prompt_config.sql migration (admin privileges required)",
         },
         500,
       );

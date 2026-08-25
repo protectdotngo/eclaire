@@ -9,11 +9,9 @@ export function initMapSearchController() {
   const aiForm = document.getElementById("aiForm") as HTMLFormElement;
   const aiFormSubmit = document.getElementById("aiFormSubmit");
   const aiReset = document.getElementById("aiReset");
-  const filterForm = document.getElementById("filters-form") as HTMLFormElement;
   const searchBar = document.getElementById("search-bar") as HTMLInputElement;
   const clearSearch = document.getElementById("clear-search");
   const aiInfo = document.getElementById("aiInfo");
-  const filtersReset = document.getElementById("filtersReset");
 
   let history: ChatMsg[] = [];
   const orgIdsOnMap = new Set<string>();
@@ -82,6 +80,8 @@ export function initMapSearchController() {
       const data: OrgWithChatContext[] = baseData.data;
       initialOrgs = data;
       $mapData.set(data);
+      // hand the full dataset to the filter component for local filtering
+      window.dispatchEvent(new CustomEvent("orgs-init", { detail: data }));
 
       const allCat: string[] = [
         ...new Set(
@@ -298,44 +298,14 @@ export function initMapSearchController() {
     });
   });
 
-  filterForm?.addEventListener("change", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(filterForm);
-    const hasFilters = [...formData.values()].some((v) => v !== "");
-    if (hasFilters) {
-      filtersReset?.classList.remove("none");
-    } else {
-      filtersReset?.classList.add("none");
-    }
-    try {
-      const res = await fetch("/api/dataFilter", {
-        method: "POST",
-        body: formData,
-        signal: AbortSignal.timeout(5000),
-      });
-      if (res.status !== 200) throw new Error(`Status ${res.status}`);
-      const result = await res.json();
-      const data: OrgWithChatContext[] = result.data;
-      $mapData.set(data);
-    } catch (err) {
-      console.error("Failed to load filtered orgs:", err);
-    }
-  });
-
-  filtersReset?.addEventListener("click", () => {
-    filterForm?.reset();
-    $mapData.set(initialOrgs);
-    filtersReset?.classList.add("none");
-  });
-
   document.querySelectorAll(".swap").forEach((item) => {
     item.addEventListener("click", () => {
       const filter = document.getElementById("filters");
-      const ai = document.getElementById("ai");
+      const mapSearchAi = document.getElementById("map-search-ai");
       const search = document.getElementById("search");
       const questions = document.getElementById("quickQuestions");
       filter?.classList.toggle("none");
-      ai?.classList.toggle("none");
+      mapSearchAi?.classList.toggle("none");
       search?.classList.toggle("none");
       questions?.classList.toggle("none");
     });

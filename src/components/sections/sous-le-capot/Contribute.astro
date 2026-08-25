@@ -1,18 +1,26 @@
 ---
-
+import FolderOpenPlus from "../../../assets/folder-open-plus.svg";
 ---
 
 <section class="tech-section tech-section-closing">
-  <h2 class="tech-section-title">Contribuer</h2>
-  <p>
-    Éclaire est un commun numérique. Toute contribution — correction de données,
-    amélioration du code, signalement d'une organisation manquante — est
-    bienvenue. Les modalités précises sont décrites dans le dépôt du projet.
-  </p>
-  <p class="tech-contact-note">
-    Pour toute question concernant le projet, l'architecture, ou un partenariat,
-    contactez l'équipe Éclaire.
-  </p>
+  <article class="tech-card">
+    <div class="tech-card-box">
+      <h3 class="tech-card-title">Contribuer</h3>
+      <div class="tech-card-icon">
+        <FolderOpenPlus />
+      </div>
+    </div>
+    <p>
+      Éclaire est un commun numérique. Toute contribution — correction de
+      données, amélioration du code, signalement d'une organisation manquante —
+      est bienvenue. Les modalités précises sont décrites dans le dépôt du
+      projet.
+    </p>
+    <p class="tech-card-note">
+      Pour toute question concernant le projet, l'architecture, ou un
+      partenariat, contactez l'équipe Éclaire.
+    </p>
+  </article>
 </section>
 
 <style>
@@ -20,47 +28,60 @@
     margin-bottom: 3.5rem;
   }
 
-  .tech-section-title {
-    font-size: 1.6rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    margin: 0 0 1.25rem;
-    color: #1f2937;
+  .tech-card {
+    max-width: 350px;
+    min-width: 300px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(var(--color-main-2), 0.3);
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px rgba(181, 46, 196, 0.1);
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
   }
 
-  .tech-section p {
-    font-size: 0.98rem;
-    color: #374151;
-    line-height: 1.7;
-    margin: 0 0 1rem;
+  .tech-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(181, 46, 196, 0.2);
   }
 
-  .tech-section-closing {
-    background: linear-gradient(
-      135deg,
-      rgba(43, 72, 136, 0.2),
-      rgba(199, 59, 93, 0.2)
-    );
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 1rem;
+  .tech-card-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: fit-content;
+    margin-bottom: 0.5rem;
   }
 
-  .tech-section-closing .tech-section-title {
-    margin-top: 0;
+  .tech-card-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
   }
 
-  .tech-contact-note {
-    margin-top: 1rem !important;
-    color: #6b7280 !important;
-    font-size: 0.9rem !important;
+  .tech-card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: rgba(var(--color-main), 1);
+    margin: 0;
+  }
+
+  .tech-card p {
+    font-size: 0.9rem;
+    color: black;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .tech-card p.tech-card-note {
+    margin-top: 1rem;
+    font-size: 0.9rem;
     font-style: italic;
-  }
-
-  @media (max-width: 768px) {
-    .tech-section-title {
-      font-size: 1.3rem;
-    }
   }
 </style>

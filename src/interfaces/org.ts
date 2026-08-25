@@ -38,6 +38,12 @@ export interface OrgReference {
   domain: string | null;
 }
 
+export interface Candidate {
+  id: string;
+  name: string;
+  score: number;
+}
+
 export interface OrgLite {
   id: string;
   name: string;

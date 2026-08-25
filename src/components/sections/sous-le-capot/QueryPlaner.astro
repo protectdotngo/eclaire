@@ -1,7 +1,3 @@
----
-
----
-
 <section class="tech-section">
   <h2 class="tech-section-title">
     L'assistant comme planificateur de requêtes
@@ -13,7 +9,7 @@
     et plus fiable — de <em>planificateur de requêtes</em>.
   </p>
 
-  <p>
+  <p class="tech-section-intro">
     Lorsqu'un utilisateur pose une question, le modèle de langage analyse
     l'intention puis émet une réponse structurée en JSON : soit une question de
     clarification, soit une liste d'identifiants d'organisations pertinents,
@@ -21,7 +17,7 @@
     d'événements.
   </p>
 
-  <p>
+  <p class="tech-section-intro">
     Cette architecture présente deux avantages : les réponses affichées à
     l'utilisateur proviennent toujours directement de la base de données (pas
     d'hallucination possible sur les dates, lieux ou contenus), et le modèle
@@ -30,38 +26,38 @@
   </p>
 
   <div class="code-block">
-    <div class="code-block-header">Exemple de sortie du modèle</div>
-    <pre><code>{`{
-      "blocks": [
-        {
-          "type": "text",
-          "content": "Je cherche des ateliers smartphone à Carouge cette semaine."
-        },
-        {
-          "type": "event_search",
-          "filters": {
-            "date_from": "2026-06-29",
-            "date_to": "2026-07-06",
-            "categories": ["formation numérique"],
-            "keywords": ["smartphone", "téléphone"],
-            "city": "Carouge"
-          }
-        },
-        {
-          "type": "text",
-          "content": "Voilà ma sélection. Tu veux affiner ?"
-        }
-      ]
-    }`}</code></pre>
+    <pre><code>
+{`{
+  "blocks": [
+    {
+      "type": "text",
+      "content": "Je cherche des ateliers smartphone à Carouge cette semaine."
+    },
+    {
+      "type": "event_search",
+      "filters": {
+        "date_from": "2026-06-29",
+        "date_to": "2026-07-06",
+        "categories": ["formation numérique"],
+        "keywords": ["smartphone", "téléphone"],
+        "city": "Carouge"
+      }
+    },
+    {
+      "type": "text",
+      "content": "Voilà ma sélection. Tu veux affiner ?"
+    }
+  ]
+}`}
+  </code></pre>
+    <div class="code-block-after">
+      Le back-end exécute la recherche SQL correspondante et renvoie les
+      événements bruts au front-end, qui les affiche avec un effet de
+      progression typographique pour l'aspect conversationnel. L'utilisateur
+      voit l'assistant « écrire » sa réponse, mais le contenu réel sort toujours
+      d'une requête déterministe.
+    </div>
   </div>
-
-  <p>
-    Le back-end exécute la recherche SQL correspondante et renvoie les
-    événements bruts au front-end, qui les affiche avec un effet de progression
-    typographique pour l'aspect conversationnel. L'utilisateur voit l'assistant
-    « écrire » sa réponse, mais le contenu réel sort toujours d'une requête
-    déterministe.
-  </p>
 </section>
 
 <style>
@@ -71,35 +67,29 @@
 
   .tech-section-title {
     font-size: 1.6rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 0.02em;
     margin: 0 0 1.25rem;
-    color: #1f2937;
+    color: transparent;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    background-clip: text;
   }
 
   .tech-section-intro {
-    font-size: 1.05rem;
+    font-size: 1rem;
     color: #374151;
     line-height: 1.6;
     margin: 0 0 1.5rem;
   }
 
-  .tech-section p {
-    font-size: 0.98rem;
-    color: #374151;
-    line-height: 1.7;
-    margin: 0 0 1rem;
-  }
-
   .tech-section em {
     font-style: italic;
-    color: #2b4888;
+    color: rgba(var(--color-main-2), 1);
     font-weight: 500;
   }
 
   .code-block {
-    background: #1f2937;
+    background: black;
     color: #e5e7eb;
     border-radius: 10px;
     overflow: hidden;
@@ -130,6 +120,14 @@
     padding: 0;
     color: inherit;
     font-size: inherit;
+  }
+
+  .code-block-after {
+    color: transparent;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    background-clip: text;
+    padding: 1rem 2.5rem 2rem 2.5rem;
+    font-size: 1rem;
   }
 
   @media (max-width: 768px) {

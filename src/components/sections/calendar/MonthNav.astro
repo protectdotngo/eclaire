@@ -43,6 +43,7 @@ import RefreshSVG from "../../../assets/refresh.svg";
     justify-content: flex-start;
     gap: 1rem;
     margin: 2rem 0 1.5rem;
+    flex-wrap: wrap;
   }
 
   .month-nav-btn {
@@ -55,28 +56,29 @@ import RefreshSVG from "../../../assets/refresh.svg";
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #1f2937;
+    color: rgba(var(--color-main-2), 1);
     transition:
       background 0.15s ease,
       border-color 0.15s ease;
   }
 
-  .month-nav-btn:hover {
-    background: #f3f4f6;
-    border-color: #2b4888;
+  .month-nav-btn:not(:disabled):hover {
+    background: color-mix(in srgb, rgb(var(--color-main-2)) 8%, white);
+    border-color: rgba(var(--color-main-2), 1);
   }
 
-  .month-nav-btn-disabled {
+  .month-nav-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
   }
 
   .month-nav-title {
     font-size: 2rem;
-    font-weight: 800;
+    font-weight: 600;
     margin: 0;
-    color: #1f2937;
-    text-transform: uppercase;
+    color: transparent;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    background-clip: text;
     letter-spacing: 0.02em;
   }
 
@@ -90,7 +92,7 @@ import RefreshSVG from "../../../assets/refresh.svg";
     background: white;
     cursor: pointer;
     font-size: 0.85rem;
-    color: #2b4888;
+    color: rgba(var(--color-main-2), 1);
     transition:
       background 0.15s ease,
       border-color 0.15s ease;
@@ -98,8 +100,8 @@ import RefreshSVG from "../../../assets/refresh.svg";
   }
 
   .month-nav-today:hover {
-    background: rgba(43, 72, 136, 0.05);
-    border-color: #2b4888;
+    background-color: rgba(var(--color-main-2), 0.05);
+    border-color: rgba(var(--color-main-2), 1);
   }
 
   .month-nav-today svg {
@@ -109,6 +111,12 @@ import RefreshSVG from "../../../assets/refresh.svg";
   @media (max-width: 768px) {
     .month-nav-title {
       font-size: 1.4rem;
+    }
+  }
+
+  @media (max-width: 440px) {
+    .month-nav {
+      justify-content: center;
     }
   }
 </style>

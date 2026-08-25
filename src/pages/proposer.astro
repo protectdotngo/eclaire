@@ -5,6 +5,16 @@ import ProposalForm from "../components/ProposalForm.astro";
 ---
 
 <BaseLayout title="Éclaire - Proposer une organisation">
-  <Nav />
-  <ProposalForm />
+  <div class="main">
+    <div class="navContMain">
+      <Nav />
+    </div>
+    <ProposalForm />
+  </div>
 </BaseLayout>
+
+<style>
+  .main {
+    position: relative;
+  }
+</style>

@@ -21,7 +21,7 @@ export async function loadDefaultTemplate(): Promise<string> {
 }
 
 // The template stored in DB (edited via /prompt) wins; the bundled .md file
-// is the versioned default. DB errors (e.g. table not created yet) fall back
+// is the versioned default. DB errors (table not created yet, etc.) fall back
 // to the default so chat keeps working.
 export async function getEditableTemplate(): Promise<{
   content: string;

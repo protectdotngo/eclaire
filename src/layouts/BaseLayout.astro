@@ -1,50 +1,35 @@
 ---
-const { title = "Default Title" } = Astro.props;
+import Head from "../components/sections/general/Head.astro";
+
+const { title = "Eclaire" } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-FH1JTNMC8R"
-    ></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-FH1JTNMC8R");
-    </script>
-  </head>
-  <body>
+  <Head title={title} />
+  <body class="side-panel-open">
     <slot />
   </body>
 </html>
 
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap");
-  @font-face {
-    font-family: "FoundersGroteskSemibold";
-    src: url("/fonts/FoundersGrotesk-Semibold.otf") format("opentype");
-  }
-
   :root {
     --bg-color-1: 255, 255, 255;
     --bg-color-2: 245, 245, 245;
     --color-1: 0, 0, 0;
     --color-2: 80, 80, 80;
+    --color-main: 217, 36, 148; /* #d92494 */
+    --color-main-dark: 178, 36, 121;
+    --color-main-2: 181, 46, 196; /* #b52ec4 */
+    --color-main-2-dark: 140, 36, 151;
+    --color-main-3: 237, 31, 122; /* #ed1f7a */
+    --color-main-3-dark: 194, 26, 101;
+    --color-required: 199, 59, 93; /* #c73b5d */
   }
   html,
   body {
     font-family:
-      "Inter Tight", Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      var(--font-neue-haas-grotesk), var(--font-inter-tight), var(--font-founders-grotesk), Inter, Roboto, "Helvetica Neue", "Arial Nova",
       "Nimbus Sans", Arial, sans-serif;
     margin: 0;
     width: 100%;
@@ -67,13 +52,19 @@ const { title = "Default Title" } = Astro.props;
   h4,
   h5 {
     font-family:
-      "FoundersGroteskSemibold", "Inter Tight", Inter, Roboto, "Helvetica Neue",
-      "Arial Nova", "Nimbus Sans", Arial, sans-serif;
-    text-transform: uppercase;
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
   }
   input {
     font-family:
-      "Inter Tight", Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
       "Nimbus Sans", Arial, sans-serif;
+  }
+  .navContMain {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 5000;
+    width: 100%;
   }
 </style>

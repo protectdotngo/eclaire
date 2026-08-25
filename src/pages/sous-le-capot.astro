@@ -5,6 +5,16 @@ import Technical from "../components/Technical.astro";
 ---
 
 <BaseLayout title="Éclaire - Sous le capot">
-  <Nav />
-  <Technical />
+  <div class="main">
+    <div class="navContMain">
+      <Nav />
+    </div>
+    <Technical />
+  </div>
 </BaseLayout>
+
+<style>
+  .main {
+    position: relative;
+  }
+</style>

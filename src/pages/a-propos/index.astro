@@ -5,6 +5,16 @@ import Home from "../../components/eclaire-v1/Home.astro";
 ---
 
 <BaseLayout title="Éclaire v1 — Accueil">
-  <Nav showV1 />
-  <Home />
+  <div class="main">
+    <div class="navContMain">
+      <Nav />
+    </div>
+    <Home />
+  </div>
 </BaseLayout>
+
+<style>
+  .main {
+    position: relative;
+  }
+</style>

@@ -1,0 +1,114 @@
+---
+import MapSearch from "./sections/mapSearch/MapSearch.astro";
+import ChevronRight from "../assets/square-rounded-chevron-right.svg";
+---
+
+<div class="side-bar" id="sideBar">
+  <div class="side-bar-btn" id="sideBarToggle">
+    <ChevronRight />
+  </div>
+  <MapSearch />
+</div>
+<script>
+  const MOBILE_BREAKPOINT = 768;
+
+  const sideBar = document.getElementById("sideBar");
+  const toggle = document.getElementById("sideBarToggle");
+
+  function setCollapsed(collapsed: boolean) {
+    if (!sideBar) return;
+    sideBar.classList.toggle("collapsed", collapsed);
+  }
+
+  toggle?.addEventListener("click", () => {
+    if (!sideBar) return;
+    setCollapsed(!sideBar.classList.contains("collapsed"));
+  });
+
+  const map = document.querySelector(".main");
+  map?.addEventListener("click", (e) => {
+    if (
+      e.target instanceof Element &&
+      !e.target.closest(".side-bar") &&
+      !e.target.closest(".navCont") &&
+      !e.target.closest(".mobile-drawer") &&
+      !e.target.closest(".mobile-backdrop") &&
+      window.innerWidth <= MOBILE_BREAKPOINT
+    ) {
+      setCollapsed(true);
+    }
+  });
+</script>
+<style>
+  .side-bar {
+    position: relative;
+    width: 100%;
+    max-width: 40vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: max-width 0.3s ease;
+    background: white;
+  }
+  @media (max-width: 1100px) {
+    .side-bar {
+      max-width: 45vw;
+    }
+  }
+  @media (max-width: 1000px) {
+    .side-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 85%;
+      max-width: 500px;
+      min-width: 0;
+      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.12);
+      z-index: 2000;
+    }
+  }
+
+  .side-bar.collapsed {
+    max-width: 0;
+  }
+  .side-bar.collapsed :global(.map-search) {
+    display: none;
+  }
+
+  .side-bar-btn {
+    position: absolute;
+    z-index: 1000;
+    top: calc(50vh - 20px);
+    right: -40px;
+    cursor: pointer;
+    color: rgba(var(--color-main-2), 0.6);
+    transition:
+      transform ease 0.3s,
+      color ease 0.3s;
+  }
+
+  .side-bar-btn:hover {
+    color: rgba(var(--color-main-2), 1);
+    transform: translateX(3px);
+  }
+
+  .side-bar-btn svg {
+    width: 40px;
+    height: 40px;
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+  }
+
+  .side-bar.collapsed .side-bar-btn {
+    color: rgba(var(--color-main-2), 1);
+  }
+
+  .side-bar.collapsed .side-bar-btn:hover {
+    color: rgba(var(--color-main-2-dark), 1);
+    transform: translateX(3px);
+  }
+
+  .side-bar.collapsed .side-bar-btn svg {
+    transform: rotate(0deg);
+  }
+</style>

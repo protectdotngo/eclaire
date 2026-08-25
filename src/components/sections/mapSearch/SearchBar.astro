@@ -49,7 +49,7 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
 
   .search-bar-filters {
     width: 100%;
-    border: 1px solid rgba(43, 72, 136, 0.4);
+    border: 1px solid rgba(var(--color-main-2), 1);
     margin: auto;
     border-radius: 12px;
     overflow: hidden;
@@ -76,8 +76,8 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
   }
 
   .ai-search-bar::placeholder {
-    color: #34719d;
-    opacity: 0.6;
+    color: #1f2937;
+    opacity: 0.85;
   }
 
   :global(#clear-search) {
@@ -98,7 +98,7 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
     gap: 0.2rem;
     border: none;
     cursor: pointer;
-    background-color: rgba(43, 72, 136, 0.5);
+    background-color: rgba(var(--color-main-2), 0.5);
     color: white;
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -111,7 +111,7 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
   }
 
   .ai-search-btn:not(:disabled):hover {
-    background-color: rgba(43, 72, 136, 0.7);
+    background-color: rgba(var(--color-main-2), 0.7);
   }
 
   .ai-search-btn:disabled {
@@ -120,7 +120,9 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
   }
 
   .ai-search-btn :global(svg) {
+    position: relative;
     background-color: transparent;
+    top: -1px;
   }
 
   .ai-actions {
@@ -130,7 +132,7 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    background-color: #34719d;
+    background-color: rgba(var(--color-main-2), 1);
     padding: 0.5rem 1rem;
   }
 
@@ -163,6 +165,7 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
     border: none;
     background: transparent;
     transition: 0.15s ease;
+    padding: 0;
   }
 
   .ai-swap:hover {
@@ -176,7 +179,6 @@ import EnterSVG from "../../../assets/corner-down-left.svg";
   }
 
   .ai-swap-link {
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 1px;
+    text-decoration: none;
   }
 </style>

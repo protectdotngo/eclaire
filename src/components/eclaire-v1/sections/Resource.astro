@@ -14,12 +14,12 @@ const isClickable = !resource.data.name.toLowerCase().includes("coming soon");
 
 {
   isClickable ? (
-    <a
-      href={resource.data.url}
-      target="_blank"
-      rel="noopener"
+    <div
       class="v1-resource-card"
       data-partner={resource.data.partner.id}
+      data-url={resource.data.url}
+      role="link"
+      tabindex="0"
       x-show={`selectedPartner === '' || selectedPartner === '${resource.data.partner.id}'`}
       x-transition.opacity.duration.200ms
     >
@@ -31,22 +31,46 @@ const isClickable = !resource.data.name.toLowerCase().includes("coming soon");
       <div class="v1-resource-card-description">
         <Content />
       </div>
-    </a>
+    </div>
   ) : null
 }
+
+<script>
+  function openCard(card: HTMLElement) {
+    const url = card.dataset.url;
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  document
+    .querySelectorAll<HTMLElement>(".v1-resource-card")
+    .forEach((card) => {
+      card.addEventListener("click", (e) => {
+        if (e.target instanceof Element && e.target.closest("a")) return;
+        openCard(card);
+      });
+
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openCard(card);
+        }
+      });
+    });
+</script>
 
 <style>
   .v1-resource-card {
     display: block;
     background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.25rem;
+    border: 1px solid rgba(var(--color-main-2), 0.18);
+    border-radius: 16px;
+    padding: 1.5rem;
     margin: 0 0 1rem;
     text-decoration: none;
     color: inherit;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     break-inside: avoid;
+    cursor: pointer;
     transition:
       transform 0.2s ease,
       box-shadow 0.2s ease,
@@ -55,17 +79,22 @@ const isClickable = !resource.data.name.toLowerCase().includes("coming soon");
 
   .v1-resource-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(43, 72, 136, 0.1);
-    border-color: rgba(43, 72, 136, 0.25);
+    box-shadow: 0 8px 20px rgba(var(--color-main-2), 0.12);
+    border-color: rgba(var(--color-main-2), 0.4);
   }
 
   .v1-resource-card:hover .v1-resource-card-title {
-    color: #2b4888;
+    color: rgba(var(--color-main-2), 1);
+  }
+
+  .v1-resource-card:focus-visible {
+    outline: 2px solid rgba(var(--color-main-2), 1);
+    outline-offset: 2px;
   }
 
   .v1-resource-card hr {
     border: none;
-    border-top: 1px solid #2b488866;
+    border-top: 1px solid rgba(var(--color-main-2), 0.4);
     border-radius: 100px;
     margin: 0 0 0.75rem;
   }

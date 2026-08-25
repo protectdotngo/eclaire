@@ -1,103 +1,92 @@
 ---
-
+import ArrowMove from "../../../assets/arrow-move-right.svg";
+import Background from "../general/Background.astro";
 ---
 
 <section class="tech-section">
-  <h2 class="tech-section-title">Vue d'ensemble de l'architecture</h2>
-  <p class="tech-section-intro">
-    Éclaire repose sur trois composants principaux, conçus pour fonctionner
-    indépendamment tout en se nourrissant mutuellement :
-  </p>
+  <Background />
+  <div class="tech-section-box">
+    <h2 class="tech-section-title">Vue d'ensemble de l'architecture</h2>
+    <p class="tech-section-intro">
+      Éclaire repose sur trois composants principaux, conçus pour fonctionner
+      indépendamment tout en se nourrissant mutuellement :
+    </p>
+  </div>
 
   <div class="arch-diagram-html">
-    <div class="arch-label">FLUX DE DONNÉES</div>
+    <div class="arch-label">
+      <span>Flux de données</span>
+    </div>
 
     <div class="arch-row">
       <div class="arch-box">
         <h3>Collecte</h3>
-        <p>Scraping automatisé</p>
-        <p>Extraction IA</p>
+        <ul>
+          <li>Scraping automatisé</li>
+          <li>Extraction IA</li>
+        </ul>
         <span class="arch-box-label">n8n</span>
       </div>
 
       <div class="arch-arrow" aria-hidden="true">
-        <svg viewBox="0 0 60 12" xmlns="http://www.w3.org/2000/svg">
-          <line
-            x1="0"
-            y1="6"
-            x2="55"
-            y2="6"
-            stroke="#2b4888"
-            stroke-width="2"
-            stroke-dasharray="4 4"></line>
-          <polygon points="60,6 50,1 50,11" fill="#2b4888"></polygon>
-        </svg>
+        <ArrowMove />
       </div>
 
       <div class="arch-box">
         <h3>Base de données</h3>
-        <p>Organisations</p>
-        <p>Événements, news</p>
+        <ul>
+          <li>Organisations</li>
+          <li>Événements, news</li>
+        </ul>
         <span class="arch-box-label">PostgreSQL</span>
       </div>
 
       <div class="arch-arrow" aria-hidden="true">
-        <svg viewBox="0 0 60 12" xmlns="http://www.w3.org/2000/svg">
-          <line
-            x1="0"
-            y1="6"
-            x2="55"
-            y2="6"
-            stroke="#2b4888"
-            stroke-width="2"
-            stroke-dasharray="4 4"></line>
-          <polygon points="60,6 50,1 50,11" fill="#2b4888"></polygon>
-        </svg>
+        <ArrowMove />
       </div>
 
       <div class="arch-box">
         <h3>Interface</h3>
-        <p>Carte interactive</p>
-        <p>Recherche IA</p>
+        <ul>
+          <li>Carte interactive</li>
+          <li>Recherche IA</li>
+        </ul>
         <span class="arch-box-label">Astro + Alpine</span>
       </div>
     </div>
 
     <div class="arch-down-arrow" aria-hidden="true">
-      <svg viewBox="0 0 12 60" xmlns="http://www.w3.org/2000/svg">
-        <line
-          x1="6"
-          y1="0"
-          x2="6"
-          y2="55"
-          stroke="#2b4888"
-          stroke-width="2"
-          stroke-dasharray="4 4"></line>
-        <polygon points="6,60 1,50 11,50" fill="#2b4888"></polygon>
-      </svg>
+      <ArrowMove />
     </div>
 
     <div class="arch-box arch-box-llm">
       <h3>Assistant conversationnel</h3>
-      <span class="arch-box-label-light"
-        >Qwen 235B (planificateur de requêtes)</span
-      >
+      <ul>
+        <li>Qwen 235B</li>
+      </ul>
+      <span class="arch-box-llm-label">Planificateur de requêtes</span>
     </div>
   </div>
 </section>
 
 <style>
   .tech-section {
-    margin-bottom: 3.5rem;
+    margin: 3.5rem auto;
+    position: relative;
+  }
+
+  .tech-section-box {
+    padding: 0 1.5rem;
   }
 
   .tech-section-title {
     font-size: 1.6rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 0.02em;
     margin: 0 0 1.25rem;
-    color: #1f2937;
+    color: transparent;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    background-clip: text;
   }
 
   .tech-section-intro {
@@ -105,12 +94,10 @@
     color: #374151;
     line-height: 1.6;
     margin: 0 0 1.5rem;
+    max-width: 500px;
   }
 
   .arch-diagram-html {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
     padding: 2rem 1.5rem;
     margin: 1.5rem 0 2rem;
     display: flex;
@@ -119,11 +106,13 @@
   }
 
   .arch-label {
-    font-size: 1rem;
+    width: 100%;
+    font-size: 1.6rem;
     font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
+    color: black;
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: baseline;
   }
 
   .arch-row {
@@ -137,36 +126,40 @@
   .arch-box {
     flex: 1;
     background: white;
-    border: 2px solid #2b4888;
     border-radius: 10px;
-    padding: 1rem 0.75rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
-    text-align: center;
+    text-align: left;
     min-height: 130px;
+    box-shadow: 0 8px 28px rgba(var(--color-main-3), 0.25);
   }
 
   .arch-box h3 {
     margin: 0 0 0.5rem;
     font-size: 1.4rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #1f2937;
   }
 
-  .arch-box p {
-    margin: 0.1rem 0;
-    font-size: 0.9rem;
-    color: #4b5563;
-    line-height: 1.3;
+  .arch-box ul {
+    margin: 2rem 0;
+    font-size: 1rem;
+    color: black;
+    line-height: 1.5;
   }
 
   .arch-box-label {
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
+    align-self: flex-end;
     font-size: 0.8rem;
-    font-style: italic;
-    color: #6b7280;
+    font-weight: 500;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    color: white;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
   }
 
   .arch-arrow {
@@ -176,40 +169,57 @@
     align-items: center;
     justify-content: center;
     padding: 0 0.5rem;
+    color: rgba(var(--color-main-2), 1);
   }
 
   .arch-arrow svg {
-    width: 100%;
-    height: 12px;
+    width: 36px;
+    height: 36px;
   }
 
   .arch-down-arrow {
     margin: 0.5rem 0;
-    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(var(--color-main-2), 1);
   }
 
   .arch-down-arrow svg {
-    height: 50px;
-    width: 12px;
+    width: 36px;
+    height: 36px;
+    transform: rotate(90deg);
   }
 
   .arch-box-llm {
-    background: #c73b5d;
-    border-color: #c73b5d;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    border-color: transparent;
     max-width: 320px;
-    padding: 1rem 1.5rem;
+    padding: 1rem;
     min-height: auto;
+  }
+
+  .arch-box-llm ul {
+    margin: 2rem 0;
+    font-size: 1rem;
+    color: white;
+    line-height: 1.5;
   }
 
   .arch-box-llm h3 {
     color: white;
   }
 
-  .arch-box-label-light {
-    margin-top: 0.3rem;
+  .arch-box-llm-label {
+    margin-top: 0.75rem;
+    align-self: flex-end;
     font-size: 0.8rem;
-    font-style: italic;
-    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    color: white;
+    background: transparent;
+    border: 1px solid white;
   }
 
   @media (max-width: 768px) {
@@ -231,43 +241,13 @@
     }
 
     .arch-arrow {
-      width: 12px;
+      width: 100%;
       height: 50px;
       padding: 0.5rem 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .arch-arrow::before {
-      content: "";
-      display: block;
-      width: 2px;
-      height: 30px;
-      background-image: linear-gradient(
-        to bottom,
-        #2b4888 50%,
-        transparent 50%
-      );
-      background-size: 2px 8px;
-      background-repeat: repeat-y;
-      margin: 0 auto;
-    }
-
-    .arch-arrow::after {
-      content: "";
-      display: block;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 8px 5px 0 5px;
-      border-color: #2b4888 transparent transparent transparent;
-      margin: 0 auto;
     }
 
     .arch-arrow svg {
-      display: none;
+      transform: rotate(90deg);
     }
 
     .arch-box-llm {

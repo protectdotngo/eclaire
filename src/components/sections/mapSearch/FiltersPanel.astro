@@ -3,70 +3,343 @@ import FilterSVG from "../../../assets/filter.svg";
 import ChatSVG from "../../../assets/chat.svg";
 import RefreshSVG from "../../../assets/refresh.svg";
 import ChevronSVG from "../../../assets/chevron-down.svg";
+import FilteredOrgList from "./FilteredOrgList.astro";
 ---
 
-<div class="filters none" id="filters">
+<div class="filters none" id="filters" x-data="orgFilters()" x-init="init()">
   <div class="filters-card">
     <div class="filters-header">
-      <FilterSVG class="filters-svg" />
-      <h2 class="filters-title">Filtrer</h2>
+      <div class="filters-header-left">
+        <FilterSVG class="filters-svg" />
+        <h2 class="filters-title">Filtrer</h2>
+      </div>
+      <button
+        type="button"
+        class="filters-swap swap"
+        title="Poser une question"
+      >
+        <ChatSVG class="filters-swap-ai" />
+        <span>Poser une question</span>
+      </button>
     </div>
 
-    <form class="filters-form" id="filters-form">
-      <div class="filter-field">
-        <label class="filter-label" for="category">Catégorie</label>
-        <div class="filter-select-wrap">
-          <select
-            name="category"
-            id="category"
-            class="filter-select"
-            x-data="{ results: [] }"
-            @populate-categories.window="results = $event.detail"
-          >
-            <option value="">Toutes les catégories</option>
-            <template x-for="item in results">
-              <option
-                :value="item"
-                x-text="item.charAt(0).toUpperCase()+item.slice(1)"></option>
-            </template>
-          </select>
-          <span class="filter-chevron">
-            <ChevronSVG />
-          </span>
-        </div>
-      </div>
+    <div class="filter-field">
+      <label class="filter-label" for="org-search">Rechercher</label>
+      <input
+        id="org-search"
+        type="text"
+        class="filter-search"
+        placeholder="Nom d'une organisation..."
+        x-model="search"
+        @input="apply()"
+      />
+    </div>
 
-      <div class="filter-field">
-        <label class="filter-label" for="location">Localité</label>
-        <div class="filter-select-wrap">
-          <select
-            name="location"
-            id="location"
-            class="filter-select"
-            x-data="{ results: [] }"
-            @populate-locations.window="results = $event.detail"
-          >
-            <option value="">Toutes les localités</option>
-            <template x-for="item in results">
-              <option :value="item" x-text="item"></option>
+    <div class="filter-group">
+      <button
+        type="button"
+        class="filter-group-header"
+        @click="catOpen = !catOpen"
+      >
+        <span class="filter-label">Thématiques</span>
+        <span
+          class="filter-count"
+          x-show="selectedCategories.size > 0"
+          x-text="selectedCategories.size"></span>
+        <span class="filter-group-chevron" :class="catOpen ? 'open' : ''">
+          <ChevronSVG />
+        </span>
+      </button>
+      <div
+        class="filter-collapse"
+        :class="catOpen ? 'filter-collapse-open' : ''"
+      >
+        <div class="filter-collapse-inner">
+          <div class="chip-row">
+            <template x-for="cat in allCategories" :key="cat.name">
+              <button
+                type="button"
+                class="chip chip-category"
+                :class="selectedCategories.has(cat.name) ? 'chip-active' : ''"
+                :style="`--chip-color:${cat.color};--chip-bg:${cat.bg};--chip-text:${cat.text}`"
+                @click="toggleSet(selectedCategories, cat.name)"
+              >
+                <!-- <span class="dot"></span> -->
+                <span x-text="cat.label"></span>
+              </button>
             </template>
-          </select>
-          <span class="filter-chevron">
-            <ChevronSVG />
-          </span>
+          </div>
         </div>
       </div>
-    </form>
-    <button type="button" class="filters-reset none" id="filtersReset">
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="filter-group-header"
+        @click="audOpen = !audOpen"
+      >
+        <span class="filter-label">Publics</span>
+        <span
+          class="filter-count"
+          x-show="selectedAudiences.size > 0"
+          x-text="selectedAudiences.size"></span>
+        <span class="filter-group-chevron" :class="audOpen ? 'open' : ''">
+          <ChevronSVG />
+        </span>
+      </button>
+      <div
+        class="filter-collapse"
+        :class="audOpen ? 'filter-collapse-open' : ''"
+      >
+        <div class="filter-collapse-inner">
+          <div class="chip-row">
+            <template x-for="aud in audiences" :key="aud.name">
+              <button
+                type="button"
+                class="chip chip-audience"
+                :class="selectedAudiences.has(aud.name) ? 'chip-active' : ''"
+                @click="toggleSet(selectedAudiences, aud.name)"
+              >
+                <span x-text="aud.label"></span>
+              </button>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <button
+        type="button"
+        class="filter-group-header"
+        @click="locOpen = !locOpen"
+      >
+        <span class="filter-label">Localités</span>
+        <span
+          class="filter-count"
+          x-show="selectedLocations.size > 0 || genevaOnly"
+          x-text="selectedLocations.size + (genevaOnly ? 1 : 0)"></span>
+        <span class="filter-group-chevron" :class="locOpen ? 'open' : ''">
+          <ChevronSVG />
+        </span>
+      </button>
+      <div
+        class="filter-collapse"
+        :class="locOpen ? 'filter-collapse-open' : ''"
+      >
+        <div class="filter-collapse-inner">
+          <div class="chip-row">
+            <button
+              type="button"
+              class="chip chip-neutral"
+              :class="genevaOnly ? 'chip-active' : ''"
+              @click="toggleGeneva()"
+            >
+              Tout Genève
+            </button>
+            <template x-for="loc in allLocations" :key="loc">
+              <button
+                type="button"
+                class="chip chip-neutral"
+                :class="selectedLocations.has(loc) ? 'chip-active' : ''"
+                @click="toggleSet(selectedLocations, loc)"
+              >
+                <span x-text="loc"></span>
+              </button>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <label class="filter-checkbox">
+      <input type="checkbox" x-model="addressOnly" @change="apply()" />
+      <span>Uniquement avec adresse</span>
+    </label>
+
+    <template x-if="hasActiveFilters">
+      <div class="filter-field">
+        <span class="filter-label">Sélectionnés</span>
+        <div class="selected-chips">
+          <template x-for="f in activeFilters" :key="f.type + f.value">
+            <button
+              type="button"
+              class="chip chip-selected"
+              :style="f.color ? `--chip-color:${f.color};--chip-bg:${f.bg};--chip-text:${f.text}` : ''"
+              :class="f.type === 'category' ? 'chip-category' : (f.type === 'audience' ? 'chip-audience' : 'chip-neutral')"
+              @click="removeFilter(f)"
+            >
+              <!-- <template x-if="f.type === 'category'">
+                <span class="dot"></span>
+              </template> -->
+              <span x-text="f.label"></span>
+              <span class="chip-x" aria-hidden="true">×</span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <button
+      type="button"
+      class="filters-reset"
+      x-show="hasActiveFilters"
+      @click="resetFilters()"
+    >
       <RefreshSVG width={"16"} height={"16"} />
       <span>Réinitialiser les filtres</span>
     </button>
-    <button type="button" class="filters-swap swap">
-      <ChatSVG class="filters-swap-ai" />
-      <span>ou poser une question</span>
-    </button>
   </div>
+
+  <FilteredOrgList />
 </div>
+
+<script>
+  import { $mapData } from "../../../lib/mapStore";
+  import Alpine from "alpinejs";
+  import type { OrgWithChatContext } from "../../../interfaces";
+  import { ALL_CATEGORIES, AUDIENCES } from "../../../lib/calendarState";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("orgFilters", () => ({
+      allOrgs: [] as OrgWithChatContext[],
+      allCategories: ALL_CATEGORIES,
+      audiences: AUDIENCES,
+      allLocations: [] as string[],
+      selectedCategories: new Set<string>(),
+      selectedAudiences: new Set<string>(),
+      selectedLocations: new Set<string>(),
+      genevaOnly: false,
+      addressOnly: false,
+      search: "",
+      catOpen: false,
+      audOpen: false,
+      locOpen: false,
+      _unsub: null as null | (() => void),
+
+      init() {
+        window.addEventListener("populate-locations", (e: any) => {
+          this.allLocations = e.detail;
+        });
+        window.addEventListener("orgs-init", (e: any) => {
+          this.allOrgs = e.detail;
+          this.apply();
+        });
+        const current = $mapData.get();
+        if (current && current.length) this.allOrgs = [...current];
+      },
+
+      toggleSet(set: Set<string>, value: string) {
+        if (set.has(value)) set.delete(value);
+        else set.add(value);
+        this.apply();
+      },
+
+      toggleGeneva() {
+        this.genevaOnly = !this.genevaOnly;
+        this.apply();
+      },
+
+      get hasActiveFilters(): boolean {
+        return (
+          this.selectedCategories.size > 0 ||
+          this.selectedAudiences.size > 0 ||
+          this.selectedLocations.size > 0 ||
+          this.genevaOnly ||
+          this.addressOnly ||
+          this.search.trim() !== ""
+        );
+      },
+
+      get activeFilters() {
+        const out: any[] = [];
+        this.selectedCategories.forEach((c) => {
+          const cat = this.allCategories.find((x: any) => x.name === c);
+          out.push({
+            type: "category",
+            value: c,
+            label: cat?.label ?? c,
+            color: cat?.color,
+            bg: cat?.bg,
+            text: cat?.text,
+          });
+        });
+        this.selectedAudiences.forEach((a) => {
+          const aud = this.audiences.find((x: any) => x.name === a);
+          out.push({ type: "audience", value: a, label: aud?.label ?? a });
+        });
+        this.selectedLocations.forEach((l) =>
+          out.push({ type: "location", value: l, label: l }),
+        );
+        if (this.genevaOnly)
+          out.push({ type: "geneva", value: "", label: "Tout Genève" });
+        if (this.addressOnly)
+          out.push({ type: "address", value: "", label: "Avec adresse" });
+        return out;
+      },
+
+      removeFilter(f: { type: string; value: string }) {
+        if (f.type === "category") this.selectedCategories.delete(f.value);
+        else if (f.type === "audience") this.selectedAudiences.delete(f.value);
+        else if (f.type === "location") this.selectedLocations.delete(f.value);
+        else if (f.type === "geneva") this.genevaOnly = false;
+        else if (f.type === "address") this.addressOnly = false;
+        this.apply();
+      },
+
+      resetFilters() {
+        this.selectedCategories.clear();
+        this.selectedAudiences.clear();
+        this.selectedLocations.clear();
+        this.genevaOnly = false;
+        this.addressOnly = false;
+        this.search = "";
+        this.apply();
+      },
+
+      apply() {
+        const cats = this.selectedCategories;
+        const auds = this.selectedAudiences;
+        const locs = this.selectedLocations;
+        const q = this.search.trim().toLowerCase();
+
+        const result = this.allOrgs
+          .filter((org) => {
+            const matchCat =
+              cats.size === 0 ||
+              org.categories.some((c) => cats.has(c.toLowerCase()));
+            const matchAud =
+              auds.size === 0 ||
+              org.categories.some((c) => auds.has(c.toLowerCase()));
+            const matchLoc = locs.size === 0 || locs.has(org.city);
+            const matchGeneva =
+              !this.genevaOnly ||
+              (org.city ?? "").toLowerCase().includes("genève") ||
+              (org.city ?? "").toLowerCase().includes("geneve");
+            const matchAddress = !this.addressOnly || !!org.address?.trim();
+            const matchSearch =
+              q === "" ||
+              org.name.toLowerCase().includes(q) ||
+              (org.desc ?? "").toLowerCase().includes(q) ||
+              (org.address ?? "").toLowerCase().includes(q) ||
+              (org.city ?? "").toLowerCase().includes(q);
+            return (
+              matchCat &&
+              matchAud &&
+              matchLoc &&
+              matchGeneva &&
+              matchAddress &&
+              matchSearch
+            );
+          })
+          .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+
+        $mapData.set(result);
+      },
+    }));
+  });
+</script>
 
 <style>
   .filters {
@@ -79,128 +352,288 @@ import ChevronSVG from "../../../assets/chevron-down.svg";
     background-color: white;
     border-radius: 12px;
     padding: 1.25rem;
+    border: 1px solid #e6e6e6;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
   .filters-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    gap: 0.75rem;
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(43, 72, 136, 0.15);
+    border-bottom: 1px solid rgba(var(--color-main-2), 0.15);
+  }
+
+  .filters-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .filters-title {
     margin: 0;
     font-size: 1.1rem;
-    font-weight: 700;
-    color: #34719d;
+    font-weight: 600;
+    color: black;
   }
 
   .filters-svg {
     width: 25px;
-    fill: #34719d;
-    stroke: #34719d;
-  }
-
-  .filters-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .filter-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  .filter-label {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-
-  .filter-select-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .filter-select {
-    width: 100%;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    padding: 0.6rem 2.5rem 0.6rem 1rem;
-    font-size: 0.95rem;
-    color: #1f2937;
-    background-color: rgba(43, 72, 136, 0.04);
-    border: 1px solid rgba(43, 72, 136, 0.15);
-    border-radius: 10px;
-    cursor: pointer;
-    transition:
-      border-color 0.15s ease,
-      background-color 0.15s ease;
-  }
-
-  .filter-select:hover {
-    background-color: rgba(43, 72, 136, 0.08);
-  }
-
-  .filter-select:focus {
-    outline: none;
-    border-color: #2b4888;
-    background-color: white;
-  }
-
-  .filter-chevron {
-    position: absolute;
-    right: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #2b4888;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    fill: black;
+    stroke: black;
   }
 
   .filters-swap {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
     background-color: transparent;
-    color: #34719d;
-    border: 1px solid rgba(43, 72, 136, 0.3);
-    border-radius: 10px;
+    color: rgba(var(--color-main-2), 1);
+    border: 1px solid rgba(var(--color-main-2), 0.3);
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.9rem;
-    width: 100%;
-    justify-content: center;
+    font-size: 0.8rem;
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease;
   }
 
   .filters-swap:hover {
-    background-color: rgba(43, 72, 136, 0.05);
-    border-color: #2b4888;
-  }
-
-  .filters-swap span {
-    text-decoration: underline;
+    background-color: rgba(var(--color-main-2), 0.05);
+    border-color: rgba(var(--color-main-2), 1);
   }
 
   .filters-swap-ai {
-    width: 40px;
+    width: 20px;
     fill: transparent;
-    stroke: #34719d;
+    stroke: rgba(var(--color-main-2), 1);
+    flex-shrink: 0;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: black;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+  }
+
+  .filter-search {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    color: #1f2937;
+    border: 1px solid rgba(var(--color-main-2), 0.3);
+    border-radius: 10px;
+    box-sizing: border-box;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .filter-search:focus {
+    outline: none;
+    border-color: rgba(var(--color-main-2), 1);
+    box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.12);
+    background-color: white;
+  }
+
+  .filter-group {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.75rem;
+  }
+
+  .filter-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.35rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+  }
+
+  .filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: rgba(var(--color-main-2), 1);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .filter-group-chevron {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.25s ease;
+    color: rgba(var(--color-main-2), 1);
+  }
+
+  .filter-group-chevron.open {
+    transform: rotate(180deg);
+  }
+
+  .filter-group-chevron :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  .filter-collapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+  }
+
+  .filter-collapse-open {
+    grid-template-rows: 1fr;
+  }
+
+  .filter-collapse-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.6rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: white;
+    border: 1.5px solid;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .chip .dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .chip-category {
+    border-color: var(--chip-color);
+    color: var(--chip-color);
+  }
+
+  .chip-category:hover {
+    background: color-mix(in srgb, var(--chip-bg) 40%, white);
+  }
+
+  .chip-category .dot {
+    background: var(--chip-color);
+  }
+
+  .chip-category.chip-active,
+  .chip-category.chip-selected {
+    background: var(--chip-color);
+    color: white;
+    font-weight: 500;
+  }
+
+  .chip-audience {
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .chip-audience:hover {
+    background: color-mix(in srgb, #475569 8%, white);
+  }
+
+  .chip-audience.chip-active,
+  .chip-audience.chip-selected {
+    background: #1e293b;
+    color: white;
+    border-color: #1e293b;
+  }
+
+  .chip-neutral {
+    border-color: rgba(var(--color-main-2), 0.4);
+    color: rgba(var(--color-main-2), 1);
+  }
+
+  .chip-neutral:hover {
+    background: rgba(var(--color-main-2), 0.06);
+  }
+
+  .chip-neutral.chip-active,
+  .chip-neutral.chip-selected {
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    color: white;
+    border-color: rgba(var(--color-main-2), 1);
+  }
+
+  .filter-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: black;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+
+  .filter-checkbox input {
+    accent-color: rgba(var(--color-main-2), 1);
+    cursor: pointer;
+  }
+
+  .selected-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f9fafb;
+    border: 1px solid rgba(var(--color-main-2), 0.2);
+    border-radius: 10px;
+    align-items: center;
+  }
+
+  .chip-x {
+    margin-left: 0.15rem;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.9;
   }
 
   .filters-reset {
@@ -210,7 +643,6 @@ import ChevronSVG from "../../../assets/chevron-down.svg";
     gap: 0.5rem;
     width: 100%;
     padding: 0.6rem 1rem;
-    margin-bottom: 0.75rem;
     background-color: transparent;
     color: #c73b5d;
     border: 1px solid rgba(199, 59, 93, 0.3);
@@ -229,5 +661,11 @@ import ChevronSVG from "../../../assets/chevron-down.svg";
 
   .filters-reset :global(svg) {
     flex-shrink: 0;
+  }
+
+  @media (max-width: 415px) {
+    .filters-swap-ai {
+      display: none;
+    }
   }
 </style>

@@ -1,13 +1,13 @@
 ---
-import AiInfoCard from "./sections/mapSearch/AiInfoSearch.astro";
-import ConversationTimeline from "./sections/mapSearch/ConversationTimeline.astro";
-import QuickQuestions from "./sections/mapSearch/QuickQuestions.astro";
-import SearchBar from "./sections/mapSearch/SearchBar.astro";
-import FiltersPanel from "./sections/mapSearch/FiltersPanel.astro";
+import AiInfoCard from "./AiInfoSearch.astro";
+import ConversationTimeline from "./ConversationTimeline.astro";
+import QuickQuestions from "./QuickQuestions.astro";
+import SearchBar from "./SearchBar.astro";
+import FiltersPanel from "./FiltersPanel.astro";
 ---
 
 <section class="map-search">
-  <div class="ai" id="ai">
+  <div class="ai" id="map-search-ai">
     <div class="ai-response-cont" id="ai-response-cont">
       <AiInfoCard />
       <ConversationTimeline />
@@ -24,8 +24,8 @@ import FiltersPanel from "./sections/mapSearch/FiltersPanel.astro";
 
 <script>
   import Alpine from "alpinejs";
-  import { createConversationTimeline } from "../lib/mapSearchState";
-  import { initMapSearchController } from "../lib/mapSearchController";
+  import { createConversationTimeline } from "../../../lib/mapSearchState";
+  import { initMapSearchController } from "../../../lib/mapSearchController";
 
   document.addEventListener("alpine:init", () => {
     Alpine.data("conversationTimeline", createConversationTimeline);

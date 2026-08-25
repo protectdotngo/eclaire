@@ -1,7 +1,3 @@
----
-
----
-
 <section class="tech-section">
   <h2 class="tech-section-title">Pile technique</h2>
 
@@ -10,27 +6,30 @@
       <h3 class="stack-category-title">Frontend</h3>
       <ul class="stack-list">
         <li>
-          <strong>Astro</strong> — framework de rendu hybride statique/serveur
+          <strong>Astro</strong><br />Framework de rendu hybride
+          statique/serveur
         </li>
         <li>
-          <strong>Alpine.js</strong> — réactivité côté client, sans bundle lourd
+          <strong>Alpine.js</strong><br />Réactivité côté client, sans bundle
+          lourd
         </li>
         <li>
-          <strong>Leaflet</strong> — carte interactive, librairie open source
+          <strong>Leaflet</strong><br />Carte interactive, librairie open source
         </li>
-        <li><strong>Flatpickr</strong> — sélecteur de date</li>
+        <li><strong>Flatpickr</strong><br />Sélecteur de date</li>
       </ul>
     </div>
 
     <div class="stack-category">
       <h3 class="stack-category-title">Backend & données</h3>
       <ul class="stack-list">
-        <li><strong>PostgreSQL</strong> — base de données relationnelle</li>
+        <li><strong>PostgreSQL</strong><br />Base de données relationnelle</li>
         <li>
-          <strong>Drizzle ORM</strong> — accès à la base, type-safe TypeScript
+          <strong>Drizzle ORM</strong><br />Accès à la base, type-safe
+          TypeScript
         </li>
         <li>
-          <strong>API REST minimaliste</strong> — endpoints servis par Astro
+          <strong>API REST minimaliste</strong><br />Endpoints servis par Astro
         </li>
       </ul>
     </div>
@@ -38,9 +37,12 @@
     <div class="stack-category">
       <h3 class="stack-category-title">Automatisation & IA</h3>
       <ul class="stack-list">
-        <li><strong>n8n</strong> — orchestration des workflows de scraping</li>
         <li>
-          <strong>Qwen 235B</strong> — modèle de langage open source (via Scaleway)
+          <strong>n8n</strong><br />Orchestration des workflows de scraping
+        </li>
+        <li>
+          <strong>Qwen 235B</strong><br />Modèle de langage open source (via
+          Scaleway)
         </li>
       </ul>
     </div>
@@ -49,9 +51,9 @@
       <h3 class="stack-category-title">Déploiement</h3>
       <ul class="stack-list">
         <li>
-          <strong>Vercel</strong> — hébergement du site et fonctions serveur
+          <strong>Vercel</strong><br />Hébergement du site et fonctions serveur
         </li>
-        <li><strong>pnpm</strong> — gestion des dépendances</li>
+        <li><strong>pnpm</strong><br />Gestion des dépendances</li>
       </ul>
     </div>
   </div>
@@ -64,11 +66,10 @@
 
   .tech-section-title {
     font-size: 1.6rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 0.02em;
     margin: 0 0 1.25rem;
-    color: #1f2937;
+    color: rgba(var(--color-main), 1);
   }
 
   .stack-grid {
@@ -79,21 +80,21 @@
   }
 
   .stack-category {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.25rem;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    border: none;
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: white;
   }
 
   .stack-category-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-size: 1.1rem;
+    font-weight: 600;
     letter-spacing: 0.05em;
-    color: #2b4888;
+    color: white;
     margin: 0 0 0.85rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(43, 72, 136, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   }
 
   .stack-list {
@@ -104,14 +105,15 @@
 
   .stack-list li {
     font-size: 0.9rem;
-    color: #4b5563;
+    color: rgba(255, 255, 255, 0.9);
     line-height: 1.5;
     padding: 0.35rem 0;
   }
 
   .stack-list strong {
-    color: #1f2937;
-    font-weight: 600;
+    color: white;
+    font-weight: 550;
+    letter-spacing: 0.05em;
   }
 
   @media (max-width: 768px) {

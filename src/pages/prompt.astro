@@ -5,9 +5,10 @@ import Nav from "../components/Nav.astro";
 import { getEditableTemplate } from "../lib/chatPrompt";
 import { db } from "../lib/dbDrizzle";
 import { promptConfigInTest } from "../../drizzle/schema";
+import type { PromptVersion } from "../interfaces";
 
 const current = await getEditableTemplate();
-let versions: Array<{ id: string; createdAt: string; length: number }> = [];
+let versions: PromptVersion[] = [];
 try {
   versions = await db
     .select({
@@ -19,7 +20,7 @@ try {
     .orderBy(desc(promptConfigInTest.createdAt))
     .limit(50);
 } catch {
-  // table absente → pas d'historique
+  // Table not found → no history
 }
 ---
 

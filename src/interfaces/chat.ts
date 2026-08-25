@@ -57,3 +57,9 @@ export interface ChatApiResponse {
   eventOffset?: number;
   fabricatedIdsFiltered?: number;
 }
+
+export interface PromptVersion {
+  id: string;
+  createdAt: string;
+  length: number;
+}

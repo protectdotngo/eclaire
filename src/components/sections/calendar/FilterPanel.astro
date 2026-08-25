@@ -62,15 +62,15 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
           @change="onIncludePastChange()"
         />
         <span class="include-past-text">Inclure les événements passés</span>
-        <span
-          class="include-past-loading"
-          x-show="loadingPast"
-          :class="{ 'animate': loadingPast }"
-        >
-          <HourglassSVG />
-          <span>Chargement...</span>
-        </span>
       </label>
+      <span
+        class="include-past-loading"
+        x-show="loadingPast"
+        :class="{ 'animate': loadingPast }"
+      >
+        <HourglassSVG />
+        <span>Chargement...</span>
+      </span>
     </div>
 
     <div class="filter-section-label">Thématiques</div>
@@ -83,7 +83,7 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
           :style="`--chip-color:${cat.color};--chip-bg:${cat.bg};--chip-text:${cat.text}`"
           @click="toggleCategory(cat.name)"
         >
-          <span class="dot"></span>
+          <!-- <span class="dot"></span> -->
           <span x-text="cat.label"></span>
         </button>
       </template>
@@ -137,17 +137,16 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   }
 
   .filter-control-label {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
+    color: black;
   }
 
   .filter-control-input {
     width: 100%;
     padding: 0.55rem 0.9rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(var(--color-main-2), 1);
     border-radius: 10px;
     font-size: 0.92rem;
     background: white;
@@ -157,8 +156,8 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
 
   .filter-control-input:focus {
     outline: none;
-    border-color: #2b4888;
-    box-shadow: 0 0 0 3px rgba(43, 72, 136, 0.12);
+    border-color: rgba(var(--color-main-2), 1);
+    box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.12);
   }
 
   .org-typeahead {
@@ -204,6 +203,8 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
 
   .filter-include-past {
     margin: 0.75rem 0 1rem;
+    display: flex;
+    align-items: center;
   }
 
   .include-past-label {
@@ -213,31 +214,34 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
     cursor: pointer;
     padding: 0.4rem 0.85rem;
     border-radius: 999px;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(var(--color-main-2), 1);
     background: white;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #4b5563;
     user-select: none;
   }
 
   .include-past-label:hover {
-    background: rgba(43, 72, 136, 0.04);
-    border-color: #2b4888;
+    background: color-mix(in srgb, rgb(var(--color-main-2)) 8%, white);
   }
 
   .include-past-checkbox {
     margin: 0;
     cursor: pointer;
-    accent-color: #2b4888;
+    accent-color: rgba(var(--color-main-2), 1);
   }
 
   .include-past-loading {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.8rem;
-    color: #6b7280;
+    font-size: 0.9rem;
+    color: #1f2937;
     margin-left: 0.4rem;
+  }
+
+  .include-past-loading svg {
+    width: 1.35rem;
   }
 
   @keyframes spin-with-pause {
@@ -256,11 +260,10 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   }
 
   .filter-section-label {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
+    color: black;
     margin: 0.75rem 0 0.5rem;
   }
 
@@ -276,7 +279,7 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
     align-items: center;
     gap: 0.5rem;
     padding: 0.35rem 0.85rem;
-    border-radius: 999px;
+    border-radius: 10px;
     font-size: 0.85rem;
     cursor: pointer;
     background: white;
@@ -299,7 +302,7 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   }
 
   .chip-category:hover {
-    background: color-mix(in srgb, var(--chip-bg) 40%, transparent);
+    background: color-mix(in srgb, var(--chip-bg) 40%, white);
   }
 
   .chip-category .dot {
@@ -307,8 +310,9 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   }
 
   .chip-category.chip-active {
-    background: var(--chip-bg);
-    color: var(--chip-text);
+    background: var(--chip-color);
+    color: white;
+    font-weight: 500;
   }
 
   .chip-audience {
@@ -317,7 +321,7 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   }
 
   .chip-audience:hover {
-    background: #4755690d;
+    background: color-mix(in srgb, #475569 8%, white);
   }
 
   .chip-audience.chip-active {

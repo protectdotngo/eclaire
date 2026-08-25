@@ -1,13 +1,17 @@
 ---
 import Layout from "../layouts/BaseLayout.astro";
 import Nav from "../components/Nav.astro";
-import CalendarComp from "../components/Calendar.astro";
+import Calendar from "../components/Calendar.astro";
 ---
 
 <Layout title="Éclaire - Calendrier des Événements">
-  <Nav />
-  <div class="calendar-cont">
-    <CalendarComp />
+  <div class="main">
+    <div class="navContMain">
+      <Nav />
+    </div>
+    <div class="calendar-cont">
+      <Calendar />
+    </div>
   </div>
 </Layout>
 
@@ -17,5 +21,10 @@ import CalendarComp from "../components/Calendar.astro";
     flex-direction: column;
     min-height: 90vh;
     box-sizing: border-box;
+    width: 100vw;
+  }
+
+  .main {
+    position: relative;
   }
 </style>

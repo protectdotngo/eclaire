@@ -11,7 +11,6 @@
   import type { OrgWithChatContext } from "../interfaces";
   import MailSvgRaw from "../assets/mail.svg?raw";
   import PhoneSvgRaw from "../assets/phone.svg?raw";
-  import { icon } from "leaflet";
 
   delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -107,25 +106,11 @@
   const markers = L.markerClusterGroup();
   const markersList = new Map<string, L.Marker>();
 
-  async function testPin() {
-    let pinIcon = new L.Icon.Default();
-    await new Promise<void>((resolve) => {
-      const test = new Image();
-      test.onload = () => {
-        pinIcon = customIcon;
-        resolve();
-      };
-      test.onerror = () => resolve();
-      test.src = "/leaflet/Pin.svg";
-    });
-    return pinIcon;
-  }
-
   async function fillMap(marks: readonly OrgWithChatContext[]) {
     if (marks.length === 0) return;
     markers.clearLayers();
     markersList.clear();
-    const pinIcon = await testPin();
+    const pinIcon = customIcon;
     for (const item of marks) {
       if (typeof item.lat !== "number" || typeof item.lon !== "number") {
         continue;
@@ -197,18 +182,18 @@
 <style is:global>
   .popup-link {
     text-decoration: none;
-    color: #1f2937;
     display: block;
   }
-  .popup-link:hover .popup-title {
-    color: #2b4888;
-  }
   .popup-title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     margin: 0 0 0.2rem;
-    color: #1f2937;
-    transition: color 0.15s ease;
+    color: black;
+    transition: color 0.2s ease;
     text-align: left;
+    font-weight: 600;
+  }
+  .popup-title:hover {
+    color: rgba(var(--color-main-2-dark), 1);
   }
   .popup-desc {
     font-size: 0.9rem;
@@ -221,9 +206,10 @@
     color: #6b7280;
     margin: 0 0 0.2rem;
     font-style: italic;
+    transition: color 0.2s ease;
   }
   .popup-address:hover {
-    color: #1f2937;
+    color: black;
   }
   .popup-address::first-letter {
     text-transform: capitalize;
@@ -231,27 +217,26 @@
   .popup-contact-row {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.4rem;
     margin: 0 0 0.2rem;
   }
 
   .popup-contact-link {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: #34719d;
+    gap: 0.3rem;
+    font-size: 0.95rem;
+    color: rgba(var(--color-main-2), 1) !important;
     text-decoration: underline;
-    width: fit-content;
-    transition: color 0.15s ease;
+    transition: color 0.2s ease;
   }
 
   .popup-contact-link:hover {
-    color: #2b4888;
+    color: rgba(var(--color-main-2-dark), 1) !important;
   }
 
   .popup-contact-link:visited {
-    color: #34719d;
+    color: rgba(var(--color-main-2), 1) !important;
   }
 
   .popup-contact-link svg {

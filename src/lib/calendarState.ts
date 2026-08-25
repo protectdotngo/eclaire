@@ -25,18 +25,18 @@ export const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
 }));
 
 export const FRENCH_MONTHS = [
-  "JANV",
-  "FÉV",
-  "MARS",
-  "AVR",
-  "MAI",
-  "JUIN",
-  "JUIL",
-  "AOÛT",
-  "SEPT",
-  "OCT",
-  "NOV",
-  "DÉC",
+  "janv",
+  "fév",
+  "mars",
+  "avr",
+  "mai",
+  "juin",
+  "juil",
+  "août",
+  "sept",
+  "oct",
+  "nov",
+  "déc",
 ];
 
 export const FRENCH_MONTHS_FULL = [

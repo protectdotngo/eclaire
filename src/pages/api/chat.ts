@@ -69,9 +69,9 @@ export const POST: APIRoute = async ({ request }) => {
     systemPrompt = await buildSystemPrompt();
     validIds = await getValidOrgIds();
 
-    // Pré-sélection déterministe : oriente l'attention du LLM vers les orgs
-    // dont le desc correspond aux mots de la question (annuaire complet
-    // toujours fourni — aucune perte si le matching ne trouve rien).
+    // Deterministic preselection: directs the LLM's attention to the organizations
+    // whose descriptions match the words in the question (complete directory
+    // always provided—no loss if the matching process finds nothing).
     const lastUserMsg = [...body.messages]
       .reverse()
       .find((m) => m.role === "user");
@@ -109,7 +109,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
     const llmData = await llmRes.json();
     rawText = llmData?.choices?.[0]?.message?.content;
-    //console.log("[chat] full LLM response:", JSON.stringify(llmData, null, 2));
+    //console.log("[chat] full LLM response:", JSON.stringify(llmData, null, 2));  // log to check json integrity
     if (!rawText) {
       return json({ error: "Empty LLM response" }, 502);
     }

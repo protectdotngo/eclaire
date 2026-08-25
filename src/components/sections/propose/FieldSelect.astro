@@ -53,11 +53,11 @@ const {
   .field-label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
+    color: black;
   }
 
   .field-required {
-    color: #c73b5d;
+    color: rgba(var(--color-required), 1);
     margin-left: 0.15rem;
   }
 
@@ -72,13 +72,15 @@ const {
     appearance: none;
     -webkit-appearance: none;
     padding: 0.6rem 2.5rem 0.6rem 0.9rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(var(--color-main-2), 1);
     border-radius: 8px;
     font-size: 0.95rem;
     background: white;
     color: #1f2937;
     cursor: pointer;
-    font-family: inherit;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -86,8 +88,7 @@ const {
 
   .field-select:focus {
     outline: none;
-    border-color: #2b4888;
-    box-shadow: 0 0 0 3px rgba(43, 72, 136, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.15);
   }
 
   .field-chevron {
@@ -95,7 +96,7 @@ const {
     right: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #2b4888;
+    color: rgba(var(--color-main-2), 1);
     pointer-events: none;
     display: flex;
     align-items: center;

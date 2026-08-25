@@ -9,11 +9,11 @@ const { partner } = Astro.props;
 const { Content } = await render(partner);
 ---
 
-<a
-  href={partner.data.url}
-  target="_blank"
-  rel="noopener"
+<div
   class="v1-partner-card"
+  data-url={partner.data.url}
+  role="link"
+  tabindex="0"
 >
   <div class="v1-partner-meta">
     {
@@ -38,21 +38,55 @@ const { Content } = await render(partner);
   <div class="v1-partner-description">
     <Content />
   </div>
-</a>
+</div>
+
+<script>
+  function openCard(card: HTMLElement) {
+    const url = card.dataset.url;
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  document.querySelectorAll<HTMLElement>(".v1-partner-card").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      if (e.target instanceof Element && e.target.closest("a")) return;
+      openCard(card);
+    });
+
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openCard(card);
+      }
+    });
+  });
+
+  document
+    .querySelectorAll<HTMLAnchorElement>(".v1-partner-description a[href]")
+    .forEach((link) => {
+      if (link.hostname && link.hostname !== window.location.hostname) {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(link.href, "_blank", "noopener,noreferrer");
+        });
+      }
+    });
+</script>
 
 <style>
   .v1-partner-card {
     background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: 18px;
+    padding: 1.5rem 2rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(var(--color-main-2), 0.18);
     display: grid;
     grid-template-columns: 230px 1fr;
     gap: 2rem;
     align-items: start;
     text-decoration: none;
     color: inherit;
+    cursor: pointer;
     transition:
       transform 0.2s ease,
       box-shadow 0.2s ease,
@@ -61,12 +95,17 @@ const { Content } = await render(partner);
 
   .v1-partner-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(43, 72, 136, 0.1);
-    border-color: rgba(43, 72, 136, 0.25);
+    box-shadow: 0 8px 20px rgba(var(--color-main-2), 0.12);
+    border-color: rgba(var(--color-main-2), 0.4);
   }
 
   .v1-partner-card:hover .v1-partner-name {
-    color: #2b4888;
+    color: rgba(var(--color-main-2), 1);
+  }
+
+  .v1-partner-card:focus-visible {
+    outline: 2px solid rgba(var(--color-main-2), 1);
+    outline-offset: 2px;
   }
 
   .v1-partner-meta {

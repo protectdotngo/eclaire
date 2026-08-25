@@ -50,9 +50,9 @@ const { name, label, placeholder, type = "text" } = Astro.props;
   }
 
   .field-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: #374151;
+    color: black;
   }
 
   .array-items {
@@ -70,12 +70,14 @@ const { name, label, placeholder, type = "text" } = Astro.props;
   .field-input {
     flex: 1;
     padding: 0.6rem 0.9rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(var(--color-main-2), 1);
     border-radius: 8px;
     font-size: 0.95rem;
     background: white;
     color: #1f2937;
-    font-family: inherit;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -83,14 +85,13 @@ const { name, label, placeholder, type = "text" } = Astro.props;
 
   .field-input:focus {
     outline: none;
-    border-color: #2b4888;
-    box-shadow: 0 0 0 3px rgba(43, 72, 136, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.15);
   }
 
   .array-remove {
     width: 2.5rem;
     background: white;
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(var(--color-main-2), 1);
     border-radius: 8px;
     cursor: pointer;
     font-size: 1.2rem;
@@ -102,7 +103,7 @@ const { name, label, placeholder, type = "text" } = Astro.props;
   }
 
   .array-remove:hover {
-    background: rgba(199, 59, 93, 0.08);
+    background: color-mix(in srgb, #dc436b 8%, white);
     border-color: #dc436b;
     color: #dc436b;
   }
@@ -110,20 +111,21 @@ const { name, label, placeholder, type = "text" } = Astro.props;
   .array-add {
     align-self: flex-start;
     padding: 0.4rem 0.85rem;
-    background: transparent;
-    border: 1.5px dashed #34719d;
+    background: white;
+    border: 1.5px dashed rgba(var(--color-main-2), 1);
     border-radius: 999px;
-    color: #34719d;
     font-size: 0.85rem;
     cursor: pointer;
-    font-family: inherit;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     transition:
       background 0.15s ease,
       border-style 0.15s ease;
   }
 
   .array-add:hover {
-    background: rgba(43, 72, 136, 0.05);
+    background: color-mix(in srgb, rgba(var(--color-main-2)) 8%, white);
     border-style: solid;
   }
 </style>

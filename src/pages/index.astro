@@ -1,13 +1,17 @@
 ---
 import Layout from "../layouts/BaseLayout.astro";
 import Map from "../components/Map.astro";
-import SearchLayout from "../layouts/SearchLayout.astro";
+import SidePanel from "../components/SidePanel.astro";
+import Nav from "../components/Nav.astro";
 ---
 
 <Layout title="Éclaire - Le Phare Numérique">
   <div class="page">
-    <SearchLayout class="search" />
+    <SidePanel class="search" />
     <div class="main">
+      <div class="navContMain">
+        <Nav class="nav-cont-index" />
+      </div>
       <Map />
     </div>
   </div>
@@ -20,5 +24,18 @@ import SearchLayout from "../layouts/SearchLayout.astro";
   }
   .main {
     width: 100%;
+    position: relative;
+  }
+  .navContMain {
+    pointer-events: none;
+  }
+
+  .navContMain :global(.nav-logo-link),
+  .navContMain :global(.hamburger),
+  .navContMain :global(.nav-right),
+  .navContMain :global(.menu),
+  .navContMain :global(.mobile-drawer),
+  .navContMain :global(.mobile-backdrop) {
+    pointer-events: auto;
   }
 </style>

@@ -1,55 +1,70 @@
 ---
-import TechHero from "./sections/sous-le-capot/TechHero.astro";
-import OpenSourceBanner from "./sections/sous-le-capot/OpenSourceBanner.astro";
+import Hero from "./sections/general/Hero.astro";
 import ArchDiagram from "./sections/sous-le-capot/ArchDiagram.astro";
 import FeatureGrid from "./sections/sous-le-capot/FeatureGrid.astro";
 import QueryPlannerSection from "./sections/sous-le-capot/QueryPlaner.astro";
 import TechStack from "./sections/sous-le-capot/TechStack.astro";
 import VectorHistorySection from "./sections/sous-le-capot/VectorHistory.astro";
 import ContributeSection from "./sections/sous-le-capot/Contribute.astro";
+import Background from "./sections/general/Background.astro";
 ---
 
 <section class="tech-page">
-  <TechHero />
-  <OpenSourceBanner />
+  <Hero
+    title="Sous le capot"
+    lead="Une plateforme ouverte pour cartographier l'inclusion numérique à Genève."
+    lead2="100% open source, 100% open data"
+    body="Le code source d'Éclaire et l'ensemble des données collectées sont librement consultables. Cette transparence est au cœur du projet: tout ce qui est cartographié est public, réutilisable, et vérifiable."
+    image="/images/engine.jpg"
+  />
   <ArchDiagram />
   <FeatureGrid />
   <QueryPlannerSection />
   <TechStack />
-  <VectorHistorySection />
-  <ContributeSection />
+  <div class="tech-page-last">
+    <Background />
+    <VectorHistorySection />
+    <ContributeSection />
+  </div>
 </section>
 
 <style>
   .tech-page {
     width: 100%;
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 2rem 4rem;
     color: #1f2937;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+    padding-bottom: 4rem;
+  }
+
+  .tech-page > :global(*:not(.image)) {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    box-sizing: border-box;
+  }
+
+  .tech-page-last {
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
     position: relative;
   }
 
-  .tech-page::before {
-    content: "";
-    position: fixed;
-    inset: 0 -5rem;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      url("/decorations/protect3.svg"), url("/decorations/protect2.svg");
-    background-repeat: repeat-y, repeat-y;
-    background-position:
-      right -2rem top 100px,
-      left -4rem top 400px;
-    background-size:
-      auto 1000px,
-      auto 1000px;
-  }
-
   @media (max-width: 768px) {
-    .tech-page {
-      padding: 1.5rem 1rem 3rem;
+    .tech-page > :global(*:not(.image)) {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .tech-page-last {
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
     }
   }
 </style>

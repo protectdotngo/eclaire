@@ -4,6 +4,7 @@ export type {
   OrgSummary,
   OrgReference,
   OrgLite,
+  Candidate,
 } from "./org";
 export type { Event, EventWithOrgIds, EventWithOrgs } from "./event";
 export type { News } from "./news";
@@ -18,6 +19,7 @@ export type {
   OrgsBlock,
   EventSearchBlock,
   EventSearchFilters,
+  PromptVersion,
 } from "./chat";
 
 export type { DisplayedOrg, DisplayedEvent, TimelineItem } from "./timeline";

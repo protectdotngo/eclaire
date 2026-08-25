@@ -8,9 +8,9 @@
       :class="f.type === 'category' ? 'chip-category' : f.type === 'audience' ? 'chip-audience' : 'chip-neutral'"
       @click="removeFilter(f)"
     >
-      <template x-if="f.type === 'category'">
+      <!-- <template x-if="f.type === 'category'">
         <span class="dot"></span>
-      </template>
+      </template> -->
       <span x-text="f.label"></span>
       <span class="chip-x" aria-hidden="true">×</span>
     </button>
@@ -22,11 +22,10 @@
 
 <style>
   .filter-section-label {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
+    color: black;
     margin: 0.75rem 0 0.5rem;
   }
 
@@ -37,6 +36,7 @@
     min-height: 2.5rem;
     padding: 0.5rem 0.75rem;
     background: #f3f4f6;
+    border: 1px solid rgba(var(--color-main-2), 1);
     border-radius: 10px;
     align-items: center;
   }
@@ -52,14 +52,9 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.35rem 0.85rem;
-    border-radius: 999px;
+    border-radius: 10px;
     font-size: 0.85rem;
     cursor: pointer;
-    background: white;
-    transition:
-      background 0.15s ease,
-      border-color 0.15s ease,
-      opacity 0.15s ease;
     border: 1.5px solid;
   }
 
@@ -72,9 +67,11 @@
 
   .chip-x {
     margin-left: 0.15rem;
+    margin-top: 2px;
     font-size: 1rem;
     line-height: 1;
-    opacity: 0.7;
+    opacity: 0.8;
+    color: white;
   }
 
   .chip-category {
@@ -87,8 +84,9 @@
   }
 
   .chip-category.chip-selected {
-    background: var(--chip-bg);
-    color: var(--chip-text);
+    background: var(--chip-color);
+    color: white;
+    font-weight: 500;
   }
 
   .chip-audience {
@@ -109,8 +107,13 @@
   }
 
   .chip-neutral.chip-selected {
-    background: #2b4888;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
     color: white;
-    border-color: #2b4888;
+    border-color: #b52ec4;
+  }
+
+  .chip-audience .chip-x,
+  .chip-neutral .chip-x {
+    color: white;
   }
 </style>

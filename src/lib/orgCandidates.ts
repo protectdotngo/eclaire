@@ -1,10 +1,10 @@
-// Pré-sélection déterministe d'orgs candidates pour une question, injectée
-// dans le prompt système pour guider l'attention du LLM (l'annuaire complet
-// reste fourni : rater un match ⇒ comportement identique à avant, jamais pire).
+// Deterministic preselection of candidate organizations for a question, injected
+// into the system prompt to guide the LLM's attention (the complete directory
+// is still provided: if a match is missed ⇒ behavior is identical to before, never worse).
 
-import type { OrgLite } from "../interfaces";
+import type { OrgLite, Candidate } from "../interfaces";
 
-// minuscules + suppression des accents + ponctuation → espaces
+// lowercase + remove accents + punctuation → spaces
 export function normalize(s: string): string {
   return s
     .toLowerCase()
@@ -14,7 +14,7 @@ export function normalize(s: string): string {
     .trim();
 }
 
-// Distance de Levenshtein bornée (early exit au-delà de max)
+// Bounded Levenshtein distance (early exit when exceeded)
 function editDistance(a: string, b: string, max: number): number {
   if (Math.abs(a.length - b.length) > max) return max + 1;
   let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
@@ -35,7 +35,7 @@ function editDistance(a: string, b: string, max: number): number {
   return prev[b.length];
 }
 
-// mot de la question ≈ terme du vocabulaire ? (tolère fautes de frappe)
+// word in the question ≈ vocabulary term? (tolerates typos)
 function fuzzyMatch(word: string, term: string): boolean {
   if (word.includes(term) || term.includes(word)) return true;
   if (word.length < 4 || term.length < 4) return false;
@@ -44,9 +44,9 @@ function fuzzyMatch(word: string, term: string): boolean {
   return editDistance(word, term, tol) <= tol;
 }
 
-// Groupes thématiques : si un "trigger" apparaît dans la question, on cherche
-// aussi les "terms" dans les desc. Tout est écrit SANS accents (post-normalize).
-// Pour ajouter une association manquante : ajouter le mot du desc dans terms.
+// Thematic groups: if a "trigger" appears in the question, we also search
+// for the "terms" in the descriptions. Everything is written WITHOUT accents (post-normalized).
+// To add a missing association: add the word from the description to the terms.
 const SYNONYM_GROUPS: Array<{ triggers: string[]; terms: string[] }> = [
   {
     triggers: [
@@ -138,12 +138,6 @@ const STOP_WORDS = new Set(
   ),
 );
 
-export interface Candidate {
-  id: string;
-  name: string;
-  score: number;
-}
-
 export function selectCandidates(
   question: string,
   orgs: OrgLite[],
@@ -154,7 +148,7 @@ export function selectCandidates(
     .filter((w) => w.length >= 4 && !STOP_WORDS.has(w));
   if (words.length === 0) return [];
 
-  // vocabulaire de recherche = mots de la question + expansions thématiques
+  // search terms = words from the question + related topics
   const terms = new Set(words);
   for (const group of SYNONYM_GROUPS) {
     if (words.some((w) => group.triggers.some((t) => fuzzyMatch(w, t)))) {
@@ -177,8 +171,8 @@ export function selectCandidates(
   }
 
   const ranked = scored.sort((a, b) => b.score - a.score).slice(0, limit);
-  // si même le meilleur score est 1, tout est du bruit lexical (mots trop
-  // génériques) → pas de section candidats, comportement d'avant
+  // If even the best score is 1, it's all lexical noise (words that are too
+  // generic) → no candidates section, same behavior as before
   if (ranked.length === 0 || ranked[0].score < 2) return [];
   return ranked;
 }

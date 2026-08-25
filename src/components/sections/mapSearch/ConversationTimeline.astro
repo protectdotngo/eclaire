@@ -18,44 +18,67 @@ import MailSVG from "../../../assets/mail.svg";
   @chat-reset.window="reset()"
 >
   <template x-for="(item, idx) in items" :key="idx">
-    <div>
-      <template x-if="item.kind === 'message'">
-        <div :class="'ai-chat-msg ai-chat-msg-' + item.role">
-          <template x-if="item.role === 'assistant'">
-            <div>
-              <span x-show="item.streaming" x-text="item.displayContent"></span>
-              <span class="cursor" x-show="item.streaming">▊</span>
-              <div
-                x-show="!item.streaming"
-                x-html="renderMarkdown(item.content)"
-              >
-              </div>
-            </div>
-          </template>
-          <template x-if="item.role === 'user'">
-            <span x-text="item.content"></span>
-          </template>
+    <div
+      class="ai-timeline-item"
+      x-bind:class="item.kind === 'message' && item.role === 'user'
+        ? 'ai-timeline-item-user'
+        : 'ai-timeline-item-bot'"
+    >
+      <template x-if="item.kind === 'message' && item.role === 'user'">
+        <div class="ai-chat-msg ai-chat-msg-user">
+          <span x-text="item.content"></span>
         </div>
       </template>
 
-      <template x-if="item.kind === 'orgs'">
-        <div class="ai-orgs-block">
+      <template x-if="item.kind === 'turn'">
+        <div class="ai-turn">
           <template
-            x-for="(org, i) in item.displayed"
-            :key="org.id ?? org.name + i"
+            x-for="(node, nidx) in item.children"
+            :key="node._id ?? nidx"
           >
-            <div
-              class="org-card"
-              :class="{ 'result-card-2' : i % 2 !== 0, 'result-card': i % 2 === 0  }"
-            >
-              <h3 class="result-card-title" x-text="org.displayName"></h3>
+            <div class="ai-turn-node">
+              <template x-if="node.kind === 'message'">
+                <div class="ai-chat-msg ai-chat-msg-assistant">
+                  <div>
+                    <span x-show="node.streaming" x-text="node.displayContent"
+                    ></span>
+                    <span class="cursor" x-show="node.streaming">▊</span>
+                    <div
+                      class="ai-chat-msg-assistant-content"
+                      x-show="!node.streaming"
+                      x-html="renderMarkdown(node.content)"
+                    >
+                    </div>
+                  </div>
+                </div>
+              </template>
 
-              <template x-if="!org.streaming && org.upcomingEvent">
-                <div class="event-inline-row">
-                  <span class="event-tag">ÉVÉNEMENT</span>
-                  <div
-                    class="event-inline-title-wrap"
-                    x-init="
+              <template x-if="node.kind === 'orgs'">
+                <div class="ai-orgs-block">
+                  <template
+                    x-for="(org, i) in node.displayed"
+                    :key="org.id ?? org.name + i"
+                  >
+                    <div
+                      class="org-card"
+                      :class="{ 'result-card-2' : i % 2 !== 0, 'result-card': i % 2 === 0  }"
+                    >
+                      <h3 class="result-card-title" x-text="org.displayName">
+                      </h3>
+                      <template x-if="org.address || org.city">
+                        <p class="org-address">
+                          <span class="org-address-icon"><PinSVG /></span>
+                          <span x-text="[org.address, org.city].filter(Boolean).join(', ')"
+                          ></span>
+                        </p>
+                      </template>
+
+                      <template x-if="!org.streaming && org.upcomingEvent">
+                        <div class="event-inline-row">
+                          <span class="event-tag">ÉVÉNEMENT</span>
+                          <div
+                            class="event-inline-title-wrap"
+                            x-init="
                       const update = () => {
                         const title = $el.querySelector('.event-inline-title');
                         if (!title) return;
@@ -74,211 +97,232 @@ import MailSVG from "../../../assets/mail.svg";
                       const ro = new ResizeObserver(update);
                       ro.observe($el);
                     "
-                  >
-                    <span
-                      class="event-inline-title"
-                      x-text="org.upcomingEvent.title"></span>
-                  </div>
-                </div>
-              </template>
+                          >
+                            <span
+                              class="event-inline-title"
+                              x-text="org.upcomingEvent.title"></span>
+                          </div>
+                        </div>
+                      </template>
 
-              <template x-if="org.desc">
-                <p
-                  class="result-card-desc"
-                  x-data="{
+                      <template x-if="org.desc">
+                        <p
+                          class="result-card-desc"
+                          x-data="{
                     expanded: false,
                     get needsTruncation() {
                       return (org.displayDesc || '').length > 120;
                     }
                   }"
-                >
-                  <span
-                    x-text="expanded ? org.displayDesc : $truncate(org.displayDesc, 120)"
-                  ></span>
-                  <span class="cursor" x-show="org.streaming">▊</span>
-                  <template x-if="!org.streaming && needsTruncation">
-                    <span class="read-more-wrap">
-                      <br />
-                      <span
-                        class="read-more-link"
-                        x-show="!expanded"
-                        @click="expanded = !expanded">Lire plus</span
-                      >
-                      <span
-                        class="read-more-link"
-                        x-show="expanded"
-                        @click="expanded = !expanded">Réduire</span
-                      >
-                    </span>
-                  </template>
-                </p>
-              </template>
+                        >
+                          <span
+                            x-text="expanded ? org.displayDesc : $truncate(org.displayDesc, 120)"
+                          ></span>
+                          <span class="cursor" x-show="org.streaming">▊</span>
+                          <template x-if="!org.streaming && needsTruncation">
+                            <span class="read-more-wrap">
+                              <br />
+                              <span
+                                class="read-more-link"
+                                x-show="!expanded"
+                                @click="expanded = !expanded">Lire plus</span
+                              >
+                              <span
+                                class="read-more-link"
+                                x-show="expanded"
+                                @click="expanded = !expanded">Réduire</span
+                              >
+                            </span>
+                          </template>
+                        </p>
+                      </template>
 
-              <template
-                x-if="!org.streaming && org.contact && org.contact.length > 0"
-              >
-                <div class="org-contact-row">
-                  <template x-for="(c, ci) in org.contact" :key="ci">
-                    <a :href="formatContactHref(c)" class="org-contact-link">
-                      <template x-if="isEmail(c)">
-                        <span class="org-contact-icon">
-                          <MailSVG />
-                        </span>
+                      <template
+                        x-if="!org.streaming && org.contact && org.contact.length > 0"
+                      >
+                        <div class="org-contact-row">
+                          <template x-for="(c, ci) in org.contact" :key="ci">
+                            <a
+                              :href="formatContactHref(c)"
+                              class="org-contact-link"
+                            >
+                              <template x-if="isEmail(c)">
+                                <span class="org-contact-icon">
+                                  <MailSVG />
+                                </span>
+                              </template>
+                              <template x-if="isPhone(c)">
+                                <span class="org-contact-icon">
+                                  <PhoneSVG />
+                                </span>
+                              </template>
+                              <span x-text="c"></span>
+                            </a>
+                          </template>
+                        </div>
                       </template>
-                      <template x-if="isPhone(c)">
-                        <span class="org-contact-icon">
-                          <PhoneSVG />
-                        </span>
-                      </template>
-                      <span x-text="c"></span>
-                    </a>
+
+                      <hr
+                        class="result-card-separator"
+                        x-show="!org.streaming"
+                      />
+
+                      <div
+                        class="result-card-buttons"
+                        x-show="!org.streaming"
+                        x-transition.opacity.duration.400ms
+                      >
+                        <template x-if="org.upcomingEvent">
+                          <a
+                            :href="org.upcomingEvent.url"
+                            target="_blank"
+                            class="btn btn-event"
+                          >
+                            <span>Voir l'événement</span>
+                            <span class="btn-arrow-circle">
+                              <ArrowSVG />
+                            </span>
+                          </a>
+                        </template>
+                        <template x-if="org.domain">
+                          <a
+                            :href="org.domain"
+                            target="_blank"
+                            class="btn btn-site"
+                          >
+                            <span>Visiter le site</span>
+                            <span class="btn-arrow-circle">
+                              <ArrowSVG />
+                            </span>
+                          </a>
+                        </template>
+                        <template x-if="org.lat && org.lon">
+                          <button
+                            type="button"
+                            class="btn btn-zoom"
+                            @click="$dispatch('map-focus-org', { id: org.id, lat: org.lat, lon: org.lon })"
+                          >
+                            <span>Voir sur la carte</span>
+                            <PinSVG />
+                          </button>
+                        </template>
+                      </div>
+                    </div>
                   </template>
                 </div>
               </template>
 
-              <hr class="result-card-separator" x-show="!org.streaming" />
-
-              <div
-                class="result-card-buttons"
-                x-show="!org.streaming"
-                x-transition.opacity.duration.400ms
-              >
-                <template x-if="org.upcomingEvent">
-                  <a
-                    :href="org.upcomingEvent.url"
-                    target="_blank"
-                    class="btn btn-event"
+              <template x-if="node.kind === 'events'">
+                <div class="ai-events-block">
+                  <template
+                    x-for="(ev, i) in node.displayed"
+                    :key="ev.id ?? ev.title + i"
                   >
-                    <span>Voir l'événement</span>
-                    <span class="btn-arrow-circle">
-                      <ArrowSVG />
-                    </span>
-                  </a>
-                </template>
-                <template x-if="org.domain">
-                  <a :href="org.domain" target="_blank" class="btn btn-site">
-                    <span>Visiter le site</span>
-                    <span class="btn-arrow-circle">
-                      <ArrowSVG />
-                    </span>
-                  </a>
-                </template>
-                <template x-if="org.lat && org.lon">
-                  <button
-                    type="button"
-                    class="btn-zoom"
-                    @click="$dispatch('map-focus-org', { id: org.id, lat: org.lat, lon: org.lon })"
-                  >
-                    <span>Voir sur la carte</span>
-                    <PinSVG />
-                  </button>
-                </template>
-              </div>
-            </div>
-          </template>
-        </div>
-      </template>
+                    <div
+                      class="event-card"
+                      :class="{ 'result-card-2' : i % 2 !== 0, 'result-card': i % 2 === 0  }"
+                    >
+                      <span class="event-tag">ÉVÉNEMENT</span>
+                      <h3 class="result-card-title" x-text="ev.displayTitle">
+                      </h3>
 
-      <template x-if="item.kind === 'events'">
-        <div class="ai-events-block">
-          <template
-            x-for="(ev, i) in item.displayed"
-            :key="ev.id ?? ev.title + i"
-          >
-            <div
-              class="event-card"
-              :class="{ 'result-card-2' : i % 2 !== 0, 'result-card': i % 2 === 0  }"
-            >
-              <span class="event-tag">ÉVÉNEMENT</span>
-              <h3 class="result-card-title" x-text="ev.displayTitle"></h3>
+                      <div class="event-meta">
+                        <template x-if="ev.dateLabel">
+                          <div class="event-meta-item">
+                            <CalendarSVG />
+                            <span x-text="ev.dateLabel"></span>
+                          </div>
+                        </template>
+                        <template x-if="ev.location">
+                          <div class="event-meta-item">
+                            <PinSVG />
+                            <span x-text="ev.location"></span>
+                          </div>
+                        </template>
+                      </div>
 
-              <div class="event-meta">
-                <template x-if="ev.dateLabel">
-                  <div class="event-meta-item">
-                    <CalendarSVG />
-                    <span x-text="ev.dateLabel"></span>
-                  </div>
-                </template>
-                <template x-if="ev.location">
-                  <div class="event-meta-item">
-                    <PinSVG />
-                    <span x-text="ev.location"></span>
-                  </div>
-                </template>
-              </div>
-
-              <template x-if="ev.content">
-                <p
-                  class="result-card-desc"
-                  x-data="{ 
+                      <template x-if="ev.content">
+                        <p
+                          class="result-card-desc"
+                          x-data="{ 
                     expanded: false,
                     get needsTruncation() {
                       return (ev.displayContent || '').length > 120;
                     }
                   }"
-                >
-                  <span
-                    x-text="expanded ? ev.displayContent : $truncate(ev.displayContent, 120)"
-                  ></span>
-                  <span class="cursor" x-show="ev.streaming">▊</span>
-                  <template x-if="!ev.streaming && needsTruncation">
-                    <span class="read-more-wrap">
-                      <br />
-                      <span
-                        class="read-more-link"
-                        x-show="!expanded"
-                        @click="expanded = !expanded">Lire plus</span
+                        >
+                          <span
+                            x-text="expanded ? ev.displayContent : $truncate(ev.displayContent, 120)"
+                          ></span>
+                          <span class="cursor" x-show="ev.streaming">▊</span>
+                          <template x-if="!ev.streaming && needsTruncation">
+                            <span class="read-more-wrap">
+                              <br />
+                              <span
+                                class="read-more-link"
+                                x-show="!expanded"
+                                @click="expanded = !expanded">Lire plus</span
+                              >
+                              <span
+                                class="read-more-link"
+                                x-show="expanded"
+                                @click="expanded = !expanded">Réduire</span
+                              >
+                            </span>
+                          </template>
+                        </p>
+                      </template>
+                      <template
+                        x-if="!ev.streaming && ev.orgs && ev.orgs.length > 0"
                       >
-                      <span
-                        class="read-more-link"
-                        x-show="expanded"
-                        @click="expanded = !expanded">Réduire</span
+                        <div class="event-orgs-row">
+                          <span class="event-orgs-label">Proposé par :</span>
+                          <template x-for="(o, oi) in ev.orgs" :key="o.id">
+                            <span class="event-org-wrap">
+                              <template x-if="o.domain">
+                                <a
+                                  :href="o.domain"
+                                  target="_blank"
+                                  class="event-org-link"
+                                  x-text="o.name"></a>
+                              </template>
+                              <template x-if="!o.domain">
+                                <span x-text="o.name"></span>
+                              </template>
+                              <template x-if="oi < ev.orgs.length - 1">
+                                <span>,&nbsp;</span>
+                              </template>
+                            </span>
+                          </template>
+                        </div>
+                      </template>
+                      <hr
+                        class="result-card-separator"
+                        x-show="!ev.streaming && ev.url"
+                      />
+
+                      <div
+                        class="result-card-buttons"
+                        x-show="!ev.streaming"
+                        x-transition.opacity.duration.400ms
                       >
-                    </span>
-                  </template>
-                </p>
-              </template>
-              <template x-if="!ev.streaming && ev.orgs && ev.orgs.length > 0">
-                <div class="event-orgs-row">
-                  <span class="event-orgs-label">Proposé par :</span>
-                  <template x-for="(o, oi) in ev.orgs" :key="o.id">
-                    <span class="event-org-wrap">
-                      <template x-if="o.domain">
-                        <a
-                          :href="o.domain"
-                          target="_blank"
-                          class="event-org-link"
-                          x-text="o.name"></a>
-                      </template>
-                      <template x-if="!o.domain">
-                        <span x-text="o.name"></span>
-                      </template>
-                      <template x-if="oi < ev.orgs.length - 1">
-                        <span>,&nbsp;</span>
-                      </template>
-                    </span>
+                        <template x-if="ev.url">
+                          <a
+                            :href="ev.url"
+                            target="_blank"
+                            class="btn btn-event"
+                          >
+                            <span>Voir l'événement</span>
+                            <span class="btn-arrow-circle">
+                              <ArrowSVG />
+                            </span>
+                          </a>
+                        </template>
+                      </div>
+                    </div>
                   </template>
                 </div>
               </template>
-              <hr
-                class="result-card-separator"
-                x-show="!ev.streaming && ev.url"
-              />
-
-              <div
-                class="result-card-buttons"
-                x-show="!ev.streaming"
-                x-transition.opacity.duration.400ms
-              >
-                <template x-if="ev.url">
-                  <a :href="ev.url" target="_blank" class="btn btn-event">
-                    <span>Voir l'événement</span>
-                    <span class="btn-arrow-circle">
-                      <ArrowSVG />
-                    </span>
-                  </a>
-                </template>
-              </div>
             </div>
           </template>
         </div>
@@ -301,14 +345,12 @@ import MailSVG from "../../../assets/mail.svg";
   .result-card {
     background-color: white;
     padding: 1rem 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     font-size: 1rem;
   }
 
   .result-card-2 {
-    background-color: rgba(52, 113, 157, 0.1);
+    background-color: rgba(var(--color-main-2), 0.08);
     padding: 1rem 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
   .ai-orgs-block,
@@ -319,14 +361,12 @@ import MailSVG from "../../../assets/mail.svg";
     display: flex;
     flex-direction: column;
     gap: 0;
-    border-radius: 12px;
-    overflow: hidden;
   }
 
   .result-card-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: none;
     letter-spacing: 0.02em;
     margin: 0 0 0.5rem;
     color: #1f2937;
@@ -351,13 +391,29 @@ import MailSVG from "../../../assets/mail.svg";
   }
 
   .read-more-link:hover {
-    color: #2b4888;
+    color: rgba(var(--color-main-2-dark), 1);
   }
 
   .result-card-separator {
     border: none;
-    border-top: 2px solid rgba(52, 113, 157, 0.2);
+    border-top: 2px solid rgba(var(--color-main-2), 0.2);
     margin: 0.75rem 0;
+  }
+
+  .org-address {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem;
+  }
+
+  .org-address-icon :global(svg) {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    stroke: rgba(var(--color-main-2), 1);
   }
 
   .org-contact-row {
@@ -372,14 +428,14 @@ import MailSVG from "../../../assets/mail.svg";
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #34719d;
+    color: rgba(var(--color-main-2), 1);
     text-decoration: underline;
     transition: color 0.15s ease;
     width: fit-content;
   }
 
   .org-contact-link:hover {
-    color: #2b4888;
+    color: rgba(var(--color-main-2-dark), 1);
   }
 
   .org-contact-icon {
@@ -390,18 +446,18 @@ import MailSVG from "../../../assets/mail.svg";
   }
 
   .org-contact-link:visited {
-    color: #34719d;
+    color: rgba(var(--color-main-2), 1);
   }
 
   .event-tag {
     display: inline-block;
-    background-color: #c73b5d;
+    background-color: rgba(var(--color-main), 1);
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    padding: 0.3rem 0.7rem;
+    padding: 0.2rem 0.4rem;
     text-transform: uppercase;
+    font-family: var(--font-founders-grotesk);
   }
 
   .event-inline-row {
@@ -409,9 +465,9 @@ import MailSVG from "../../../assets/mail.svg";
     align-items: center;
     gap: 0.5rem;
     margin: 0.4rem 0 0.6rem;
-    border: 1.5px solid #c73b5d;
+    border: 1.5px solid rgba(var(--color-main), 1);
     padding-right: 0.5rem;
-    border-radius: 10px;
+    border-radius: 8px;
     flex-wrap: nowrap;
     overflow: hidden;
     min-width: 0;
@@ -425,7 +481,7 @@ import MailSVG from "../../../assets/mail.svg";
   }
 
   .event-inline-title {
-    color: #c73b5d;
+    color: rgba(var(--color-main), 1);
     font-weight: 500;
     line-height: 1.3;
     white-space: nowrap;
@@ -436,6 +492,12 @@ import MailSVG from "../../../assets/mail.svg";
   .event-inline-title-wrap.overflowing .event-inline-title {
     animation: marquee var(--marquee-duration, 6s) linear infinite;
     animation-delay: 1s;
+  }
+
+  .event-card .event-tag {
+    border-radius: 8px;
+    vertical-align: middle;
+    margin-bottom: 0.5rem;
   }
 
   @keyframes marquee {
@@ -496,12 +558,12 @@ import MailSVG from "../../../assets/mail.svg";
   }
 
   :global(.event-org-link) {
-    color: #c73b5d;
+    color: rgba(var(--color-main), 1);
     text-decoration: underline;
   }
 
   :global(.event-org-link:hover) {
-    color: #a02e4a;
+    color: rgba(var(--color-main-dark), 1);
   }
 
   .result-card-buttons {
@@ -531,6 +593,9 @@ import MailSVG from "../../../assets/mail.svg";
     border: none;
     border-radius: 10px;
     font-size: 1rem;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     cursor: pointer;
     text-decoration: none;
     color: white;
@@ -544,19 +609,19 @@ import MailSVG from "../../../assets/mail.svg";
   }
 
   :global(.btn-event) {
-    background-color: #dc436b;
+    background-color: rgba(var(--color-main), 1);
   }
 
   :global(.btn-event:hover) {
-    background-color: #a02e4a;
+    background-color: rgba(var(--color-main-dark), 1);
   }
 
   :global(.btn-site) {
-    background-color: #34719d;
+    background-color: rgba(var(--color-main-2), 1);
   }
 
   :global(.btn-site:hover) {
-    background-color: #2b4888;
+    background-color: rgba(var(--color-main-2-dark), 1);
   }
 
   :global(.btn-arrow-circle) {
@@ -570,27 +635,18 @@ import MailSVG from "../../../assets/mail.svg";
   }
 
   :global(.btn-zoom) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: calc(0.4rem - 1.5px) calc(0.75rem - 1.5px);
     background-color: white;
-    color: #2b4888;
-    border: 1.5px solid rgba(43, 72, 136, 0.3);
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1rem;
+    color: rgba(var(--color-main-2), 1);
+    border: 1.5px solid rgba(var(--color-main-2), 0.3);
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease,
       transform 0.15s ease;
-    text-decoration: none;
   }
 
   :global(.btn-zoom:hover) {
-    background-color: rgba(43, 72, 136, 0.05);
-    border-color: #2b4888;
-    transform: translateY(-1px);
+    background-color: rgba(var(--color-main-2), 0.05);
+    border-color: rgba(var(--color-main-2), 1);
   }
 
   :global(.btn-zoom svg) {
@@ -609,42 +665,51 @@ import MailSVG from "../../../assets/mail.svg";
 
   .ai-chat-msg-user {
     align-self: flex-end;
-    background-color: rgba(52, 113, 157, 1);
+    background-color: rgba(var(--color-main-2), 1);
     color: white;
-    border-bottom-right-radius: 0;
     margin-left: auto;
+    margin-bottom: 10px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
   }
 
   .ai-chat-msg-user::after {
     content: "";
     position: absolute;
-    bottom: 0;
-    right: -10px;
+    bottom: -13px;
+    right: 12px;
     width: 0;
     height: 0;
     border-style: solid;
-    border-width: 0 14px 18px 0;
-    border-color: transparent transparent rgba(52, 113, 157, 1) transparent;
+    border-width: 18px 0 0 14px;
+    border-color: rgba(var(--color-main-2), 1) transparent transparent
+      transparent;
+    transform: rotate(-15deg);
   }
 
   .ai-chat-msg-assistant {
-    align-self: flex-start;
+    align-self: stretch;
     background-color: rgba(255, 255, 255, 1);
     color: #1f2937;
-    border-bottom-left-radius: 0;
+    max-width: 100%;
+    width: 100%;
     margin-right: auto;
+    padding: 0 1.25rem;
   }
 
-  .ai-chat-msg-assistant::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: -14px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 0 18px 14px;
-    border-color: transparent transparent rgba(255, 255, 255, 1) transparent;
+  .ai-turn {
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-turn-node > * {
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .ai-chat-msg-assistant ul,
@@ -680,21 +745,22 @@ import MailSVG from "../../../assets/mail.svg";
     font-size: 0.9em;
   }
 
+  .ai-chat-msg-assistant-content p {
+    margin-top: 0;
+  }
+
   .ai-chat-thinking {
     align-self: flex-start;
     display: flex;
     gap: 4px;
     padding: 12px 14px;
-    background-color: rgba(255, 255, 255, 1);
-    border-radius: 14px;
-    border-bottom-left-radius: 4px;
     width: fit-content;
   }
 
   .ai-chat-thinking span {
     width: 8px;
     height: 8px;
-    background-color: #2b4888;
+    background-color: rgba(var(--color-main-2), 1);
     border-radius: 50%;
     animation: chat-dot 1.4s infinite ease-in-out both;
   }

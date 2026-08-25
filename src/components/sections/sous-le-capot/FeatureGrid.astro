@@ -1,15 +1,17 @@
 ---
-import ArchiveSVG from "../../../assets/archive.svg";
+import FolderOpenPlus from "../../../assets/folder-open-plus.svg";
 import BlendSVG from "../../../assets/blend-mode.svg";
 import DBSVG from "../../../assets/database.svg";
 ---
 
 <div class="tech-grid">
   <article class="tech-card">
-    <div class="tech-card-icon">
-      <ArchiveSVG />
+    <div class="tech-card-box">
+      <h3 class="tech-card-title">Collecte automatisée</h3>
+      <div class="tech-card-icon">
+        <FolderOpenPlus />
+      </div>
     </div>
-    <h3 class="tech-card-title">Collecte automatisée</h3>
     <p>
       Des workflows de scraping interrogent régulièrement les sites des
       organisations partenaires pour extraire événements et actualités.
@@ -19,10 +21,12 @@ import DBSVG from "../../../assets/database.svg";
   </article>
 
   <article class="tech-card">
-    <div class="tech-card-icon">
-      <DBSVG />
+    <div class="tech-card-box">
+      <h3 class="tech-card-title">Stockage relationnel</h3>
+      <div class="tech-card-icon">
+        <DBSVG />
+      </div>
     </div>
-    <h3 class="tech-card-title">Stockage relationnel</h3>
     <p>
       Une base PostgreSQL structurée en trois tables principales (organisations,
       événements, actualités) reliées par des tables de jonction. La
@@ -33,10 +37,12 @@ import DBSVG from "../../../assets/database.svg";
   </article>
 
   <article class="tech-card">
-    <div class="tech-card-icon">
-      <BlendSVG />
+    <div class="tech-card-box">
+      <h3 class="tech-card-title">Interface unifiée</h3>
+      <div class="tech-card-icon">
+        <BlendSVG />
+      </div>
     </div>
-    <h3 class="tech-card-title">Interface unifiée</h3>
     <p>
       Le front-end combine une carte interactive (Leaflet), un assistant
       conversationnel adossé à un modèle de langage, et un calendrier
@@ -48,44 +54,60 @@ import DBSVG from "../../../assets/database.svg";
 
 <style>
   .tech-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
     margin: 1.5rem auto;
+    perspective: 1200px;
+    justify-content: center;
   }
 
   .tech-card {
+    max-width: 320px;
     background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid rgba(var(--color-main-2), 0.3);
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px rgba(181, 46, 196, 0.1);
     transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .tech-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(181, 46, 196, 0.2);
+  }
+
+  .tech-card-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: fit-content;
+    margin-bottom: 0.5rem;
   }
 
   .tech-card-icon {
     width: 2.5rem;
     height: 2.5rem;
-    background-color: rgba(43, 72, 136, 0.08);
-    border-radius: 8px;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    border-radius: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #2b4888;
-    margin-bottom: 0.75rem;
+    color: white;
   }
 
   .tech-card-title {
     font-size: 1.4rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem;
-    color: #1f2937;
+    font-weight: 600;
+    color: rgba(var(--color-main), 1);
+    margin: 0;
   }
 
   .tech-card p {
     font-size: 0.9rem;
-    color: #4b5563;
+    color: black;
     line-height: 1.55;
     margin: 0;
   }

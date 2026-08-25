@@ -1,92 +1,260 @@
 ---
-
+import EclaireLogo from "../../../assets/logoEclaire.svg";
+import EclaireInfo from "../../../assets/eclaire-2-info.svg";
+import Image from "astro/components/Image.astro";
 ---
 
 <div class="ai-info" id="aiInfo">
-  <h2 class="ai-info-title">Salut, moi c'est Éclaire 👋</h2>
-  <p class="ai-info-subtitle">
-    Le guide IA de l'inclusion et de la résilience numérique à Genève.
-  </p>
-  <hr class="ai-info-separator" />
+  <div class="ai-info-header">
+    <Image src={EclaireLogo} class={"ai-info-logo"} alt={""} />
+    <p>
+      <span class="ai-info-greeting">Salut, moi c'est <strong>éclaire</strong>,<br /></span>
+      <span class="ai-info-greeting-sub">
+        Le guide IA de l'inclusion et de la résilience numérique à Genève.
+      </span>
+    </p>
+  </div>
+
   <div class="ai-info-desc">
     <p>
-      <span class="ai-info-highlight">Ce que je peux faire :</span><br />
+      <span class="ai-info-highlight ai-info-highlight-main"
+        >Ce que je peux faire :</span
+      ><br />
       Te montrer qui fait quoi près de chez toi — assos, services, ateliers — et t'orienter
       vers les bonnes ressources, gratuites et accessibles.
     </p>
     <p>
-      <span class="ai-info-highlight">Ce que je ne peux pas faire :</span><br />
+      <span class="ai-info-highlight ai-info-highlight-main-2"
+        >Ce que je ne peux pas faire :</span
+      ><br />
       Te vendre une solution maison ou rouler pour un fournisseur unique. Mon code
       et mes données sont ouverts, point.
     </p>
     <p>
-      <span class="ai-info-highlight">
-        Comment je marche ? <a href="/sous-le-capot">Regarde sous le capot 🔧</a
-        >
-      </span><br />
+      <span class="ai-info-highlight ai-info-highlight-main-3"
+        >Comment je marche ?</span
+      ><br />
       Open source, open data : transparent, réutilisable, amélioré en continu par
       une communauté. Un vrai bien commun numérique, au service des citoyen·nes.
     </p>
+  </div>
+
+  <a href="/sous-le-capot" class="ai-info-capot-link"
+    >Regarde sous le capot 🔧</a
+  >
+
+  <div class="ai-info-collage">
+    <div class="ai-info-collage-imgs">
+      <div class="collage-img-frame collage-img-1">
+        <img src="/images/3.jpg" alt="" />
+      </div>
+      <div class="collage-img-frame collage-img-2">
+        <img src="/images/1.jpg" alt="" />
+      </div>
+      <div class="collage-img-frame collage-img-3">
+        <img src="/images/2.jpg" alt="" />
+      </div>
+      <div class="ai-info-collage-card">
+        <Image src={EclaireInfo} class={"ai-info-collage-logo"} alt={""} />
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
   .ai-info {
     background-color: white;
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.25rem 1.5rem;
     margin: 0 0 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    flex-shrink: 0;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+  }
+
+  .ai-info-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ai-info-logo {
+    width: auto;
+    height: 80px;
     flex-shrink: 0;
   }
 
-  .ai-info-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 0.25rem;
+  .ai-info-greeting {
+    margin: 0;
+    font-size: 1.15rem;
     color: #1f2937;
+    line-height: 1.5;
   }
 
-  .ai-info-subtitle {
+  .ai-info-greeting strong {
+    font-weight: 600;
+  }
+
+  .ai-info-greeting-sub {
     font-size: 1rem;
-    color: #1f2937;
-    margin: 0;
-    line-height: 1.4;
+    line-height: 1;
   }
 
   .ai-info-highlight {
-    color: rgba(52, 113, 157, 1);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
   }
 
-  .ai-info-highlight a {
-    color: rgba(52, 113, 157, 1);
-    transition: color 0.15s ease-in-out;
+  .ai-info-highlight-main-2 {
+    color: rgba(var(--color-main), 1);
   }
 
-  .ai-info-highlight a:visited {
-    color: rgba(52, 113, 157, 1);
+  .ai-info-highlight-main {
+    color: rgba(var(--color-main-2), 1);
   }
 
-  .ai-info-highlight a:hover {
-    color: rgba(52, 113, 157, 0.8);
-  }
-
-  .ai-info-separator {
-    margin: 0.75rem 0;
-    border: none;
-    border-top: 1px solid rgba(43, 72, 136, 0.2);
+  .ai-info-highlight-main-3 {
+    color: rgba(var(--color-main-3), 1);
   }
 
   .ai-info-desc p {
     font-size: 1rem;
     color: #374151;
-    line-height: 1.5;
-    margin: 0 0 0.6rem;
+    line-height: 1.1;
+    margin: 0 0 1rem;
   }
 
-  .ai-info-desc p:last-child {
-    margin-bottom: 0;
+  .ai-info-capot-link {
+    display: inline-block;
+    margin: 0.25rem 0 1.5rem;
+    color: rgba(var(--color-main-2), 1);
+    text-decoration: underline;
+    font-size: 1rem;
+    transition: color 0.15s ease-in-out;
+  }
+
+  .ai-info-capot-link:visited {
+    color: rgba(var(--color-main-2), 1);
+  }
+
+  .ai-info-capot-link:hover {
+    color: rgba(var(--color-main-2-dark), 1);
+  }
+
+  .ai-info-collage {
+    position: relative;
+    margin-top: 0.5rem;
+    height: 320px;
+  }
+
+  .ai-info-collage-imgs {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 450px;
+    margin: auto;
+  }
+
+  .collage-img-frame {
+    position: absolute;
+    overflow: hidden;
+    display: block;
+    min-width: 150px;
+    border-radius: 10px;
+    background-color: rgba(var(--color-main-2), 0.08);
+    transform: rotate(-15deg) skewX(-15deg);
+  }
+
+  .collage-img-frame img {
+    width: 120%;
+    height: 130%;
+    object-fit: cover;
+    display: block;
+    transform: skewX(15deg) scale(1.2) rotate(15deg) translateY(-5px);
+  }
+
+  .collage-img-2 {
+    width: 65%;
+    height: 70%;
+    max-width: 300px;
+    left: 50%;
+    top: -5%;
+    transform: translateX(-50%) rotate(-15deg) skewX(-15deg);
+  }
+
+  .collage-img-2 img {
+    transform: skewX(15deg) scale(1.2) rotate(15deg) translateY(-10px);
+  }
+
+  .collage-img-1 {
+    width: 30%;
+    height: 40%;
+    max-width: 200px;
+    left: -5%;
+    top: 35%;
+    z-index: 1;
+  }
+
+  .collage-img-1 img {
+    transform: skewX(15deg) scale(1.2) rotate(15deg) translateY(-5px)
+      translateX(-20px);
+  }
+
+  .collage-img-3 {
+    width: 20%;
+    height: 30%;
+    max-width: 200px;
+    right: -5%;
+    top: 20%;
+    z-index: 1;
+  }
+
+  .ai-info-collage-card {
+    position: absolute;
+    left: 65%;
+    bottom: 5%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    align-items: end;
+    gap: 0.75rem;
+    background-color: transparent;
+    padding: 0.6rem 1rem 0.6rem 0.6rem;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+
+  .ai-info-collage-logo {
+    width: auto;
+    height: 140px;
+    flex-shrink: 0;
+  }
+
+  .ai-info-collage-caption {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.3;
+    padding-bottom: 8px;
+    width: 100px;
+  }
+
+  @media (max-width: 768px) {
+    .ai-info-header {
+      gap: 0.75rem;
+    }
+    .ai-info-logo {
+      height: 80px;
+    }
+    .ai-info-greeting {
+      font-size: 1.05rem;
+    }
+  }
+
+  @media (max-width: 555px) {
+    .ai-info-collage {
+      display: none;
+    }
   }
 </style>

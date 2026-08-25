@@ -77,18 +77,18 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
   .field-label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
+    color: black;
   }
 
   .field-label-public {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
+    color: black;
     margin-top: 1rem;
   }
 
   .field-required {
-    color: #c73b5d;
+    color: rgba(var(--color-required), 1);
     margin-left: 0.15rem;
   }
 
@@ -113,7 +113,9 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
     font-size: 0.85rem;
     cursor: pointer;
     background: white;
-    font-family: inherit;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     transition:
       background 0.15s ease,
       border-color 0.15s ease;
@@ -133,7 +135,7 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
   }
 
   .chip-category:hover {
-    background: color-mix(in srgb, var(--chip-bg) 40%, transparent);
+    background: color-mix(in srgb, var(--chip-bg) 40%, white);
   }
 
   .chip-category .dot {
@@ -151,7 +153,7 @@ const AUDIENCES = AUDIENCE_TAGS.map((tag) => ({
   }
 
   .chip-audience:hover {
-    background: #4755690d;
+    background: color-mix(in srgb, #475569 8%, white);
   }
 
   .chip-audience.chip-active {

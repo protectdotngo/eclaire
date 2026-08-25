@@ -3,9 +3,11 @@ import ArrowSVG from "../../../assets/circle-arrow-right.svg";
 import PinSVG from "../../../assets/map-pin.svg";
 import ClockSVG from "../../../assets/clock.svg";
 import HourglassSVG from "../../../assets/hourglass-empty.svg";
+import Background from "../general/Background.astro";
 ---
 
 <div class="event-list" x-show="!loading">
+  <Background />
   <template x-if="visibleEvents.length === 0">
     <div class="empty-state">
       Aucun événement ce mois-ci. Tu peux changer de mois ou ajuster les
@@ -114,44 +116,24 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
     position: relative;
   }
 
-  .event-list::before {
-    content: "";
-    position: fixed;
-    inset: 0 -5rem;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      url("/decorations/protect3.svg"), url("/decorations/protect2.svg");
-    background-repeat: repeat-y, repeat-y;
-    background-position:
-      right -2rem top 100px,
-      left -4rem top 400px;
-    background-size:
-      auto 1000px,
-      auto 1000px;
-  }
-
   .event-row {
     background: white;
-    border: 1px solid #1e293b;
-    border-radius: 0;
+    border: 1px solid #e6e6e6;
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     transition:
       box-shadow 0.15s ease,
       border-color 0.15s ease;
   }
 
   .event-row:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  }
-
-  .event-row:hover .event-date-col {
-    border-color: #cbd5e1;
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .event-row-expanded {
-    border-color: #2b4888;
+    border-color: rgba(var(--color-main-2), 0.5);
   }
 
   .event-row-clickable {
@@ -165,7 +147,9 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
     border: none;
     cursor: pointer;
     text-align: left;
-    font-family: inherit;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
     color: inherit;
   }
 
@@ -184,43 +168,44 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
     gap: 0;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid #1e293b;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+    color: white;
     font-family:
-      "FoundersGroteskSemibold", "Inter Tight", Inter, Roboto, "Helvetica Neue",
-      "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+      sans-serif;
   }
 
   .event-date-block {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    line-height: 1;
     height: fit-content;
-    color: #1f2937;
+    color: white;
+    gap: 4px;
   }
 
   .event-date-block-end {
-    color: #9ca3af;
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .event-date-day {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-size: 1.8rem;
+    font-weight: 700;
     height: fit-content;
     width: inherit;
     text-align: left;
   }
 
   .event-date-block-end .event-date-day {
-    color: #9ca3af;
+    color: rgba(255, 255, 255, 0.75);
   }
 
   .event-date-month {
-    font-size: 0.95rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-top: 0.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04rem;
   }
 
   .event-body-col {
@@ -234,8 +219,7 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   .event-title {
     margin: 0;
     font-size: 1.3rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 0.02em;
     color: #1f2937;
     line-height: 1.3;
@@ -305,8 +289,8 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   .event-tag {
     font-size: 0.75rem;
     padding: 0.2rem 0.55rem;
-    background: rgba(43, 72, 136, 0.08);
-    color: #2b4888;
+    background: rgba(var(--color-main-2), 0.08);
+    color: rgba(var(--color-main-2), 1);
     border-radius: 999px;
   }
 
@@ -336,11 +320,11 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
   }
 
   :global(.btn-event) {
-    background-color: #dc436b;
+    background: rgba(var(--color-main), 1);
   }
 
   :global(.btn-event:hover) {
-    background-color: #a02e4a;
+    background: rgba(var(--color-main-dark), 1);
   }
 
   :global(.btn-arrow-circle) {
@@ -392,16 +376,12 @@ import HourglassSVG from "../../../assets/hourglass-empty.svg";
 
   @media (max-width: 768px) {
     .event-row-clickable {
-      grid-template-columns: 80px 1fr;
+      grid-template-columns: 1fr 6fr;
       gap: 0.75rem;
     }
 
     .event-desc-col {
       display: none;
-    }
-
-    .event-date-day {
-      font-size: 1.5rem;
     }
   }
 </style>

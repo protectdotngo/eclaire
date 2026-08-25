@@ -51,11 +51,29 @@ export function createConversationTimeline() {
     items: [] as TimelineItem[],
     thinking: false,
     renderMarkdown,
+    _nodeSeq: 0,
 
     init() {},
 
+    // Returns the currently open assistant "turn" group, creating one if the
+    // last item isn't an open turn. Consecutive non-user items (assistant
+    // messages, orgs, events) collect into one turn so they render as a single
+    // bordered card. A user message closes the turn (see addMessage).
+    currentTurn() {
+      const last = this.items[this.items.length - 1] as any;
+      if (last && last.kind === "turn") return last;
+      this.items.push({
+        kind: "turn",
+        children: [],
+      } as unknown as TimelineItem);
+      // re-fetch from the array so we return Alpine's reactive proxy, not the
+      // raw object literal (mutating the literal wouldn't trigger re-render)
+      return this.items[this.items.length - 1] as any;
+    },
+
     async addMessage(msg: ChatMsg) {
       if (msg.role === "user") {
+        // user message is standalone and closes any open turn
         this.items.push({
           kind: "message",
           role: msg.role,
@@ -67,14 +85,16 @@ export function createConversationTimeline() {
         return;
       }
 
-      this.items.push({
+      const turn = this.currentTurn();
+      turn.children.push({
         kind: "message",
         role: msg.role,
         content: msg.content,
         displayContent: "",
         streaming: true,
+        _id: ++this._nodeSeq,
       });
-      const msgRef = this.items[this.items.length - 1] as {
+      const msgRef = turn.children[turn.children.length - 1] as {
         kind: "message";
         role: "user" | "assistant";
         content: string;
@@ -136,8 +156,9 @@ export function createConversationTimeline() {
     },
 
     async addOrgs(orgs: OrgWithChatContext[]) {
-      this.items.push({ kind: "orgs", displayed: [] });
-      const blockRef = this.items[this.items.length - 1] as {
+      const turn = this.currentTurn();
+      turn.children.push({ kind: "orgs", displayed: [], _id: ++this._nodeSeq });
+      const blockRef = turn.children[turn.children.length - 1] as {
         kind: "orgs";
         displayed: DisplayedOrg[];
       };
@@ -164,8 +185,13 @@ export function createConversationTimeline() {
     },
 
     async addEvents(events: EventWithOrgs[]) {
-      this.items.push({ kind: "events", displayed: [] });
-      const blockRef = this.items[this.items.length - 1] as {
+      const turn = this.currentTurn();
+      turn.children.push({
+        kind: "events",
+        displayed: [],
+        _id: ++this._nodeSeq,
+      });
+      const blockRef = turn.children[turn.children.length - 1] as {
         kind: "events";
         displayed: DisplayedEvent[];
       };
