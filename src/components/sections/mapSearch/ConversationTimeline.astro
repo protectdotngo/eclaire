@@ -68,7 +68,8 @@ import MailSVG from "../../../assets/mail.svg";
                       <template x-if="org.address || org.city">
                         <p class="org-address">
                           <span class="org-address-icon"><PinSVG /></span>
-                          <span x-text="[org.address, org.city].filter(Boolean).join(', ')"
+                          <span
+                            x-text="[org.address, org.city].filter(Boolean).join(', ')"
                           ></span>
                         </p>
                       </template>
@@ -594,7 +595,8 @@ import MailSVG from "../../../assets/mail.svg";
     border-radius: 10px;
     font-size: 1rem;
     font-family:
-      var(--font-neue-haas-grotesk), var(--font-founders-grotesk), var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+      var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
       "Nimbus Sans", Arial, sans-serif;
     cursor: pointer;
     text-decoration: none;
