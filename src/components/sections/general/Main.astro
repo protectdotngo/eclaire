@@ -1,0 +1,23 @@
+---
+import Nav from "../../Nav.astro";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class="main">
+  <div class="navContMain">
+    <Nav class={className} />
+  </div>
+  <slot />
+</div>
+
+<style>
+  .main {
+    width: 100%;
+    position: relative;
+  }
+</style>

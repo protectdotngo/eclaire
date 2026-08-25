@@ -2,18 +2,15 @@
 import Layout from "../layouts/BaseLayout.astro";
 import Map from "../components/Map.astro";
 import SidePanel from "../components/SidePanel.astro";
-import Nav from "../components/Nav.astro";
+import Main from "../components/sections/general/Main.astro";
 ---
 
-<Layout title="Éclaire - Le Phare Numérique">
+<Layout title="éclaire - Le Phare Numérique">
   <div class="page">
     <SidePanel class="search" />
-    <div class="main">
-      <div class="navContMain">
-        <Nav class="nav-cont-index" />
-      </div>
+    <Main class="nav-cont-index">
       <Map />
-    </div>
+    </Main>
   </div>
 </Layout>
 

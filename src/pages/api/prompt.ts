@@ -9,7 +9,7 @@ import {
   loadDefaultTemplate,
   invalidateCache,
 } from "../../lib/chatPrompt";
-import type { PromptVersion } from "../../interfaces";
+import type { PromptVersion } from "../../interfaces/chat";
 
 export const GET: APIRoute = async ({ url }) => {
   // ?id=<uuid> → content of a specific version in the history

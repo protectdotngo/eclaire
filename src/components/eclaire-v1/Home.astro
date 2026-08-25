@@ -4,7 +4,6 @@ import Partner from "./sections/Partner.astro";
 import Hero from "../sections/general/Hero.astro";
 import Background from "../sections/general/Background.astro";
 import EclaireInfo from "../../assets/eclaire-2-info.svg";
-import Image from "astro/components/Image.astro";
 
 const visiblePartners = (
   await getCollection("partners", (p) => !p.data.hidden)
@@ -23,7 +22,7 @@ const visiblePartners = (
     <div class="v1-hero-video">
       <iframe
         src="https://www.youtube.com/embed/ipfqEjH04ag"
-        title="Présentation du projet Éclaire"
+        title="Présentation du projet éclaire"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen></iframe>
     </div>
@@ -55,7 +54,7 @@ const visiblePartners = (
           <img src="/images/un.jpg" alt="" />
         </div>
         <div class="ai-info-collage-card">
-          <Image src={EclaireInfo} class={"ai-info-collage-logo"} alt={""} />
+          <img src={EclaireInfo.src} class={"ai-info-collage-logo"} alt={""} />
         </div>
       </div>
     </div>

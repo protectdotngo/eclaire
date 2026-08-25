@@ -8,7 +8,7 @@ import Background from "../general/Background.astro";
   <div class="tech-section-box">
     <h2 class="tech-section-title">Vue d'ensemble de l'architecture</h2>
     <p class="tech-section-intro">
-      Éclaire repose sur trois composants principaux, conçus pour fonctionner
+      éclaire repose sur trois composants principaux, conçus pour fonctionner
       indépendamment tout en se nourrissant mutuellement :
     </p>
   </div>
@@ -71,7 +71,7 @@ import Background from "../general/Background.astro";
 
 <style>
   .tech-section {
-    margin: 3.5rem auto;
+    margin: 8rem auto 3.5rem auto;
     position: relative;
   }
 
@@ -220,6 +220,18 @@ import Background from "../general/Background.astro";
     color: white;
     background: transparent;
     border: 1px solid white;
+  }
+
+  @media (max-width: 1375px) {
+    .tech-section {
+      margin: 5rem auto 3.5rem auto;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .tech-section {
+      margin: 1.5rem auto 3.5rem auto;
+    }
   }
 
   @media (max-width: 768px) {

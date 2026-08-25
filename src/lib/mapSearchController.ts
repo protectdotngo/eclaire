@@ -1,9 +1,6 @@
 import { $mapData } from "./mapStore";
-import type {
-  ChatMsg,
-  ChatApiResponse,
-  OrgWithChatContext,
-} from "../interfaces";
+import type { ChatMsg, ChatApiResponse } from "../interfaces/chat";
+import type { OrgWithChatContext } from "../interfaces/org";
 
 export function initMapSearchController() {
   const aiForm = document.getElementById("aiForm") as HTMLFormElement;

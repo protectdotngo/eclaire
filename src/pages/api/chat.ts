@@ -29,13 +29,9 @@ import {
   selectCandidates,
 } from "../../lib/orgCandidates";
 import { parseAndValidate, ensureLeadingText } from "../../lib/chatValidation";
-import type {
-  RequestBody,
-  EventSearchFilters,
-  OrgWithChatContext,
-  EventWithOrgs,
-  Event,
-} from "../../interfaces";
+import type { RequestBody, EventSearchFilters } from "../../interfaces/chat";
+import type { EventWithOrgs, Event } from "../../interfaces/event";
+import type { OrgWithChatContext } from "../../interfaces/org";
 
 const LLM_API_URL = process.env.SCW_API_LLM_LNK;
 const LLM_API_KEY = process.env.SCW_API_KEY;

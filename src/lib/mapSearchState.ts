@@ -1,12 +1,12 @@
 import { marked } from "marked";
+import type { OrgWithChatContext } from "../interfaces/org";
 import type {
-  OrgWithChatContext,
-  DisplayedOrg,
   DisplayedEvent,
-  EventWithOrgs,
+  DisplayedOrg,
   TimelineItem,
-  ChatMsg,
-} from "../interfaces";
+} from "../interfaces/timeline";
+import type { EventWithOrgs } from "../interfaces/event";
+import type { ChatMsg } from "../interfaces/chat";
 
 marked.setOptions({
   breaks: true,

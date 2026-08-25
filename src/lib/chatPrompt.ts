@@ -3,7 +3,7 @@ import path from "node:path";
 import { desc } from "drizzle-orm";
 import { db } from "./dbDrizzle";
 import { orgsInTest, promptConfigInTest } from "../../drizzle/schema";
-import type { OrgLite } from "../interfaces";
+import type { OrgLite } from "../interfaces/org";
 
 let cachedTemplate: string | null = null;
 let cachedTemplateAt = 0;

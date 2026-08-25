@@ -1,11 +1,11 @@
 ---
 import { desc, sql } from "drizzle-orm";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Nav from "../components/Nav.astro";
 import { getEditableTemplate } from "../lib/chatPrompt";
 import { db } from "../lib/dbDrizzle";
 import { promptConfigInTest } from "../../drizzle/schema";
-import type { PromptVersion } from "../interfaces";
+import type { PromptVersion } from "../interfaces/chat";
+import Main from "../components/sections/general/Main.astro";
 
 const current = await getEditableTemplate();
 let versions: PromptVersion[] = [];
@@ -24,71 +24,73 @@ try {
 }
 ---
 
-<BaseLayout title="Éclaire - Édition du prompt">
-  <Nav />
-  <main class="prompt-editor">
-    <header>
-      <h1>Prompt système du chat</h1>
-      <p>
-        Ce texte est envoyé comme instructions au modèle à chaque question. Les
-        modifications s'appliquent immédiatement (sans redéploiement). Le
-        placeholder <code>[Insère ici le contenu de l'annuaire en JSON]</code>
-        est obligatoire : il est remplacé par l'annuaire des organisations.
-      </p>
-      <p class="meta">
-        Source actuelle:
-        <strong
-          >{
-            current.source === "db"
-              ? `modifié (${current.updatedAt ? new Date(current.updatedAt).toLocaleString("fr-CH") : ""})`
-              : "défaut (fichier versionné)"
-          }</strong
-        >
-      </p>
-    </header>
+<BaseLayout title="éclaire - Édition du prompt">
+  <Main>
+    <main class="prompt-editor">
+      <header>
+        <h1>Prompt système du chat</h1>
+        <p>
+          Ce texte est envoyé comme instructions au modèle à chaque question.
+          Les modifications s'appliquent immédiatement (sans redéploiement). Le
+          placeholder <code>[Insère ici le contenu de l'annuaire en JSON]</code>
+          est obligatoire : il est remplacé par l'annuaire des organisations.
+        </p>
+        <p class="meta">
+          Source actuelle:
+          <strong
+            >{
+              current.source === "db"
+                ? `modifié (${current.updatedAt ? new Date(current.updatedAt).toLocaleString("fr-CH") : ""})`
+                : "défaut (fichier versionné)"
+            }</strong
+          >
+        </p>
+      </header>
 
-    <textarea id="prompt-content" spellcheck="false">{current.content}</textarea
-    >
+      <textarea id="prompt-content" spellcheck="false"
+        >{current.content}</textarea
+      >
 
-    <div class="actions">
-      <button id="save-btn" type="button">Enregistrer</button>
-      <button id="reset-btn" type="button" class="secondary">
-        Rétablir le défaut
-      </button>
-      <span id="status" role="status"></span>
-    </div>
+      <div class="actions">
+        <button id="save-btn" type="button">Enregistrer</button>
+        <button id="reset-btn" type="button" class="secondary">
+          Rétablir le défaut
+        </button>
+        <span id="status" role="status"></span>
+      </div>
 
-    {
-      versions.length > 0 && (
-        <section class="history">
-          <h2>Historique ({versions.length} versions)</h2>
-          <p class="meta">
-            « Charger » remplit l'éditeur avec la version choisie — elle ne
-            devient active qu'après « Enregistrer ».
-          </p>
-          <ol>
-            {versions.map((v, i) => (
-              <li>
-                <span class="v-date">
-                  {new Date(v.createdAt).toLocaleString("fr-CH")}
-                </span>
-                <span class="v-len">
-                  {v.length.toLocaleString("fr-CH")} car.
-                </span>
-                {i === 0 ? (
-                  <span class="v-active">active</span>
-                ) : (
-                  <button type="button" class="v-load" data-id={v.id}>
-                    Charger
-                  </button>
-                )}
-              </li>
-            ))}
-          </ol>
-        </section>
-      )
-    }
-  </main>
+      {
+        versions.length > 0 && (
+          <section class="history">
+            <h2>Historique ({versions.length} versions)</h2>
+            <p class="meta">
+              « Charger » remplit l'éditeur avec la version choisie — elle ne
+              devient active qu'après « Enregistrer ».
+            </p>
+            <ol>
+              {versions.map((v, i) => (
+                <li>
+                  <span class="v-date">
+                    {new Date(v.createdAt).toLocaleString("fr-CH")}
+                  </span>
+                  <span class="v-len">
+                    {v.length.toLocaleString("fr-CH")} car.
+                  </span>
+                  {i === 0 ? (
+                    <span class="v-active">active</span>
+                  ) : (
+                    <button type="button" class="v-load" data-id={v.id}>
+                      Charger
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+    </main>
+  </Main>
 </BaseLayout>
 
 <script>

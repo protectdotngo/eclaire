@@ -1,4 +1,4 @@
-import type { Org } from "../interfaces";
+import type { Org } from "../interfaces/org";
 
 export const EMPTY_FORM = {
   submitter_type: "",

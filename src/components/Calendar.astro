@@ -3,17 +3,16 @@ import Filters from "./sections/calendar/Filters.astro";
 import MonthNav from "./sections/calendar/MonthNav.astro";
 import EventList from "./sections/calendar/EventList.astro";
 import Hero from "./sections/general/Hero.astro";
-
-const title = "Calendrier";
-const lead =
-  "Le projet éclaire fédère plusieurs événements organisés par des associations numériques et autres partenaires de la ville, à différents endroits de Genève et ses environs.";
-const body =
-  "Ces rendez-vous, qui se tiennent dans des lieux variés et fréquentés permettent de répondre aux questions du public sur la technologie au quotidien: usage du smartphone, de l'ordinateur ou des réseaux sociaux, protection des données, prévention des arnaques en ligne ou encore cybersécurité. Organisés à plusieurs reprises entre avril et juin 2026, ces événements permettent de démystifier le numérique auprès d'un large public, des seniors aux jeunes, et de rendre la technologie plus accessible et moins intimidante pour toutes et tous.";
-const image = "/images/3.jpg";
 ---
 
 <section x-data="calendarPage()" x-init="init()">
-  <Hero title={title} lead={lead} body={body} image={image} comp>
+  <Hero
+    title="Calendrier"
+    lead="Le projet éclaire fédère plusieurs événements organisés par des associations numériques et autres partenaires de la ville, à différents endroits de Genève et ses environs."
+    body="Ces rendez-vous, qui se tiennent dans des lieux variés et fréquentés permettent de répondre aux questions du public sur la technologie au quotidien: usage du smartphone, de l'ordinateur ou des réseaux sociaux, protection des données, prévention des arnaques en ligne ou encore cybersécurité. Organisés à plusieurs reprises entre avril et juin 2026, ces événements permettent de démystifier le numérique auprès d'un large public, des seniors aux jeunes, et de rendre la technologie plus accessible et moins intimidante pour toutes et tous."
+    image="/images/3.jpg"
+    comp
+  >
     <Filters />
   </Hero>
   <div class="calendar-page">

@@ -2,12 +2,9 @@ import flatpickr from "flatpickr";
 import { French } from "flatpickr/dist/l10n/fr.js";
 import { DISPLAY_BUCKETS } from "../data/calendarConfig";
 import { AUDIENCE_TAGS } from "../data/audienceTags";
-import type {
-  Org,
-  EventWithOrgIds,
-  ProcessedEvent,
-  OrgSummary,
-} from "../interfaces";
+import type { Org, OrgSummary } from "../interfaces/org";
+import type { EventWithOrgIds } from "../interfaces/event";
+import type { ProcessedEvent } from "../interfaces/calendar";
 
 export const ALL_CATEGORIES = DISPLAY_BUCKETS.flatMap((bucket) =>
   bucket.categories.map((cat) => ({

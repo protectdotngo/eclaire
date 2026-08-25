@@ -1,4 +1,8 @@
-import type { Block, ChatResponse, EventSearchFilters } from "../interfaces";
+import type {
+  Block,
+  ChatResponse,
+  EventSearchFilters,
+} from "../interfaces/chat";
 
 const MAX_ITEMS_PER_BLOCK = 5;
 

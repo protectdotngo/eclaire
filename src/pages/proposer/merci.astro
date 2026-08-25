@@ -1,14 +1,11 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Nav from "../../components/Nav.astro";
 import Hero from "../../components/sections/general/Hero.astro";
+import Main from "../../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="Merci pour ta proposition">
-  <div class="main">
-    <div class="navContMain">
-      <Nav />
-    </div>
+<BaseLayout title="éclaire - Merci pour ta proposition">
+  <Main>
     <Hero
       title="Merci pour ta proposition"
       lead="Nous l'examinerons dans les jours qui viennent. Si nécessaire, nous te recontacterons à l'email que tu as indiqué."
@@ -22,7 +19,7 @@ import Hero from "../../components/sections/general/Hero.astro";
         </a>
       </div>
     </Hero>
-  </div>
+  </Main>
 </BaseLayout>
 
 <style>
@@ -34,7 +31,7 @@ import Hero from "../../components/sections/general/Hero.astro";
     flex-wrap: wrap;
   }
 
-  .thanks-btn {
+  :global(.thanks-btn) {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;

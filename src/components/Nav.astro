@@ -2,7 +2,6 @@
 import EclaireLogo from "../assets/logoEclaire.svg";
 import ByProtect from "../assets/by-protect.svg";
 import ChevronSVG from "../assets/chevron-down.svg";
-import Image from "astro/components/Image.astro";
 
 interface Props {
   class?: string;
@@ -20,7 +19,7 @@ const aboutLinks = [
 <header class:list={["navCont", className]}>
   <div class="nav">
     <a href="/" class="nav-logo-link">
-      <Image src={EclaireLogo} class={"logo"} alt={""} />
+      <img src={EclaireLogo.src} class={"logo"} alt={""} />
     </a>
     <div class="nav-right">
       <button
@@ -35,7 +34,7 @@ const aboutLinks = [
 
       <nav class="menu">
         <a href="/" class="menu-link menu-link-logo">
-          <Image src={ByProtect} alt={""} />
+          <img src={ByProtect.src} alt={""} />
         </a>
         <a href="/" class="menu-link">Accueil</a>
         <a href="/calendrier" class="menu-link">Calendrier</a>
@@ -69,7 +68,7 @@ const aboutLinks = [
   <div class="mobile-backdrop" data-backdrop></div>
   <nav class="mobile-drawer" inert aria-label="Menu mobile">
     <div class="mobile-drawer-head">
-      <Image src={EclaireLogo} class={"mobile-drawer-logo"} alt={""} />
+      <img src={EclaireLogo.src} class={"mobile-drawer-logo"} alt={""} />
       <button
         class="mobile-drawer-close"
         aria-label="Fermer le menu"
@@ -488,11 +487,12 @@ const aboutLinks = [
     overflow: hidden;
   }
 
-  @media (max-width: 1230px) {
+  @media (max-width: 1250px) {
     .nav-cont-index .hamburger {
       display: flex;
       margin-right: 0;
       flex-shrink: 0;
+      box-shadow: 3px 4px 10px rgba(0, 0, 0, 0.4);
     }
     .nav-cont-index .menu {
       display: none;

@@ -2,7 +2,7 @@
 // into the system prompt to guide the LLM's attention (the complete directory
 // is still provided: if a match is missed ⇒ behavior is identical to before, never worse).
 
-import type { OrgLite, Candidate } from "../interfaces";
+import type { OrgLite, Candidate } from "../interfaces/org";
 
 // lowercase + remove accents + punctuation → spaces
 export function normalize(s: string): string {

@@ -1,12 +1,11 @@
 ---
 import EclaireLogo from "../../../assets/logoEclaire.svg";
 import EclaireInfo from "../../../assets/eclaire-2-info.svg";
-import Image from "astro/components/Image.astro";
 ---
 
 <div class="ai-info" id="aiInfo">
   <div class="ai-info-header">
-    <Image src={EclaireLogo} class={"ai-info-logo"} alt={""} />
+    <img src={EclaireLogo.src} class={"ai-info-logo"} alt={""} />
     <p>
       <span class="ai-info-greeting"
         >Salut, moi c'est <strong>éclaire</strong>,<br /></span
@@ -57,7 +56,7 @@ import Image from "astro/components/Image.astro";
         <img src="/images/2.jpg" alt="" />
       </div>
       <div class="ai-info-collage-card">
-        <Image src={EclaireInfo} class={"ai-info-collage-logo"} alt={""} />
+        <img src={EclaireInfo.src} class={"ai-info-collage-logo"} alt={""} />
       </div>
     </div>
   </div>

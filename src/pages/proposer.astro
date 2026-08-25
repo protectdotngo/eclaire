@@ -1,20 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Nav from "../components/Nav.astro";
 import ProposalForm from "../components/ProposalForm.astro";
+import Main from "../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="Éclaire - Proposer une organisation">
+<BaseLayout title="éclaire - Proposer une organisation">
   <div class="main">
-    <div class="navContMain">
-      <Nav />
-    </div>
-    <ProposalForm />
+    <Main>
+      <ProposalForm />
+    </Main>
   </div>
 </BaseLayout>
-
-<style>
-  .main {
-    position: relative;
-  }
-</style>
