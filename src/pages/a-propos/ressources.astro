@@ -1,11 +1,8 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import MainLayout from "../../layouts/MainLayout.astro";
 import Resources from "../../components/eclaire-v1/Resources.astro";
-import Main from "../../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="éclaire — Ressources utiles">
-  <Main>
-    <Resources />
-  </Main>
-</BaseLayout>
+<MainLayout title="Ressources utiles" description={""}>
+  <Resources />
+</MainLayout>

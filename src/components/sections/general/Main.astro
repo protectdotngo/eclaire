@@ -8,12 +8,12 @@ interface Props {
 const { class: className = "" } = Astro.props;
 ---
 
-<div class="main">
+<main class="main">
   <div class="navContMain">
     <Nav class={className} />
   </div>
   <slot />
-</div>
+</main>
 
 <style>
   .main {

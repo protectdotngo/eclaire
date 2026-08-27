@@ -1,13 +1,8 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import MainLayout from "../layouts/MainLayout.astro";
 import ProposalForm from "../components/ProposalForm.astro";
-import Main from "../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="éclaire - Proposer une organisation">
-  <div class="main">
-    <Main>
-      <ProposalForm />
-    </Main>
-  </div>
-</BaseLayout>
+<MainLayout title="Proposer une organisation" description={""}>
+  <ProposalForm />
+</MainLayout>

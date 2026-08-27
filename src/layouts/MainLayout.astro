@@ -1,0 +1,17 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Main from "../components/sections/general/Main.astro";
+
+interface Props {
+  title: string;
+  description: string[] | string | undefined;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title} description="">
+  <Main>
+    <slot />
+  </Main>
+</BaseLayout>

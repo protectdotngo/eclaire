@@ -1,11 +1,11 @@
 ---
-import Layout from "../layouts/BaseLayout.astro";
+import MainLayout from "../layouts/MainLayout.astro";
 import Calendar from "../components/Calendar.astro";
 import Main from "../components/sections/general/Main.astro";
 ---
 
-<Layout title="éclaire - Calendrier des Événements">
+<MainLayout title="Calendrier des Événements" description={""}>
   <Main>
     <Calendar />
   </Main>
-</Layout>
+</MainLayout>

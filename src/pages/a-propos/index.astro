@@ -1,11 +1,8 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import MainLayout from "../../layouts/MainLayout.astro";
 import Home from "../../components/eclaire-v1/Home.astro";
-import Main from "../../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="éclaire — Présentation">
-  <Main>
-    <Home />
-  </Main>
-</BaseLayout>
+<MainLayout title="Présentation" description={""}>
+  <Home />
+</MainLayout>

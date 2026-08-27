@@ -1,18 +1,18 @@
 ---
-import Layout from "../layouts/BaseLayout.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 import Map from "../components/Map.astro";
 import SidePanel from "../components/SidePanel.astro";
 import Main from "../components/sections/general/Main.astro";
 ---
 
-<Layout title="éclaire - Le Phare Numérique">
+<BaseLayout title="Le Phare Numérique" description={""}>
   <div class="page">
     <SidePanel class="search" />
     <Main class="nav-cont-index">
       <Map />
     </Main>
   </div>
-</Layout>
+</BaseLayout>
 
 <style>
   .page {

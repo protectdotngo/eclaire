@@ -18,7 +18,11 @@ import FolderOpenPlus from "../../../assets/folder-open-plus.svg";
     </p>
     <p class="tech-card-note">
       Pour toute question concernant le projet, l'architecture, ou un
-      partenariat, contactez l'équipe éclaire.
+      partenariat, <a
+        class="tech-card-note-link"
+        href="mailto:info@protect.ngo?subject=Question à propos d'éclaire"
+        >contactez l'équipe éclaire</a
+      >.
     </p>
   </article>
 </section>
@@ -83,5 +87,14 @@ import FolderOpenPlus from "../../../assets/folder-open-plus.svg";
     margin-top: 1rem;
     font-size: 0.9rem;
     font-style: italic;
+  }
+
+  .tech-card-note-link {
+    color: rgba(var(--color-main-2), 1);
+    transition: color 0.2s ease;
+  }
+
+  .tech-card-note-link:hover {
+    color: rgba(var(--color-main-2-dark), 1);
   }
 </style>

@@ -3,14 +3,19 @@ import Head from "../components/sections/general/Head.astro";
 
 interface Props {
   title: string;
+  description: string[] | string | undefined;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
+const pageTitle = title ? `${title} | éclaire by Protect.ngo` : "éclaire by Protect.ngo";
+const metaDescription = Array.isArray(description)
+  ? description.join(" ")
+  : description;
 ---
 
 <!doctype html>
 <html lang="fr">
-  <Head title={title} />
+  <Head title={pageTitle} description={metaDescription} />
   <body class="side-panel-open">
     <slot />
   </body>

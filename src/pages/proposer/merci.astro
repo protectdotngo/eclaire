@@ -1,26 +1,23 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import MainLayout from "../../layouts/MainLayout.astro";
 import Hero from "../../components/sections/general/Hero.astro";
-import Main from "../../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="éclaire - Merci pour ta proposition">
-  <Main>
-    <Hero
-      title="Merci pour ta proposition"
-      lead="Nous l'examinerons dans les jours qui viennent. Si nécessaire, nous te recontacterons à l'email que tu as indiqué."
-      body="En attendant, tu peux continuer d'explorer l'annuaire."
-      image="/images/5.jpg"
-    >
-      <div class="thanks-actions" slot="intro">
-        <a href="/" class="thanks-btn thanks-btn-primary">Retour à l'accueil</a>
-        <a href="/calendrier" class="thanks-btn thanks-btn-secondary">
-          Voir le calendrier
-        </a>
-      </div>
-    </Hero>
-  </Main>
-</BaseLayout>
+<MainLayout title="Merci pour ta proposition" description={""}>
+  <Hero
+    title="Merci pour ta proposition"
+    lead="Nous l'examinerons dans les jours qui viennent. Si nécessaire, nous te recontacterons à l'email que tu as indiqué."
+    body="En attendant, tu peux continuer d'explorer l'annuaire."
+    image="/images/5.jpg"
+  >
+    <div class="thanks-actions" slot="intro">
+      <a href="/" class="thanks-btn thanks-btn-primary">Retour à l'accueil</a>
+      <a href="/calendrier" class="thanks-btn thanks-btn-secondary">
+        Voir le calendrier
+      </a>
+    </div>
+  </Hero>
+</MainLayout>
 
 <style>
   .thanks-actions {
