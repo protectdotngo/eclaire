@@ -9,8 +9,8 @@ GitLab's container registry) to Kubernetes. Intended to be deployed by Argo CD.
 | --- | --- |
 | `Chart.yaml` | Chart metadata; depends on the Bitnami `common` library. |
 | `values.yaml` | Defaults (image, resources, service, ingress, plain config); secret values left empty. |
-| `templates/configmap.yaml` | Non-secret env (`MODE`, `CORS_ORIGIN`, `HOST`, `PORT`, `DB_URL`, `DB_PORT`, `DB_NAME`). |
-| `templates/secret.yaml` | Secret env (API keys, GCP key, DB creds). |
+| `templates/configmap.yaml` | Non-secret env (`SCW_DB_HOST`, `SCW_DB_PORT`, `SCW_DB_NAME`, `SCW_API_LNK`, `SCW_API_LLM_LNK`, `N8N_WEBHOOK_URL`). |
+| `templates/secret.yaml` | Secret env (`SCW_API_KEY`, DB creds, `N8N_WEBHOOK_SECRET`). |
 | `templates/secret-docker.yaml` | `dockerconfigjson` pull secret for the GitLab registry. |
 | `templates/deployment.yaml` | Deployment wiring config + secrets via `envFrom`. |
 | `templates/service.yaml`, `ingress.yaml`, `serviceaccount.yaml` | Networking & identity. |
@@ -27,8 +27,7 @@ helm dependency build ./helm
 
 The sensitive values are intentionally empty in `values.yaml`:
 
-- `secrets.*` — `OPENAI_API_KEY`, `ACCESS_KEY_ID`, `ACCESS_KEY_SECRET`, the `VERIFY_GCP_*`
-  values, `SCALEWAY_API_KEY`, `SCW_SECRET_KEY`, `DB_USER`, `DB_PASS`.
+- `secrets.*` — `SCW_API_KEY`, `SCW_DB_USER`, `SCW_DB_PASS`, `N8N_WEBHOOK_SECRET`.
 - `dockerConfig` — base64-encoded `.dockerconfigjson` for the GitLab registry.
 
 Supply them from your Argo CD Application rather than committing them. For example:
@@ -44,9 +43,12 @@ spec:
     path: helm
     helm:
       valuesObject:
+        config:
+          N8N_WEBHOOK_URL: https://<n8n-host>/webhook/<id>
         secrets:
-          OPENAI_API_KEY: <from your secret store>
-          DB_PASS: <...>
+          SCW_API_KEY: <from your secret store>
+          SCW_DB_PASS: <...>
+          N8N_WEBHOOK_SECRET: <...>
         dockerConfig: <base64 dockerconfigjson>
   destination:
     namespace: xenicibis

@@ -105,6 +105,7 @@ config:
   SCW_DB_NAME: ""
   SCW_API_LNK: ""
   SCW_API_LLM_LNK: ""
+  N8N_WEBHOOK_URL: ""
 
 ## @section Secrets (SENSITIVE — placeholders only)
 ## DO NOT commit real values here. Set them via the Argo CD Application
@@ -114,6 +115,7 @@ secrets:
   SCW_API_KEY: ""
   SCW_DB_USER: ""
   SCW_DB_PASS: ""
+  N8N_WEBHOOK_SECRET: ""
 
 ## Base64-encoded .dockerconfigjson for pulling the image from GitLab's registry.
 ## SENSITIVE — supply via Argo CD, never commit it here.
