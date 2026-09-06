@@ -1,6 +1,6 @@
 # Éclaire — Documentation technique
 
-*Annuaire de l'inclusion numérique à Genève & assistant conversationnel*
+_Annuaire de l'inclusion numérique à Genève & assistant conversationnel_
 
 > Nom de code du dépôt / de l'image : **`micropachycephalosaurus`**
 > Domaine de production : **https://eclaire.protect.ngo**
@@ -27,8 +27,8 @@ par un **scraping automatisé** orchestré hors du dépôt applicatif (workflows
 n8n), et stocké dans une base PostgreSQL managée.
 
 Un principe de conception guide toute l'application : **l'assistant ne rédige
-jamais lui-même les réponses factuelles.** Il agit comme un *planificateur de
-requêtes* — il choisit des identifiants d'organisations et des filtres de
+jamais lui-même les réponses factuelles.** Il agit comme un _planificateur de
+requêtes_ — il choisit des identifiants d'organisations et des filtres de
 recherche, et c'est le backend qui va chercher les données réelles en base.
 Cela élimine par construction les hallucinations sur les dates, les lieux et les
 contenus.
@@ -37,22 +37,22 @@ contenus.
 
 ## 2. Pile technique
 
-| Couche | Technologie | Rôle |
-|---|---|---|
-| Framework | **Astro 7** (`output: "server"`, adaptateur Node standalone) | Rendu hybride SSR + endpoints API |
-| Réactivité client | **Alpine.js** (+ plugins `collapse`, `toolkit-truncate`) | Interactivité légère, sans bundle lourd |
-| État partagé client | **nanostores** (`@nanostores/persistent`) | Stores réactifs (données carte, etc.) |
-| Cartographie | **Leaflet** + `leaflet.markercluster` | Carte interactive et regroupement de marqueurs |
-| Calendrier | **Schedule-X** + `flatpickr` + `temporal-polyfill` | Affichage et sélection des événements |
-| Rendu Markdown | **marked** | Formatage des messages de l'assistant |
-| Base de données | **PostgreSQL** (instance Scaleway managée « pgvector », fr-par) | Organisations, événements, actualités, prompt |
-| ORM | **Drizzle ORM** + `drizzle-kit` | Accès typé, migrations |
-| Pilote SQL | **node-postgres (`pg`)** | Connexion PostgreSQL |
-| LLM | **Qwen3 235B** (`qwen3-235b-a22b-instruct-2507`) via l'API Scaleway | Planification de requêtes en JSON |
-| Scraping | **n8n** (workflows hébergés hors dépôt) | Collecte automatisée du contenu |
-| Conteneur | **Docker** (base Alpine, `pnpm`) | Image de déploiement |
-| Déploiement | **Helm** + **ArgoCD** sur Kubernetes | Livraison continue |
-| Accès protégé | **Cloudflare Access** | Seule protection des pages `/prompt` et `/verifications` |
+| Couche              | Technologie                                                         | Rôle                                                     |
+| ------------------- | ------------------------------------------------------------------- | -------------------------------------------------------- |
+| Framework           | **Astro 7** (`output: "server"`, adaptateur Node standalone)        | Rendu hybride SSR + endpoints API                        |
+| Réactivité client   | **Alpine.js** (+ plugins `collapse`, `toolkit-truncate`)            | Interactivité légère, sans bundle lourd                  |
+| État partagé client | **nanostores** (`@nanostores/persistent`)                           | Stores réactifs (données carte, etc.)                    |
+| Cartographie        | **Leaflet** + `leaflet.markercluster`                               | Carte interactive et regroupement de marqueurs           |
+| Calendrier          | **Schedule-X** + `flatpickr` + `temporal-polyfill`                  | Affichage et sélection des événements                    |
+| Rendu Markdown      | **marked**                                                          | Formatage des messages de l'assistant                    |
+| Base de données     | **PostgreSQL** (instance Scaleway managée « pgvector », fr-par)     | Organisations, événements, actualités, prompt            |
+| ORM                 | **Drizzle ORM** + `drizzle-kit`                                     | Accès typé, migrations                                   |
+| Pilote SQL          | **node-postgres (`pg`)**                                            | Connexion PostgreSQL                                     |
+| LLM                 | **Qwen3 235B** (`qwen3-235b-a22b-instruct-2507`) via l'API Scaleway | Planification de requêtes en JSON                        |
+| Scraping            | **n8n** (workflows hébergés hors dépôt)                             | Collecte automatisée du contenu                          |
+| Conteneur           | **Docker** (base Alpine, `pnpm`)                                    | Image de déploiement                                     |
+| Déploiement         | **Helm** + **ArgoCD** sur Kubernetes                                | Livraison continue                                       |
+| Accès protégé       | **Cloudflare Access**                                               | Seule protection des pages `/prompt` et `/verifications` |
 
 Node ≥ 22.12. Gestionnaire de paquets : **pnpm** (`pnpm-workspace.yaml` autorise
 les builds natifs `esbuild` et `sharp`).
@@ -100,7 +100,7 @@ les builds natifs `esbuild` et `sharp`).
 1. Le client (`mapSearchController.ts`) envoie l'historique de conversation à
    **`POST /api/chat`**.
 2. Le serveur construit le **prompt système** (`buildSystemPrompt`) :
-   - un en-tête de *contexte temporel* (date du jour, jour de la semaine) ;
+   - un en-tête de _contexte temporel_ (date du jour, jour de la semaine) ;
    - le gabarit éditable (voir §6) ;
    - l'**annuaire complet des organisations** injecté en JSON à la place du
      placeholder `[Insère ici le contenu de l'annuaire en JSON]` ;
@@ -115,7 +115,7 @@ les builds natifs `esbuild` et `sharp`).
    complètes + prochain événement à venir), et tout bloc `event_search` est
    exécuté en SQL.
 6. Le résultat consolidé (blocs + orgs + événements) revient au client, qui
-   l'affiche dans une *timeline* et met à jour la carte.
+   l'affiche dans une _timeline_ et met à jour la carte.
 
 Point clé : le LLM ne renvoie que des **identifiants** et des **filtres**. Les
 noms, descriptions, dates et lieux affichés proviennent toujours de la base.
@@ -128,40 +128,45 @@ Toutes les tables vivent dans le schéma PostgreSQL **`test`**. Source de
 vérité : `drizzle/schema.ts`.
 
 ### `orgs` — organisations
-| Colonne | Type | Notes |
-|---|---|---|
-| `id` | uuid (PK) | |
-| `name` | text | requis, unique |
-| `desc` | text | requis — base de la pertinence du chat |
-| `categories` | text[] | requis — taxonomie (voir §5) |
-| `domain` | text | site web |
-| `events_url`, `news_url`, `rss` | text | sources de scraping |
-| `socials`, `contact` | text[] | |
-| `address`, `city` | text | `city` = **vérité absolue** pour le filtrage géographique |
-| `lat`, `lon` | double precision | positionnement sur la carte |
-| `embedding` | vector(1024) | *vestige* de l'ancienne recherche vectorielle (voir §10) |
+
+| Colonne                         | Type             | Notes                                                     |
+| ------------------------------- | ---------------- | --------------------------------------------------------- |
+| `id`                            | uuid (PK)        |                                                           |
+| `name`                          | text             | requis, unique                                            |
+| `desc`                          | text             | requis — base de la pertinence du chat                    |
+| `categories`                    | text[]           | requis — taxonomie (voir §5)                              |
+| `domain`                        | text             | site web                                                  |
+| `events_url`, `news_url`, `rss` | text             | sources de scraping                                       |
+| `socials`, `contact`            | text[]           |                                                           |
+| `address`, `city`               | text             | `city` = **vérité absolue** pour le filtrage géographique |
+| `lat`, `lon`                    | double precision | positionnement sur la carte                               |
+| `embedding`                     | vector(1024)     | _vestige_ de l'ancienne recherche vectorielle (voir §10)  |
 
 ### `events` — événements
-| Colonne | Type | Notes |
-|---|---|---|
-| `id` | uuid (PK) | |
-| `url` | text | requis |
-| `title`, `content`, `location` | text | |
-| `startDate`, `endDate` | timestamp | cœur du filtrage temporel |
-| `categories` | text[] | |
-| `baseUrl` | text | |
-| `scrapedAt` | timestamp | |
-| `embedding` | vector(1024) | vestige vectoriel |
+
+| Colonne                        | Type         | Notes                     |
+| ------------------------------ | ------------ | ------------------------- |
+| `id`                           | uuid (PK)    |                           |
+| `url`                          | text         | requis                    |
+| `title`, `content`, `location` | text         |                           |
+| `startDate`, `endDate`         | timestamp    | cœur du filtrage temporel |
+| `categories`                   | text[]       |                           |
+| `baseUrl`                      | text         |                           |
+| `scrapedAt`                    | timestamp    |                           |
+| `embedding`                    | vector(1024) | vestige vectoriel         |
 
 ### `news` — actualités
+
 `id`, `url`, `title`, `content`, `pubDate`, `scrapedAt`, `embedding(1024)`.
 
 ### Tables de jointure (n-n)
+
 - **`orgs_events`** (`org_id`, `event_id`) — clé primaire composite ;
   `event_id` en `ON DELETE CASCADE`.
 - **`orgs_news`** (`org_id`, `news_id`) — clé primaire composite.
 
 ### `propositions` — soumissions du public
+
 Alimentée par le formulaire « Proposer une organisation ». Champs de
 soumission (`submitter_type`, `submitter_name`, `submitter_email`, `action`),
 champs de l'organisation proposée (mêmes champs que `orgs`), et
@@ -172,6 +177,7 @@ modification d'une org existante. Champs de workflow : `approved` (défaut
 (qui a édité / publié / rejeté, et quand). Voir §7.
 
 ### `proposition_verifications` — contrôle automatique (n8n)
+
 Une ligne par proposition contrôlée par le workflow n8n. `proposition_id` (FK
 vers `propositions`, `ON DELETE CASCADE`), `legitimacy_score`
 (numeric 3,1), `verdict`, `suspicious_changes` (jsonb — champs jugés suspects),
@@ -180,11 +186,13 @@ vers `propositions`, `ON DELETE CASCADE`), `legitimacy_score`
 (§7). Indexée sur `proposition_id` et `verdict`.
 
 ### `prompt_config` — prompt système éditable
+
 `id`, `content` (text), `created_at` (timestamptz). **Append-only** : chaque
 sauvegarde ajoute une ligne ; la dernière ligne est le prompt actif,
 l'historique complet est conservé. Voir §6.
 
 ### Relations (`drizzle/relations.ts`)
+
 `orgs` ←→ `events` et `orgs` ←→ `news` via les tables de jointure ;
 `propositions` → `orgs` (org modifiée) ; `propositions` ←→
 `proposition_verifications` (une proposition, plusieurs vérifications).
@@ -198,6 +206,7 @@ endroits (validation serveur, config calendrier, prompt) : **toute
 modification doit être répercutée partout**.
 
 ### Catégories (12) — `chatValidation.ts`, prompt, `calendarConfig.ts`
+
 `inclusion & accessibilité numérique` · `formation numérique` ·
 `formation générale` · `aide & soutien numérique` ·
 `cybersécurité & prévention` · `action & aide sociale` ·
@@ -209,6 +218,7 @@ Les valeurs sont **sensibles à la casse et aux accents** — elles corresponden
 à des tags exacts en base.
 
 ### Publics / audiences — `audienceTags.ts`
+
 `jeunesse` · `seniors` · `femmes` · `personnes migrantes` · `handicap` ·
 `emploi` · `intergénérationnel` · `tout public` · `adultes` · `à domicile`
 
@@ -216,9 +226,10 @@ Les valeurs sont **sensibles à la casse et aux accents** — elles corresponden
 > `à domicile` ; ces deux tags n'existent que côté formulaire/calendrier.
 
 ### Regroupements d'affichage du calendrier — `calendarConfig.ts`
+
 Les 12 catégories sont regroupées en 7 « buckets » colorés pour la vue
-calendrier et la recherche par filtre sur la carte : *Apprentissage numérique*, *Aide numérique*, *Cybersécurité*,
-*Vie sociale*, *Formation générale*, *Institutionnel*, *Autre*. Chaque bucket
+calendrier et la recherche par filtre sur la carte : _Apprentissage numérique_, _Aide numérique_, _Cybersécurité_,
+_Vie sociale_, _Formation générale_, _Institutionnel_, _Autre_. Chaque bucket
 définit des couleurs pour les thèmes clair et sombre.
 
 ---
@@ -226,6 +237,7 @@ définit des couleurs pour les thèmes clair et sombre.
 ## 6. L'assistant : prompt et planification de requêtes
 
 ### Le prompt système
+
 Le prompt (`src/lib/prompts/chatSystemPrompt.md`) est long et normatif. Ses
 règles principales :
 
@@ -233,13 +245,13 @@ règles principales :
   - **A** — question de clarification ou message d'aide (texte seul) ;
   - **B** — recherche d'événements (`event_search` avec filtres) ;
   - **C** — liste d'organisations (`orgs`, 1 à 5 items avec un `reason`).
-  - **B+** — événements *plus* 2-3 orgs en secours, réservé aux sujets précis.
+  - **B+** — événements _plus_ 2-3 orgs en secours, réservé aux sujets précis.
 - **Maximum absolu de 5 organisations** par réponse.
 - **Tutoiement** obligatoire, et **réponse dans la langue de l'utilisateur**
   (mais les valeurs de filtres restent en français car ce sont des tags DB).
 - **Interdiction d'inventer des filtres** : un axe demandé = un filtre rempli,
   jamais de valeur « par défaut ».
-- Le mot *événement* (ou atelier, cours, conférence…) force une sortie B.
+- Le mot _événement_ (ou atelier, cours, conférence…) force une sortie B.
 - **Périmètre strict** : pas de recommandations commerciales, aucune entité
   hors annuaire.
 - **Filtrage géographique** sur le champ `city` uniquement, jamais élargi
@@ -248,24 +260,31 @@ règles principales :
   exclure les orgs généralistes, rappeler le signalement et la police (117).
 
 ### Format de sortie du LLM
+
 ```json
 {
   "blocks": [
     { "type": "text", "content": "..." },
-    { "type": "event_search", "filters": { "date_from": "...", "city": "..." } },
+    {
+      "type": "event_search",
+      "filters": { "date_from": "...", "city": "..." }
+    },
     { "type": "orgs", "items": [{ "id": "<uuid>", "reason": "..." }] }
   ]
 }
 ```
+
 Combinaisons valides : `[text]`, `[text, event_search, text]`,
 `[text, orgs, text]`, et `[text, event_search, text, orgs, text]` (B+).
 
 ### Filtres `event_search` supportés
+
 `date_from`, `date_to` (ISO), `day_of_week` (0-6, récurrence), `time_of_day`
 (`morning`/`afternoon`/`evening`), `categories[]`, `keywords[]`, `city`,
 `org_ids[]`, `audience`, `offset` (pagination, 10 résultats par page).
 
 ### Édition du prompt en production — page `/prompt`
+
 - La page permet de **modifier le prompt système sans redéploiement**,
   consulter l'**historique des versions** et **restaurer** une version.
 - Le prompt actif est lu depuis la table `prompt_config` (dernière ligne). Le
@@ -366,17 +385,18 @@ renvoie le détail complet d'une vérification pour le formulaire.
 
 Tous sous `src/pages/api/`. Réponses en JSON.
 
-| Endpoint | Méthode | Rôle |
-|---|---|---|
-| `/api/chat` | POST | Cœur conversationnel : prompt → LLM → validation → hydratation → recherche d'événements. Corps : `{ messages: ChatMsg[] }`. |
-| `/api/dataInit` | GET | Liste complète des organisations (pour la carte et le formulaire). |
-| `/api/dataFilter` | POST | Filtre les orgs par `category` et/ou `location` (form-data). |
-| `/api/dataEvents` | GET | Événements ; `?org=<uuid>` pour une org, `?all=true` pour tout l'historique (sinon à partir du mois courant). Valide le format UUID. |
-| `/api/propose` | POST | Enregistre une `proposition` ; notifie n8n via webhook si configuré. |
-| `/api/prompt` | GET/POST | Lit/écrit le prompt système et son historique. |
-| `/api/verifications` | GET/POST | GET : liste des propositions à traiter, ou `?id=` pour le détail. POST : enregistrer / publier / rejeter une proposition (voir §7). |
+| Endpoint             | Méthode  | Rôle                                                                                                                                 |
+| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `/api/chat`          | POST     | Cœur conversationnel : prompt → LLM → validation → hydratation → recherche d'événements. Corps : `{ messages: ChatMsg[] }`.          |
+| `/api/dataInit`      | GET      | Liste complète des organisations (pour la carte et le formulaire).                                                                   |
+| `/api/dataFilter`    | POST     | Filtre les orgs par `category` et/ou `location` (form-data).                                                                         |
+| `/api/dataEvents`    | GET      | Événements ; `?org=<uuid>` pour une org, `?all=true` pour tout l'historique (sinon à partir du mois courant). Valide le format UUID. |
+| `/api/propose`       | POST     | Enregistre une `proposition` ; notifie n8n via webhook si configuré.                                                                 |
+| `/api/prompt`        | GET/POST | Lit/écrit le prompt système et son historique.                                                                                       |
+| `/api/verifications` | GET/POST | GET : liste des propositions à traiter, ou `?id=` pour le détail. POST : enregistrer / publier / rejeter une proposition (voir §7).  |
 
 **Validation notable côté chat** (`chatValidation.ts`) :
+
 - IDs d'organisations inexistants → comptés comme « fabriqués » et écartés.
 - Max 5 items par bloc `orgs`.
 - Catégories/audiences/`time_of_day` bornées à des listes fermées.
@@ -487,19 +507,19 @@ Chargées via `dotenv`. Injectées en production par la ConfigMap (non
 sensibles) et les Secrets (sensibles) du chart Helm, eux-mêmes renseignés par
 l'Application ArgoCD.
 
-| Variable | Sensible | Rôle |
-|---|---|---|
-| `SCW_DB_HOST` | non | Hôte PostgreSQL — **endpoint privé** |
-| `SCW_DB_PORT` | non | `5432` |
-| `SCW_DB_NAME` | non | `eclaire` |
-| `SCW_DB_USER` | oui | Utilisateur applicatif |
-| `SCW_DB_PASS` | oui | Mot de passe DB |
-| `SCW_API_LLM_LNK` | non | Endpoint chat completions Scaleway (Qwen 235B) |
-| `SCW_API_LNK` | non | Endpoint embeddings Scaleway (vestige vectoriel) |
-| `SCW_API_KEY` | oui | Clé API Scaleway (LLM + embeddings) |
-| `N8N_WEBHOOK_URL` | — | Notification des nouvelles propositions (optionnel) |
-| `N8N_WEBHOOK_SECRET` | oui | En-tête `Eclaire-Webhook-Secret` du webhook |
-| `CI_COMMIT_SHA` | — | Injecté au build (traçabilité) |
+| Variable             | Sensible | Rôle                                                |
+| -------------------- | -------- | --------------------------------------------------- |
+| `SCW_DB_HOST`        | non      | Hôte PostgreSQL — **endpoint privé**                |
+| `SCW_DB_PORT`        | non      | `5432`                                              |
+| `SCW_DB_NAME`        | non      | `eclaire`                                           |
+| `SCW_DB_USER`        | oui      | Utilisateur applicatif                              |
+| `SCW_DB_PASS`        | oui      | Mot de passe DB                                     |
+| `SCW_API_LLM_LNK`    | non      | Endpoint chat completions Scaleway (Qwen 235B)      |
+| `SCW_API_LNK`        | non      | Endpoint embeddings Scaleway (vestige vectoriel)    |
+| `SCW_API_KEY`        | oui      | Clé API Scaleway (LLM + embeddings)                 |
+| `N8N_WEBHOOK_URL`    | —        | Notification des nouvelles propositions (optionnel) |
+| `N8N_WEBHOOK_SECRET` | oui      | En-tête `Eclaire-Webhook-Secret` du webhook         |
+| `CI_COMMIT_SHA`      | —        | Injecté au build (traçabilité)                      |
 
 > Attention à une divergence SSL : `dbDrizzle.ts` (runtime) utilise
 > `ssl: false` — cohérent avec une connexion sur endpoint **privé** —, tandis
@@ -524,6 +544,7 @@ Un fichier `.env` local doit fournir au minimum les variables `SCW_DB_*` (accès
 Sans ces dernières, `/api/chat` renvoie `500 « Chat is not configured »`.
 
 ### Migrations (Drizzle)
+
 Le schéma applicatif est **introspecté** depuis une base existante (le scraping
 crée les tables). Les fichiers `drizzle/00xx_*.sql` servent de référence pour
 recréer l'environnement. La table `prompt_config` a été créée manuellement
@@ -535,11 +556,13 @@ droits DDL par défaut.
 ## 14. Build & déploiement
 
 ### Image Docker
+
 `Dockerfile` : base `alpine`, installe `nodejs pnpm git`, `pnpm install`, puis
 `pnpm build`. L'exécution lance le serveur SSR Astro :
 `node ./dist/server/entry.mjs`, écoute sur `0.0.0.0:4321`.
 
 ### Chaîne de livraison
+
 1. **Push d'une branche** → la CI GitLab builde et pousse l'image
    `registry.gitlab.com/cyberpeaceinstitute/micropachycephalosaurus:<slug>`.
 
@@ -549,11 +572,12 @@ ressources (100m/256Mi → 1 CPU/512Mi), sondes liveness/readiness sur `/`, et u
 dépendance au chart `common` de Bitnami.
 
 ### Déployer une branche en prod sans merger
+
 1. Pousser la branche (la CI builde l'image `:<slug>`).
 2. Dans ArgoCD : ajouter le paramètre Helm `image.tag: <slug>` + **Sync**.
 3. **Après merge dans `main` : retirer le paramètre `image.tag`** + Sync.
-   *Sinon la prod reste figée sur l'image de branche et les déploiements de
-   `main` n'ont plus aucun effet visible.*
+   _Sinon la prod reste figée sur l'image de branche et les déploiements de
+   `main` n'ont plus aucun effet visible._
 
 ---
 

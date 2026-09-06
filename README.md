@@ -45,32 +45,32 @@ pnpm dev               # http://localhost:4321
 
 ## Scripts
 
-| Commande | Rôle |
-|---|---|
-| `pnpm dev` | Serveur de développement (`localhost:4321`) |
-| `pnpm build` | Build de production dans `./dist` |
-| `pnpm preview` | Prévisualise le build |
-| `pnpm check` | `astro check` (typage) |
-| `pnpm format` | `prettier --write` |
-| `pnpm format:check` | Vérifie le formatage sans écrire |
+| Commande            | Rôle                                        |
+| ------------------- | ------------------------------------------- |
+| `pnpm dev`          | Serveur de développement (`localhost:4321`) |
+| `pnpm build`        | Build de production dans `./dist`           |
+| `pnpm preview`      | Prévisualise le build                       |
+| `pnpm check`        | `astro check` (typage)                      |
+| `pnpm format`       | `prettier --write`                          |
+| `pnpm format:check` | Vérifie le formatage sans écrire            |
 
 ## Configuration
 
 Variables chargées via `dotenv` (fichier `.env` en local ; ConfigMap + Secrets
 Helm en production).
 
-| Variable | Sensible | Rôle |
-|---|---|---|
-| `SCW_DB_HOST` | non | Hôte PostgreSQL (endpoint privé en prod) |
-| `SCW_DB_PORT` | non | Port PostgreSQL |
-| `SCW_DB_NAME` | non | Nom de la base |
-| `SCW_DB_USER` | oui | Utilisateur applicatif |
-| `SCW_DB_PASS` | oui | Mot de passe DB |
-| `SCW_API_LLM_LNK` | non | Endpoint chat completions Scaleway (Qwen 235B) |
-| `SCW_API_LNK` | non | Endpoint embeddings Scaleway (vestige, cf. doc) |
-| `SCW_API_KEY` | oui | Clé API Scaleway |
-| `N8N_WEBHOOK_URL` | — | Notification des nouvelles propositions (optionnel) |
-| `N8N_WEBHOOK_SECRET` | oui | Secret du webhook n8n |
+| Variable             | Sensible | Rôle                                                |
+| -------------------- | -------- | --------------------------------------------------- |
+| `SCW_DB_HOST`        | non      | Hôte PostgreSQL (endpoint privé en prod)            |
+| `SCW_DB_PORT`        | non      | Port PostgreSQL                                     |
+| `SCW_DB_NAME`        | non      | Nom de la base                                      |
+| `SCW_DB_USER`        | oui      | Utilisateur applicatif                              |
+| `SCW_DB_PASS`        | oui      | Mot de passe DB                                     |
+| `SCW_API_LLM_LNK`    | non      | Endpoint chat completions Scaleway (Qwen 235B)      |
+| `SCW_API_LNK`        | non      | Endpoint embeddings Scaleway (vestige, cf. doc)     |
+| `SCW_API_KEY`        | oui      | Clé API Scaleway                                    |
+| `N8N_WEBHOOK_URL`    | —        | Notification des nouvelles propositions (optionnel) |
+| `N8N_WEBHOOK_SECRET` | oui      | Secret du webhook n8n                               |
 
 ## Structure du projet
 
