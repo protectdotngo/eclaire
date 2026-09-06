@@ -9,8 +9,8 @@
   import "leaflet.markercluster/dist/MarkerCluster.css";
   import "leaflet.markercluster/dist/MarkerCluster.Default.css";
   import type { OrgWithChatContext } from "../interfaces/org";
-  import MailSvgRaw from "../assets/mail.svg?raw";
-  import PhoneSvgRaw from "../assets/phone.svg?raw";
+  import MailSvgRaw from "../assets/images/mail.svg?raw";
+  import PhoneSvgRaw from "../assets/images/phone.svg?raw";
 
   delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -241,5 +241,30 @@
 
   .popup-contact-link svg {
     flex-shrink: 0;
+  }
+
+  .marker-cluster-small {
+    background-color: rgba(var(--color-main-2), 0.25) !important;
+  }
+  .marker-cluster-medium {
+    background-color: rgba(var(--color-main), 0.25) !important;
+  }
+  .marker-cluster-large {
+    background-color: rgba(var(--color-main-3), 0.25) !important;
+  }
+  .marker-cluster-small div {
+    background-color: rgba(var(--color-main-2), 1) !important;
+    color: white;
+    font-weight: 600 !important;
+  }
+  .marker-cluster-medium div {
+    background-color: rgba(var(--color-main), 1) !important;
+    color: white;
+    font-weight: 600 !important;
+  }
+  .marker-cluster-large div {
+    background-color: rgba(var(--color-main-3), 1) !important;
+    color: white;
+    font-weight: 600 !important;
   }
 </style>

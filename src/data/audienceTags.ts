@@ -10,5 +10,3 @@ export const AUDIENCE_TAGS = [
   "adultes",
   "à domicile",
 ] as const;
-
-export type AudienceTag = (typeof AUDIENCE_TAGS)[number];

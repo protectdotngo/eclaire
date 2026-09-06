@@ -5,7 +5,7 @@ import SidePanel from "../components/SidePanel.astro";
 import Main from "../components/sections/general/Main.astro";
 ---
 
-<BaseLayout title="Le Phare Numérique" description={""}>
+<BaseLayout title="Le Phare Numérique" description={undefined}>
   <div class="page">
     <SidePanel class="search" />
     <Main class="nav-cont-index">
@@ -22,17 +22,5 @@ import Main from "../components/sections/general/Main.astro";
   .main {
     width: 100%;
     position: relative;
-  }
-  .navContMain {
-    pointer-events: none;
-  }
-
-  .navContMain :global(.nav-logo-link),
-  .navContMain :global(.hamburger),
-  .navContMain :global(.nav-right),
-  .navContMain :global(.menu),
-  .navContMain :global(.mobile-drawer),
-  .navContMain :global(.mobile-backdrop) {
-    pointer-events: auto;
   }
 </style>

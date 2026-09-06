@@ -1,8 +1,8 @@
 ---
-import ArrowSVG from "../../../assets/circle-arrow-right.svg";
-import PinSVG from "../../../assets/map-pin.svg";
-import ClockSVG from "../../../assets/clock.svg";
-import HourglassSVG from "../../../assets/hourglass-empty.svg";
+import ArrowSVG from "../../../assets/images/circle-arrow-right.svg";
+import PinSVG from "../../../assets/images/map-pin.svg";
+import ClockSVG from "../../../assets/images/clock.svg";
+import HourglassSVG from "../../../assets/images/hourglass-empty.svg";
 import Background from "../general/Background.astro";
 ---
 
@@ -15,7 +15,7 @@ import Background from "../general/Background.astro";
     </div>
   </template>
 
-  <template x-for="event in visibleEvents" :key="event.id">
+  <template x-for="event in pagedEvents" :key="event.id">
     <article
       class="event-row"
       :class="{'event-row-expanded': expandedId === event.id, 'event-row-past': event.isPast}"
@@ -101,6 +101,14 @@ import Background from "../general/Background.astro";
       </div>
     </article>
   </template>
+
+  <div class="load-more-wrap" x-show="remainingCount > 0">
+    <button type="button" class="load-more-btn" @click="loadMore()">
+      <span
+        x-text="`Voir plus d'événements (${remainingCount} restant${remainingCount > 1 ? 's' : ''})`"
+      ></span>
+    </button>
+  </div>
 </div>
 
 <div class="loading-state" x-show="loading" :class="{ 'animate': loading }">
@@ -345,6 +353,40 @@ import Background from "../general/Background.astro";
     background: white;
     border: 1px dashed #d1d5db;
     border-radius: 10px;
+  }
+
+  :global(.load-more-wrap) {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  :global(.load-more-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.6rem;
+    border-radius: 10px;
+    border: 1.5px solid rgba(var(--color-main-2), 0.4);
+    background: white;
+    color: rgba(var(--color-main-2), 1);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family:
+      var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+      var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  :global(.load-more-btn:hover) {
+    background: rgba(var(--color-main-2), 1);
+    color: white;
+    transform: translateY(-3px);
   }
 
   .loading-state {

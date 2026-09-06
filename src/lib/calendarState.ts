@@ -155,11 +155,17 @@ export function createCalendarComponent() {
     orgSearchQuery: "",
     orgDropdownOpen: false,
     expandedId: null as string | null,
+    visibleCount: 20 as number,
+    pageSize: 20 as number,
     allCategories: ALL_CATEGORIES,
     audiences: AUDIENCES,
     flatpickrInstance: null as flatpickr.Instance | null,
 
     $nextTick: undefined as unknown as (callback: () => void) => void,
+    $watch: undefined as unknown as (
+      property: string,
+      callback: (value: unknown) => void,
+    ) => void,
 
     async init() {
       this.currentDate = new Date(
@@ -182,6 +188,9 @@ export function createCalendarComponent() {
       }
 
       this.loading = false;
+      this.$watch("searchQuery", () => {
+        this.visibleCount = this.pageSize;
+      });
       this.$nextTick(() => this.initDatePicker());
     },
 
@@ -206,6 +215,7 @@ export function createCalendarComponent() {
     async onIncludePastChange() {
       this.loadingPast = true;
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
       await this.fetchEvents();
       this.loadingPast = false;
     },
@@ -247,6 +257,7 @@ export function createCalendarComponent() {
               1,
             );
             this.expandedId = null;
+            this.visibleCount = this.pageSize;
           }
         },
       });
@@ -329,6 +340,18 @@ export function createCalendarComponent() {
       });
     },
 
+    get pagedEvents(): ProcessedEvent[] {
+      return this.visibleEvents.slice(0, this.visibleCount);
+    },
+
+    get remainingCount(): number {
+      return Math.max(0, this.visibleEvents.length - this.visibleCount);
+    },
+
+    loadMore() {
+      this.visibleCount += this.pageSize;
+    },
+
     get filteredOrgs(): OrgSummary[] {
       const q = normalize(this.orgSearchQuery.trim());
       if (!q) return this.allOrgs.slice(0, 20);
@@ -401,6 +424,7 @@ export function createCalendarComponent() {
       const now = new Date();
       this.currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     toggleCategory(name: string) {
@@ -411,6 +435,7 @@ export function createCalendarComponent() {
       }
       this.selectedCategories = new Set(this.selectedCategories);
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     toggleAudience(name: string) {
@@ -421,12 +446,14 @@ export function createCalendarComponent() {
       }
       this.selectedAudiences = new Set(this.selectedAudiences);
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     selectOrg(org: OrgSummary) {
       this.selectedOrgId = org.id;
       this.selectedOrgName = org.name;
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     removeFilter(f: any) {
@@ -446,6 +473,7 @@ export function createCalendarComponent() {
         this.searchQuery = "";
       }
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     prevMonth() {
@@ -456,6 +484,7 @@ export function createCalendarComponent() {
         1,
       );
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     nextMonth() {
@@ -465,6 +494,7 @@ export function createCalendarComponent() {
         1,
       );
       this.expandedId = null;
+      this.visibleCount = this.pageSize;
     },
 
     toggleExpand(id: string) {

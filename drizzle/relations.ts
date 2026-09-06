@@ -1,16 +1,28 @@
 import { relations } from "drizzle-orm/relations";
 import {
-  orgsInTest,
   propositionsInTest,
+  propositionVerificationsInTest,
+  orgsInTest,
   orgsNewsInTest,
   newsInTest,
   orgsEventsInTest,
   eventsInTest,
 } from "./schema";
 
+export const propositionVerificationsInTestRelations = relations(
+  propositionVerificationsInTest,
+  ({ one }) => ({
+    propositionsInTest: one(propositionsInTest, {
+      fields: [propositionVerificationsInTest.propositionId],
+      references: [propositionsInTest.id],
+    }),
+  }),
+);
+
 export const propositionsInTestRelations = relations(
   propositionsInTest,
-  ({ one }) => ({
+  ({ one, many }) => ({
+    propositionVerificationsInTests: many(propositionVerificationsInTest),
     orgsInTest: one(orgsInTest, {
       fields: [propositionsInTest.modifyingOrgId],
       references: [orgsInTest.id],

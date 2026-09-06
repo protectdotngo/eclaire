@@ -1,7 +1,7 @@
 ---
-import EclaireLogo from "../assets/logoEclaire.svg";
-import ByProtect from "../assets/by-protect.svg";
-import ChevronSVG from "../assets/chevron-down.svg";
+import EclaireLogo from "../assets/images/logoEclaire.svg";
+import ByProtect from "../assets/images/by-protect.svg";
+import ChevronSVG from "../assets/images/chevron-down.svg";
 
 interface Props {
   class?: string;
@@ -190,7 +190,7 @@ const aboutLinks = [
     position: relative;
     right: -1.8rem;
     width: auto;
-    height: 12vh;
+    height: 6rem;
   }
   .menu {
     padding: 0.5rem 1rem;
@@ -487,7 +487,7 @@ const aboutLinks = [
     overflow: hidden;
   }
 
-  @media (max-width: 1250px) {
+  @media (max-width: 1280px) {
     .nav-cont-index .hamburger {
       display: flex;
       margin-right: 0;
@@ -513,19 +513,19 @@ const aboutLinks = [
     }
     .nav-cont-index .logo {
       right: 0;
-      height: 10vh;
+      height: 5rem;
     }
     .nav-cont-index .nav-right {
       flex-shrink: 0;
     }
     .page:has(#sideBar:not(.collapsed)) .nav-cont-index .logo {
-      visibility: hidden;
+      display: none;
     }
-  }
-
-  @media (max-width: 1000px) {
-    .page:has(#sideBar:not(.collapsed)) .nav-cont-index .nav-logo-link {
-      pointer-events: none;
+    .page:has(#sideBar:not(.collapsed)) .nav-cont-index .nav .nav-right {
+      min-height: 5rem;
+    }
+    .page:has(#sideBar:not(.collapsed)) .navContMain {
+      width: fit-content;
     }
   }
 
@@ -554,7 +554,7 @@ const aboutLinks = [
     }
     .navCont:not(.nav-cont-index) .logo {
       right: 0;
-      height: 10vh;
+      height: 5rem;
     }
     .navCont:not(.nav-cont-index) .nav-right {
       flex-shrink: 0;

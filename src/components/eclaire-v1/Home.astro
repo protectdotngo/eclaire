@@ -3,7 +3,6 @@ import { getCollection } from "astro:content";
 import Partner from "./sections/Partner.astro";
 import Hero from "../sections/general/Hero.astro";
 import Background from "../sections/general/Background.astro";
-import EclaireInfo from "../../assets/eclaire-2-info.svg";
 
 const visiblePartners = (
   await getCollection("partners", (p) => !p.data.hidden)
@@ -43,20 +42,7 @@ const visiblePartners = (
     </div>
 
     <div class="v1-collage">
-      <div class="ai-info-collage-imgs">
-        <div class="collage-img-frame collage-img-1">
-          <img src="/images/geneva.jpg" alt="" />
-        </div>
-        <div class="collage-img-frame collage-img-2">
-          <img src="/images/1.jpg" alt="" />
-        </div>
-        <div class="collage-img-frame collage-img-3">
-          <img src="/images/un.jpg" alt="" />
-        </div>
-        <div class="ai-info-collage-card">
-          <img src={EclaireInfo.src} class={"ai-info-collage-logo"} alt={""} />
-        </div>
-      </div>
+      <img src={"/images/collage2.png"} alt={""} class="v1-collage-img" />
     </div>
   </section>
 
@@ -129,98 +115,11 @@ const visiblePartners = (
 
   .v1-collage {
     position: relative;
-    height: 380px;
-  }
-
-  .ai-info-collage-imgs {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin: auto;
-  }
-
-  .collage-img-frame {
-    position: absolute;
-    overflow: hidden;
-    display: block;
-    min-width: 150px;
-    border-radius: 10px;
-    background-color: rgba(var(--color-main-2), 0.08);
-    transform: rotate(-15deg) skewX(-15deg);
-  }
-
-  .collage-img-frame img {
-    width: 120%;
-    height: 130%;
-    object-fit: cover;
-    display: block;
-    transform: skewX(15deg) scale(1.2) rotate(15deg) translateY(-5px);
-  }
-
-  .collage-img-2 {
-    width: 75%;
-    height: 80%;
     max-width: 500px;
-    left: 60%;
-    top: -5%;
-    transform: translateX(-50%) rotate(-15deg) skewX(-15deg);
   }
 
-  .collage-img-2 img {
-    transform: skewX(15deg) scale(1.2) rotate(15deg) translateY(-10px);
-  }
-
-  .collage-img-1 {
-    width: 40%;
-    height: 50%;
-    max-width: 300px;
-    left: -5%;
-    top: 35%;
-    z-index: 1;
-  }
-
-  .collage-img-1 img {
-    transform: skewX(15deg) scale(1.2) rotate(15deg) translateY(-5px)
-      translateX(-20px);
-  }
-
-  .collage-img-3 {
-    width: 30%;
-    height: 40%;
-    max-width: 300px;
-    right: -5%;
-    top: 20%;
-    z-index: 1;
-  }
-
-  .ai-info-collage-card {
-    position: absolute;
-    left: 65%;
-    bottom: -15%;
-    transform: translateX(-50%);
-    z-index: 4;
-    display: flex;
-    align-items: end;
-    gap: 0.75rem;
-    background-color: transparent;
-    padding: 0.6rem 1rem 0.6rem 0.6rem;
-    border-radius: 12px;
-    max-width: 100%;
-  }
-
-  .ai-info-collage-logo {
-    width: auto;
-    height: 140px;
-    flex-shrink: 0;
-  }
-
-  .ai-info-collage-caption {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #1f2937;
-    line-height: 1.3;
-    padding-bottom: 8px;
-    width: 100px;
+  .v1-collage-img {
+    width: 100%;
   }
 
   .v1-partners {
@@ -251,10 +150,12 @@ const visiblePartners = (
       grid-template-columns: 1fr;
       gap: 2.5rem;
     }
-    .v1-collage {
-      height: 340px;
+    .v1-qui-title {
       width: 70%;
-      margin: 2rem auto;
+    }
+    .v1-collage {
+      width: 70%;
+      margin: -2rem auto 0 auto;
     }
   }
 
@@ -265,6 +166,7 @@ const visiblePartners = (
     }
     .v1-qui-title {
       font-size: 1.5rem;
+      width: 100%;
     }
     .v1-video-section {
       padding: 1rem;

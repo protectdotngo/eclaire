@@ -1,29 +1,55 @@
 import {
   pgSchema,
+  index,
   foreignKey,
-  primaryKey,
   uuid,
+  numeric,
+  text,
+  jsonb,
   timestamp,
   boolean,
-  text,
   vector,
   doublePrecision,
 } from "drizzle-orm/pg-core";
 
 export const test = pgSchema("test");
 
-export const promptConfigInTest = test.table("prompt_config", {
-  id: uuid().defaultRandom().primaryKey().notNull(),
-  content: text().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
-    .defaultNow()
-    .notNull(),
-});
+export const propositionVerificationsInTest = test.table(
+  "proposition_verifications",
+  {
+    id: uuid().defaultRandom().notNull(),
+    propositionId: uuid("proposition_id").notNull(),
+    legitimacyScore: numeric("legitimacy_score", { precision: 3, scale: 1 }),
+    verdict: text(),
+    suspiciousChanges: jsonb("suspicious_changes"),
+    confirmedByWeb: text("confirmed_by_web").array(),
+    notes: text(),
+    processingStatus: text("processing_status").default("completed").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_verification_proposition").using(
+      "btree",
+      table.propositionId.asc().nullsLast().op("uuid_ops"),
+    ),
+    index("idx_verification_verdict").using(
+      "btree",
+      table.verdict.asc().nullsLast().op("text_ops"),
+    ),
+    foreignKey({
+      columns: [table.propositionId],
+      foreignColumns: [propositionsInTest.id],
+      name: "proposition_verifications_proposition_id_fkey",
+    }).onDelete("cascade"),
+  ],
+);
 
 export const propositionsInTest = test.table(
   "propositions",
   {
-    id: uuid().defaultRandom().primaryKey().notNull(),
+    id: uuid().defaultRandom().notNull(),
     submittedAt: timestamp("submitted_at", {
       withTimezone: true,
       mode: "string",
@@ -47,6 +73,13 @@ export const propositionsInTest = test.table(
     newsUrl: text("news_url"),
     socials: text().array(),
     contact: text().array(),
+    status: text().default("pending").notNull(),
+    originalSubmission: jsonb("original_submission"),
+    adminEditedAt: timestamp("admin_edited_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    adminEditor: text("admin_editor"),
   },
   (table) => [
     foreignKey({
@@ -74,10 +107,6 @@ export const orgsNewsInTest = test.table(
       foreignColumns: [newsInTest.id],
       name: "orgs_news_news_id_foreign",
     }),
-    primaryKey({
-      columns: [table.orgId, table.newsId],
-      name: "orgs_news_pkey",
-    }),
   ],
 );
 
@@ -98,15 +127,11 @@ export const orgsEventsInTest = test.table(
       foreignColumns: [eventsInTest.id],
       name: "orgs_events_event_id_foreign",
     }).onDelete("cascade"),
-    primaryKey({
-      columns: [table.orgId, table.eventId],
-      name: "orgs_events_pkey",
-    }),
   ],
 );
 
 export const eventsInTest = test.table("events", {
-  id: uuid().defaultRandom().primaryKey().notNull(),
+  id: uuid().defaultRandom().notNull(),
   url: text().notNull(),
   title: text(),
   content: text(),
@@ -120,7 +145,7 @@ export const eventsInTest = test.table("events", {
 });
 
 export const orgsInTest = test.table("orgs", {
-  id: uuid().defaultRandom().primaryKey().notNull(),
+  id: uuid().defaultRandom().notNull(),
   name: text().notNull(),
   desc: text().notNull(),
   categories: text().array().notNull(),
@@ -138,11 +163,19 @@ export const orgsInTest = test.table("orgs", {
 });
 
 export const newsInTest = test.table("news", {
-  id: uuid().defaultRandom().primaryKey().notNull(),
+  id: uuid().defaultRandom().notNull(),
   url: text().notNull(),
   title: text(),
   content: text(),
   pubDate: timestamp("pub_date", { mode: "string" }),
   scrapedAt: timestamp("scraped_at", { mode: "string" }).defaultNow().notNull(),
   embedding: vector({ dimensions: 1024 }),
+});
+
+export const promptConfigInTest = test.table("prompt_config", {
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  content: text().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
 });

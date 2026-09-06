@@ -1,6 +1,6 @@
 ---
 import { Font } from "astro:assets";
-import EclaireLogo from "../../../assets/logoEclaire.svg";
+import EclaireLogo from "../../../assets/images/logoEclaire.svg";
 
 interface Props {
   title: string;
@@ -9,7 +9,12 @@ interface Props {
 
 const { title, description } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const socialImage = EclaireLogo.src;
+const socialImage = EclaireLogo
+  ? new URL(EclaireLogo.src, Astro.site)
+  : "../../../assets/logoEclaire.svg";
+const pageDesc = description
+  ? description
+  : "Bienvenue sur éclaire, le guide IA de l'inclusion et de la résilience numérique à Genève.";
 ---
 
 <head>
@@ -18,7 +23,7 @@ const socialImage = EclaireLogo.src;
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" href="/favicon.ico" />
   <meta name="generator" content={Astro.generator} />
-  <meta name="description" content={description} />
+  <meta name="description" content={pageDesc} />
 
   <Font cssVariable="--font-inter-tight" preload />
   <Font cssVariable="--font-neue-haas-grotesk" preload />
@@ -29,7 +34,7 @@ const socialImage = EclaireLogo.src;
   <meta property="og:url" content={canonicalURL} />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
-  <meta property="og:description" content={description} />
+  <meta property="og:description" content={pageDesc} />
   <meta property="og:image" content={socialImage} />
 
   <!-- Twitter Meta Tags -->
@@ -37,7 +42,7 @@ const socialImage = EclaireLogo.src;
   <meta property="twitter:domain" content="protect.ngo" />
   <meta property="twitter:url" content={canonicalURL} />
   <meta name="twitter:title" content={title} />
-  <meta name="twitter:description" content={description} />
+  <meta name="twitter:description" content={pageDesc} />
   {socialImage && <meta name="twitter:image" content={socialImage} />}
 
   <title>{title}</title>

@@ -3,20 +3,11 @@ import type {
   ChatResponse,
   EventSearchFilters,
 } from "../interfaces/chat";
+import { AUDIENCE_TAGS } from "../data/audienceTags";
 
 const MAX_ITEMS_PER_BLOCK = 5;
 
 const TIME_OF_DAY_VALUES = ["morning", "afternoon", "evening"] as const;
-const AUDIENCE_VALUES = [
-  "seniors",
-  "jeunesse",
-  "femmes",
-  "personnes migrantes",
-  "handicap",
-  "emploi",
-  "intergénérationnel",
-  "tout public",
-] as const;
 const VALID_CATEGORIES = new Set([
   "inclusion & accessibilité numérique",
   "formation numérique",
@@ -167,7 +158,7 @@ function sanitizeEventSearchFilters(
   }
   if (
     typeof raw.audience === "string" &&
-    (AUDIENCE_VALUES as readonly string[]).includes(raw.audience)
+    (AUDIENCE_TAGS as readonly string[]).includes(raw.audience)
   ) {
     filters.audience = raw.audience;
   }
