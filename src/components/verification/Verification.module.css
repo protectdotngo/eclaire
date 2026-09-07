@@ -1,0 +1,312 @@
+.verif {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 8.5rem 1rem 3rem;
+}
+header p {
+  color: rgb(var(--color-2, 80, 80, 80));
+  line-height: 1.5;
+  max-width: 55rem;
+}
+.lg-green {
+  color: #15803d;
+  font-weight: 600;
+}
+.lg-red {
+  color: #b91c1c;
+  font-weight: 600;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 20rem 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 52rem) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  /* When the form is open on mobile, show it first and push the list below. */
+  .layout.detail-open .detail {
+    order: 1;
+  }
+  .layout.detail-open .list {
+    order: 2;
+  }
+}
+.list .cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.empty {
+  font-size: 0.9rem;
+  color: rgb(var(--color-2, 100, 100, 100));
+}
+.list-count {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(var(--color-main-2), 1);
+  letter-spacing: 0.03em;
+  margin: 0 0 0.75rem;
+}
+.verif-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: white;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.verif-card-alt {
+  background: rgba(var(--color-main-2), 0.05);
+}
+.verif-card:hover {
+  border-color: rgba(var(--color-main-2), 0.5);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+.verif-card.active {
+  border-color: rgba(var(--color-main-2), 1);
+  box-shadow: 0 0 0 1px rgba(var(--color-main-2), 1);
+}
+.vc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.vc-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+}
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge.mod {
+  background: #fef3c7;
+  color: #92400e;
+}
+.badge.new {
+  background: #dcfce7;
+  color: #166534;
+}
+.vc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.vc-chip {
+  font-size: 0.8rem;
+  color: #4b5563;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+}
+.vc-sub {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vc-separator {
+  border: none;
+  border-top: 1px solid rgba(var(--color-main-2), 0.15);
+  margin: 0.85rem 0;
+}
+.vc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: 1.5px solid rgba(var(--color-main-2), 0.3);
+  background: white;
+  color: rgba(var(--color-main-2), 1);
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.verif-card:hover .vc-btn,
+.verif-card.active .vc-btn {
+  background: rgba(var(--color-main-2), 1);
+  border-color: rgba(var(--color-main-2), 1);
+  color: white;
+}
+.vc-arrow {
+  transition: transform 0.15s ease;
+}
+.verif-card:hover .vc-arrow {
+  transform: translateX(3px);
+}
+.detail {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  padding: 1.2rem 1.3rem 1.5rem;
+}
+.detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.detail-head h2 {
+  margin: 0 0 0.2rem;
+}
+.close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: rgb(var(--color-2, 90, 90, 90));
+  padding: 0.2rem 0.4rem;
+}
+.verdict-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin: 0.8rem 0 1.2rem;
+}
+.verdict-bar .notes {
+  flex-basis: 100%;
+  color: rgb(var(--color-2, 90, 90, 90));
+}
+.field {
+  margin-bottom: 1rem;
+}
+.field label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.lbl-text.green {
+  color: #15803d;
+}
+.lbl-text.red {
+  color: #b91c1c;
+}
+.help {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: none;
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: help;
+  color: rgb(var(--color-2, 120, 120, 120));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.help.green {
+  color: #15803d;
+}
+.help.red {
+  color: #b91c1c;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.field textarea {
+  resize: vertical;
+}
+.field.admin {
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.actions button {
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: #2563eb;
+  color: #fff;
+}
+.actions button.secondary {
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+}
+.actions button.danger {
+  background: #fff;
+  color: #b91c1c;
+  border: 1.5px solid rgba(185, 28, 28, 0.4);
+}
+.actions button.danger:hover {
+  background: #b91c1c;
+  color: #fff;
+  border-color: #b91c1c;
+}
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.actions [role="status"].ok {
+  color: #15803d;
+}
+.actions [role="status"].error {
+  color: #b91c1c;
+}
+.tooltip {
+  position: absolute;
+  z-index: 50;
+  max-width: 20rem;
+  background: #1f2937;
+  color: #fff;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
