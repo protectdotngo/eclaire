@@ -1,184 +1,51 @@
 ---
 import { getCollection } from "astro:content";
-import Resource from "./sections/Resource.astro";
-import Hero from "../sections/general/Hero.tsx";
-import ChevronSVG from "../../assets/images/chevron-down.svg";
-import Background from "../sections/general/Background.tsx";
+import ResourcesIsland from "./ResourcesIsland.tsx";
+import type {
+  PartnerOption,
+  ResourceDTO,
+} from "./sections/resourcesContext.ts";
 
+// Coquille SSR : elle lit les content collections et aplatit tout en props
+// serialisables. Une `CollectionEntry` ne peut pas traverser la frontiere
+// d'ile — le `<Content />` de `render()` est un composant Astro, ni
+// serialisable ni rendable par Solid.
+//
+// On reutilise `rendered.html`, le HTML que le content layer d'Astro a deja
+// produit avec sa propre chaine remark : c'est exactement ce que rend
+// `<Content />`. Passer par `marked` a la place produisait un HTML different
+// (remark applique smartypants, donc ' -> ’, la ou marked echappe en &#39;).
+//
+// Le lien `reference("partners")` est resolu via une seule Map, au lieu d'un
+// `getEntry` par carte comme le faisait ResourcePartner.astro.
 const partners = await getCollection("partners");
+const partnerById = new Map(partners.map((p) => [p.id, p]));
+
 const resources = (await getCollection("resources")).sort((a, b) =>
   a.data.name.localeCompare(b.data.name),
 );
 
-const partnersWithResources = Array.from(
-  new Set(resources.map((r) => r.data.partner.id)),
-);
+const resourceDtos: ResourceDTO[] = resources.map((resource) => {
+  const partner = partnerById.get(resource.data.partner.id);
+  return {
+    id: resource.id,
+    name: resource.data.name,
+    url: resource.data.url,
+    partnerId: resource.data.partner.id,
+    partnerName: partner?.data.name ?? "",
+    partnerUrl: partner?.data.url ?? "",
+    bodyHtml: resource.rendered?.html ?? "",
+  };
+});
+
+const partnersWithResources = new Set(resources.map((r) => r.data.partner.id));
+const partnerOptions: PartnerOption[] = partners
+  .filter((p) => partnersWithResources.has(p.id))
+  .map((p) => ({ id: p.id, name: p.data.name }));
 ---
 
-<section class="v1-resources" x-data="resourcesPage()">
-  <Hero
-    title="Besoin d'aide ?"
-    lead="Laissez-vous éclairer par nos ressources utiles"
-    image="/images/library.jpg"
-  >
-    <div class="v1-resources-filter" slot="intro">
-      <label for="partner-filter" class="v1-resources-filter-label">
-        Filtrer par partenaire
-      </label>
-      <div class="v1-resources-filter-wrap">
-        <select
-          id="partner-filter"
-          class="v1-resources-filter-select"
-          x-model="selectedPartner"
-        >
-          <option value="">Toutes les ressources</option>
-          {
-            partners
-              .filter((p) => partnersWithResources.includes(p.id))
-              .map((partner) => (
-                <option value={partner.id} set:html={partner.data.name} />
-              ))
-          }
-        </select>
-        <span class="v1-resources-filter-chevron">
-          <ChevronSVG />
-        </span>
-      </div>
-    </div>
-  </Hero>
-
-  <div class="v1-resources-grid">
-    <Background />
-    {resources.map((resource) => <Resource resource={resource} />)}
-  </div>
-
-  <div
-    class="v1-resources-empty"
-    x-show="filteredCount === 0"
-    x-transition.opacity.duration.200ms
-  >
-    Aucune ressource ne correspond à ce filtre.
-  </div>
-</section>
-
-<script>
-  import Alpine from "alpinejs";
-
-  document.addEventListener("alpine:init", () => {
-    Alpine.data("resourcesPage", () => ({
-      selectedPartner: "",
-
-      get filteredCount() {
-        const cards = document.querySelectorAll(
-          ".v1-resource-card[data-partner]",
-        );
-        if (this.selectedPartner === "") return cards.length;
-        let count = 0;
-        cards.forEach((card) => {
-          if (card.getAttribute("data-partner") === this.selectedPartner) {
-            count++;
-          }
-        });
-        return count;
-      },
-    }));
-  });
-</script>
-
-<style>
-  .v1-resources {
-    position: relative;
-    z-index: 0;
-    padding-bottom: 4rem;
-    overflow: hidden;
-  }
-
-  .v1-resources-filter {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-width: 320px;
-    margin-top: 1.5rem;
-  }
-
-  .v1-resources-filter-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .v1-resources-filter-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
-  }
-
-  .v1-resources-filter-select {
-    width: 100%;
-    padding: 0.6rem 2.5rem 0.6rem 0.9rem;
-    border: 1px solid rgba(var(--color-main-2), 0.6);
-    border-radius: 8px;
-    background-color: white;
-    appearance: none;
-    -webkit-appearance: none;
-    font-size: 0.95rem;
-    color: #1f2937;
-    cursor: pointer;
-    font-family:
-      var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
-      var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
-      "Nimbus Sans", Arial, sans-serif;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-  }
-
-  .v1-resources-filter-select:focus {
-    outline: none;
-    border-color: rgba(var(--color-main-2), 1);
-    box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.15);
-  }
-
-  .v1-resources-filter-chevron {
-    position: absolute;
-    right: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(var(--color-main-2), 1);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .v1-resources-grid {
-    position: relative;
-    max-width: 1200px;
-    margin: 3rem auto;
-    padding: 0 2rem;
-    column-count: 2;
-    column-gap: 1rem;
-    box-sizing: border-box;
-    z-index: 10;
-  }
-
-  .v1-resources-empty {
-    max-width: 1200px;
-    margin: 0 auto;
-    text-align: center;
-    padding: 3rem 1rem;
-    color: #6b7280;
-    background: white;
-    border: 1px dashed rgba(var(--color-main-2), 0.4);
-    border-radius: 10px;
-  }
-
-  @media (max-width: 768px) {
-    .v1-resources-grid {
-      column-count: 1;
-      padding: 0 1rem;
-    }
-  }
-</style>
+<ResourcesIsland
+  resources={resourceDtos}
+  partners={partnerOptions}
+  client:load
+/>
