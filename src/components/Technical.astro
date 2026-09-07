@@ -1,12 +1,12 @@
 ---
-import Hero from "./sections/general/Hero.astro";
+import Hero from "./sections/general/Hero.tsx";
 import ArchDiagram from "./sections/sous-le-capot/ArchDiagram.astro";
 import FeatureGrid from "./sections/sous-le-capot/FeatureGrid.astro";
 import QueryPlannerSection from "./sections/sous-le-capot/QueryPlaner.astro";
 import TechStack from "./sections/sous-le-capot/TechStack.astro";
 import VectorHistorySection from "./sections/sous-le-capot/VectorHistory.astro";
 import ContributeSection from "./sections/sous-le-capot/Contribute.astro";
-import Background from "./sections/general/Background.astro";
+import Background from "./sections/general/Background.tsx";
 ---
 
 <section class="tech-page">
@@ -39,7 +39,7 @@ import Background from "./sections/general/Background.astro";
     padding-bottom: 4rem;
   }
 
-  .tech-page > :global(*:not(.image)) {
+  .tech-page > :global(*:not(.hero-root)) {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -56,7 +56,7 @@ import Background from "./sections/general/Background.astro";
   }
 
   @media (max-width: 768px) {
-    .tech-page > :global(*:not(.image)) {
+    .tech-page > :global(*:not(.hero-root)) {
       padding-left: 1rem;
       padding-right: 1rem;
     }

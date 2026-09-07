@@ -1,0 +1,4 @@
+.slot {
+  display: inline-flex;
+  flex-shrink: 0;
+}

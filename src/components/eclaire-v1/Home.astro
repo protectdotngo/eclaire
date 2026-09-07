@@ -1,8 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import Partner from "./sections/Partner.astro";
-import Hero from "../sections/general/Hero.astro";
-import Background from "../sections/general/Background.astro";
+import Hero from "../sections/general/Hero.tsx";
+import Background from "../sections/general/Background.tsx";
 
 const visiblePartners = (
   await getCollection("partners", (p) => !p.data.hidden)

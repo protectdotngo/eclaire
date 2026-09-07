@@ -1,9 +1,9 @@
 ---
 import { getCollection } from "astro:content";
 import Resource from "./sections/Resource.astro";
-import Hero from "../sections/general/Hero.astro";
+import Hero from "../sections/general/Hero.tsx";
 import ChevronSVG from "../../assets/images/chevron-down.svg";
-import Background from "../sections/general/Background.astro";
+import Background from "../sections/general/Background.tsx";
 
 const partners = await getCollection("partners");
 const resources = (await getCollection("resources")).sort((a, b) =>

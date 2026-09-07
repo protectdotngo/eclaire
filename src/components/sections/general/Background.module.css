@@ -1,0 +1,19 @@
+.bg {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  min-width: 100vw;
+  width: 200%;
+  height: 100%;
+  max-height: 5000px;
+  z-index: -1;
+  pointer-events: none;
+  transform: skew(-15deg) rotate(-15deg);
+  background: linear-gradient(
+    -33.32deg,
+    rgba(var(--color-main-2), 0) 37.27%,
+    rgba(var(--color-main-2), 0.1) 67.16%,
+    rgba(var(--color-main-3), 0.1) 78.05%
+  );
+}
