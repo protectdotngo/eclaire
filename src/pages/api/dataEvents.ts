@@ -3,9 +3,19 @@ import type { APIRoute } from "astro";
 import { eventsInTest, orgsEventsInTest } from "../../../drizzle/schema";
 import { db } from "../../lib/dbDrizzle";
 import { gte, and, eq, inArray } from "drizzle-orm";
+import { getCached, setCached } from "../../lib/apiCache";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Cache per (org, all) combination: the no-param variant is hit by every
+// visitor on page load and was the main DB load during the load test.
+const CACHE_TTL_MS = 60_000;
+
+const JSON_HEADERS = {
+  "Content-Type": "application/json",
+  "Cache-Control": "public, max-age=0, s-maxage=60",
+};
 
 export const GET: APIRoute = async ({ url }) => {
   const orgId = url.searchParams.get("org");
@@ -16,6 +26,12 @@ export const GET: APIRoute = async ({ url }) => {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  const cacheKey = `dataEvents:${orgId ?? ""}:${includeAll}`;
+  const cached = getCached(cacheKey, CACHE_TTL_MS);
+  if (cached) {
+    return new Response(cached, { status: 200, headers: JSON_HEADERS });
   }
 
   const now = new Date();
@@ -84,13 +100,12 @@ export const GET: APIRoute = async ({ url }) => {
       }));
     }
 
-    return new Response(
-      JSON.stringify({ message: "Success", data: dataWithOrgs }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const body = JSON.stringify({ message: "Success", data: dataWithOrgs });
+    setCached(cacheKey, body);
+    return new Response(body, {
+      status: 200,
+      headers: JSON_HEADERS,
+    });
   } catch (err) {
     console.log("Error:", err);
     return new Response(
