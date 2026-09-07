@@ -102,6 +102,23 @@ export function initMapSearchController() {
     }
   }
 
+  function chatErrorMessage(err: unknown): string {
+    const status = (err as { status?: number })?.status;
+    if (status === 429) {
+      return "Tu as envoyé beaucoup de messages en peu de temps. Attends une minute, puis réessaie.";
+    }
+    if (status === 503) {
+      return "Le service est très sollicité en ce moment. Réessaie dans un instant.";
+    }
+    if (
+      status === 504 ||
+      (err instanceof DOMException && err.name === "TimeoutError")
+    ) {
+      return "La réponse a mis trop de temps à arriver. Tu peux réessayer ?";
+    }
+    return "Désolé, je n'ai pas pu obtenir de réponse. Tu peux réessayer ?";
+  }
+
   async function sendChatMessage(userText: string) {
     history.push({ role: "user", content: userText });
     dispatchChatMessage({ role: "user", content: userText });
@@ -115,7 +132,13 @@ export function initMapSearchController() {
         body: JSON.stringify({ messages: history }),
         signal: AbortSignal.timeout(120000),
       });
-      if (res.status !== 200) throw new Error(`Status ${res.status}`);
+      if (res.status !== 200) {
+        const httpError = new Error(`Status ${res.status}`) as Error & {
+          status?: number;
+        };
+        httpError.status = res.status;
+        throw httpError;
+      }
       const result: ChatApiResponse = await res.json();
 
       setThinking(false);
@@ -251,8 +274,7 @@ export function initMapSearchController() {
       const donePromise = waitForMessageDone();
       dispatchChatMessage({
         role: "assistant",
-        content:
-          "Désolé, je n'ai pas pu obtenir de réponse. Tu peux réessayer ?",
+        content: chatErrorMessage(err),
       });
       await donePromise;
     }
