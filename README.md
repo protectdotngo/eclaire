@@ -19,7 +19,7 @@ Pas d'hallucination possible sur les dates, lieux ou contenus.
 
 ## Pile technique
 
-Astro 7 (SSR Node) · Alpine.js · nanostores · Leaflet · Schedule-X ·
+Astro 7 (SSR Node) · SolidJS (îlots) · nanostores · Leaflet ·
 Drizzle ORM · PostgreSQL (Scaleway « pgvector ») · Qwen3 235B (via l'API
 Scaleway). Déploiement : Docker → Helm → ArgoCD (Kubernetes).
 

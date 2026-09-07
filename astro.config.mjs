@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig, fontProviders } from "astro/config";
-import alpinejs from "@astrojs/alpinejs";
 import solid from "@astrojs/solid-js";
 import node from "@astrojs/node";
 
@@ -8,15 +7,7 @@ import node from "@astrojs/node";
 export default defineConfig({
   site: "https://eclaire.protect.ngo",
   output: "server",
-  // Alpine and Solid coexist for the duration of the migration: Alpine scans
-  // whatever DOM it finds, Solid owns its island subtrees. Alpine is removed in
-  // the final commit.
-  integrations: [
-    alpinejs({
-      entrypoint: "/alpine-config",
-    }),
-    solid(),
-  ],
+  integrations: [solid()],
   security: {
     allowedDomains: [
       {

@@ -37,22 +37,56 @@ contenus.
 
 ## 2. Pile technique
 
-| Couche              | Technologie                                                         | Rôle                                                     |
-| ------------------- | ------------------------------------------------------------------- | -------------------------------------------------------- |
-| Framework           | **Astro 7** (`output: "server"`, adaptateur Node standalone)        | Rendu hybride SSR + endpoints API                        |
-| Réactivité client   | **Alpine.js** (+ plugins `collapse`, `toolkit-truncate`)            | Interactivité légère, sans bundle lourd                  |
-| État partagé client | **nanostores** (`@nanostores/persistent`)                           | Stores réactifs (données carte, etc.)                    |
-| Cartographie        | **Leaflet** + `leaflet.markercluster`                               | Carte interactive et regroupement de marqueurs           |
-| Calendrier          | **Schedule-X** + `flatpickr` + `temporal-polyfill`                  | Affichage et sélection des événements                    |
-| Rendu Markdown      | **marked**                                                          | Formatage des messages de l'assistant                    |
-| Base de données     | **PostgreSQL** (instance Scaleway managée « pgvector », fr-par)     | Organisations, événements, actualités, prompt            |
-| ORM                 | **Drizzle ORM** + `drizzle-kit`                                     | Accès typé, migrations                                   |
-| Pilote SQL          | **node-postgres (`pg`)**                                            | Connexion PostgreSQL                                     |
-| LLM                 | **Qwen3 235B** (`qwen3-235b-a22b-instruct-2507`) via l'API Scaleway | Planification de requêtes en JSON                        |
-| Scraping            | **n8n** (workflows hébergés hors dépôt)                             | Collecte automatisée du contenu                          |
-| Conteneur           | **Docker** (base Alpine, `pnpm`)                                    | Image de déploiement                                     |
-| Déploiement         | **Helm** + **ArgoCD** sur Kubernetes                                | Livraison continue                                       |
-| Accès protégé       | **Cloudflare Access**                                               | Seule protection des pages `/prompt` et `/verifications` |
+| Couche              | Technologie                                                         | Rôle                                                    |
+| ------------------- | ------------------------------------------------------------------- | ------------------------------------------------------- |
+| Framework           | **Astro 7** (`output: "server"`, adaptateur Node standalone)        | Rendu hybride SSR + endpoints API                       |
+| Réactivité client   | **SolidJS** (îlots Astro `client:load`, contextes typés)            | Interactivité par îlot, hydratée à la demande           |
+| État partagé client | **nanostores** (+ `@nanostores/solid`)                              | Bus entre îles (données carte) et Leaflet               |
+| Cartographie        | **Leaflet** + `leaflet.markercluster`                               | Carte interactive et regroupement de marqueurs          |
+| Calendrier          | **flatpickr**                                                       | Sélecteur de date des filtres du calendrier             |
+| Rendu Markdown      | **marked**                                                          | Formatage des messages de l'assistant                   |
+| Base de données     | **PostgreSQL** (instance Scaleway managée « pgvector », fr-par)     | Organisations, événements, actualités, prompt           |
+| ORM                 | **Drizzle ORM** + `drizzle-kit`                                     | Accès typé, migrations                                  |
+| Pilote SQL          | **node-postgres (`pg`)**                                            | Connexion PostgreSQL                                    |
+| LLM                 | **Qwen3 235B** (`qwen3-235b-a22b-instruct-2507`) via l'API Scaleway | Planification de requêtes en JSON                       |
+| Scraping            | **n8n** (workflows hébergés hors dépôt)                             | Collecte automatisée du contenu                         |
+| Conteneur           | **Docker** (base Alpine, `pnpm`)                                    | Image de déploiement                                    |
+| Déploiement         | **Helm** + **ArgoCD** sur Kubernetes                                | Livraison continue                                      |
+| Accès protégé       | **Cloudflare Access**                                               | Seule protection des pages `/prompt` et `/verification` |
+
+### Conventions des îlots SolidJS
+
+Toute l'interactivité client vit dans des **îlots** : un composant Solid racine
+monté par une coquille `.astro`. La règle par feature :
+
+- **Une île, un contexte.** La racine construit son état et le fournit via un
+  `sections/<feature>/…Context.ts` typé ; les sous-composants le consomment avec
+  un `use…()` qui lève une erreur hors de l'île. Pas de props traversant trois
+  niveaux, et surtout plus de portée implicite comme avec `x-data`.
+- **`client:load` partout.** Les îles chargent leurs données au montage, et
+  `client:visible` serait un piège : `SidePanel.astro` masque `.map-search` en
+  `display:none` quand la carte est recentrée sur mobile, et un sous-arbre
+  masqué n'intersecte jamais — l'île ne s'hydraterait pas.
+- **Tout accès navigateur dans `onMount`.** Les îles sont rendues au SSR
+  (`output: "server"`) : `window`, `document`, `flatpickr`, `ResizeObserver` et
+  `getBoundingClientRect` hors `onMount` cassent le build, et ça ne se voit
+  qu'au `pnpm build`, pas en `pnpm dev`.
+- **CSS Modules co-localisés**, un `Composant.module.css` par composant. Le
+  scoping d'Astro ne franchit pas la frontière d'une île (son `data-astro-cid`
+  n'est posé que sur le DOM rendu par Astro), et 37 noms de classes du projet
+  étaient définis dans plusieurs blocs `<style>`, parfois avec des valeurs
+  différentes. Deux exceptions volontairement **non hachées** : `hero-root`
+  (visé par le `:not()` de `Technical.astro`) et `map-search` (visé par
+  `SidePanel.astro`). Une classe sans aucune règle CSS reste littérale, pour ne
+  pas changer le DOM.
+- **SVG en `?raw`** via `src/components/icons/Icon.tsx`. L'import `.svg` par
+  défaut d'Astro renvoie un composant Astro, inutilisable depuis du JSX Solid ;
+  le SVG reste inline pour que `stroke="currentColor"` continue d'opérer.
+- **nanostores uniquement pour le cross-île** (`$mapData` : chat ↔ filtres ↔
+  Leaflet). ⚠️ L'atome est un singleton de module : depuis qu'une île SSR
+  l'importe, il est partagé entre toutes les requêtes du process — le lire au
+  SSR est sans risque, y **écrire** fuiterait d'un utilisateur à l'autre. Donc
+  jamais de `$mapData.set()` hors `onMount` ou gestionnaire d'événement.
 
 Node ≥ 22.12. Gestionnaire de paquets : **pnpm** (`pnpm-workspace.yaml` autorise
 les builds natifs `esbuild` et `sharp`).
@@ -88,7 +122,7 @@ les builds natifs `esbuild` et `sharp`).
      │       │                 ├─ /api/propose ──► webhook n8n│
      │       │                 └─ /api/prompt (édition)      │
      │       ▼                                               │
-     │  Alpine.js + Leaflet + Schedule-X (client)           │
+     │  Îlots SolidJS + Leaflet + flatpickr (client)        │
      └──────────────────────────────────────────────────────┘
                               ▲
                               │ HTTPS (ingress Traefik)
@@ -182,7 +216,7 @@ Une ligne par proposition contrôlée par le workflow n8n. `proposition_id` (FK
 vers `propositions`, `ON DELETE CASCADE`), `legitimacy_score`
 (numeric 3,1), `verdict`, `suspicious_changes` (jsonb — champs jugés suspects),
 `confirmed_by_web` (text[] — champs confirmés en ligne), `notes`,
-`processing_status`, `created_at`. Sert de base à la page `/verifications`
+`processing_status`, `created_at`. Sert de base à la page `/verification`
 (§7). Indexée sur `proposition_id` et `verdict`.
 
 ### `prompt_config` — prompt système éditable
@@ -313,7 +347,7 @@ org existante) via le formulaire `/proposer`, qui écrit une ligne dans
 chaque soumission et écrit une ligne dans `proposition_verifications` :
 un score de légitimité, un verdict, et deux listes de champs — ceux qu'il a pu
 **confirmer sur le web** et ceux qu'il juge **suspects**. La page d'admin
-`/verifications` permet à un membre de l'équipe de relire ce travail, de
+`/verification` permet à un membre de l'équipe de relire ce travail, de
 corriger les champs, puis de **publier** ou **rejeter** la proposition.
 
 Comme `/prompt`, la page n'a **aucune authentification applicative** : elle
@@ -323,17 +357,21 @@ plus critique.
 
 ### Fichiers
 
-- `src/pages/verifications.astro` — la page (liste + formulaire).
+- `src/pages/verification.astro` — la coquille de page (monte l'îlot).
+- `src/components/verification/` — l'îlot Solid (liste, détail, champ, infobulle).
+- `src/lib/verificationState.ts` — l'état et les fonctions pures.
 - `src/pages/api/verifications.ts` — l'API (liste, détail, save, publish,
   reject).
 - `src/interfaces/verification.ts` — types partagés et la liste des champs
   éditables d'une org (`ORG_FIELDS`, `ARRAY_FIELDS`).
 
-### La page (Alpine)
+### La page (îlot SolidJS)
 
-La page est un unique composant Alpine (`verifPage()`, enregistré via
-`alpine:init` comme les autres composants du projet) qui possède à la fois la
-liste et le formulaire :
+La page est une coquille `.astro` qui monte un unique îlot
+(`<Verification client:load />`). L'état vit dans
+`src/lib/verificationState.ts` — comme `calendarState.ts` et
+`proposalFormState.ts` — et les sous-composants le consomment via un contexte
+Solid typé. L'îlot possède à la fois la liste et le formulaire :
 
 - **Liste** — des cartes (une par proposition à traiter) reprenant le style de
   `FilteredOrgList` : nom, badge d'action (nouvelle org / modification), score,
@@ -452,7 +490,6 @@ l'historique Git.
 
 ```
 ├── astro.config.mjs         # config Astro (SSR Node, polices, sécurité)
-├── alpine-config.ts         # plugins Alpine (collapse, truncate)
 ├── drizzle.config.ts        # config drizzle-kit (schéma "test", SSL requis)
 ├── Dockerfile               # image Alpine + pnpm + build Astro
 ├── package.json             # nom d'image : micropachycephalosaurus
@@ -471,7 +508,7 @@ l'historique Git.
     │   ├── proposer.astro       # formulaire de proposition
     │   ├── proposer/merci.astro # confirmation
     │   ├── prompt.astro         # éditeur du prompt système
-    │   ├── verifications.astro  # admin : relire/publier/rejeter les propositions
+    │   ├── verification.astro   # admin : relire/publier/rejeter les propositions
     │   ├── sous-le-capot.astro  # page "technique" publique
     │   ├── a-propos/            # présentation + ressources (contenu v1)
     │   └── api/                 # chat, dataInit, dataFilter, dataEvents,
@@ -486,10 +523,17 @@ l'historique Git.
     │   ├── chatPrompt.ts        # construction du prompt + cache 5 min
     │   ├── orgCandidates.ts     # présélection déterministe
     │   ├── chatValidation.ts    # parsing/validation de la sortie LLM
-    │   ├── mapSearchController.ts# orchestration client du chat
-    │   ├── mapSearchState.ts     # timeline + rendu Markdown
-    │   ├── calendarState.ts      # état du calendrier (Alpine)
-    │   ├── proposalFormState.ts  # état du formulaire
+    │   ├── mapSearch/
+    │   │   ├── chatController.ts # orchestration du chat (absorbe l'ancien
+    │   │   │                     #   mapSearchController)
+    │   │   ├── timelineStore.ts  # timeline + machine à écrire
+    │   │   └── filtersStore.ts   # filtres de l'annuaire → $mapData
+    │   ├── calendarState.ts      # fonctions pures du calendrier
+    │   ├── proposalFormState.ts  # fonctions pures du formulaire
+    │   ├── verificationState.ts  # fonctions pures de /verification
+    │   ├── taxonomy.ts           # catégories et publics partagés
+    │   ├── contact.ts            # email / téléphone / href
+    │   ├── text.ts               # rendu Markdown + troncature
     │   └── prompts/chatSystemPrompt.md
     ├── interfaces/          # types TypeScript (org, event, chat,
     │                        #   calendar, verification…)
@@ -596,7 +640,7 @@ dépendance au chart `common` de Bitnami.
    - Table `test.prompt_config` : prompt système actif du chat (append-only).
 
 3. **Cloudflare Access** — seule protection des pages d'admin `/prompt` et
-   `/verifications` (cette dernière écrit dans la table `orgs` de production).
+   `/verification` (cette dernière écrit dans la table `orgs` de production).
 
 ---
 
@@ -611,8 +655,13 @@ dépendance au chart `common` de Bitnami.
   éditer `chatSystemPrompt.md` ne change plus rien en prod. Passer par
   `/prompt`.
 - **Endpoint DB privé uniquement** — ne jamais rétablir l'endpoint public.
-- **`/prompt` et `/verifications` sans auth applicative** : dépendent
-  entièrement de Cloudflare Access. `/verifications` écrit dans `orgs` en prod,
+- **`/prompt` et `/verification` sans auth applicative** : dépendent
+  entièrement de Cloudflare Access. ⚠️ Cette documentation écrivait jusqu'ici
+  `/verifications` **au pluriel**, alors que la route est
+  `/verification` au singulier (`src/pages/verification.astro`) — seule l'API
+  est au pluriel. Si la règle Cloudflare Access a été écrite depuis cette doc
+  (`/verifications*`), **elle ne couvre pas la vraie route** : à vérifier hors
+  dépôt. `/verification` écrit dans `orgs` en prod,
   donc l'accès doit impérativement la couvrir.
 - **Divergence SSL** entre runtime (`false`) et outil de migration
   (`require`) — attendu, mais à garder en tête.
