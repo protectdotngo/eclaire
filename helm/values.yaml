@@ -15,7 +15,34 @@ image:
 imagePullSecrets: true
 
 ## @section Deployment
-replicaCount: 1
+## Ignored when autoscaling.enabled is true (the HPA owns the replica count).
+replicaCount: 2
+
+## Rolling updates never drop below the desired replica count.
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+## @section Autoscaling
+## Requires metrics-server on the cluster (present by default on Scaleway Kapsule).
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+## PodDisruptionBudget: keep at least one pod during voluntary disruptions
+## (node drains, upgrades).
+pdb:
+  enabled: true
+  minAvailable: 1
+
+## Spread replicas across nodes (soft constraint: still schedules if the
+## cluster has fewer nodes than replicas).
+topologySpread:
+  enabled: true
 
 nameOverride: ""
 fullnameOverride: ""
@@ -38,11 +65,11 @@ containerSecurityContext:
 
 resources:
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 250m
+    memory: 512Mi
   limits:
     cpu: "1"
-    memory: 512Mi
+    memory: 1Gi
 
 ## @section Service
 service:
@@ -67,11 +94,12 @@ ingress:
         - eclaire.protect.ngo
 
 ## @section Probes
-## The app serves HTTP on the container port; adjust paths if a health endpoint exists.
+## /healthz is a cheap endpoint (no SSR, no DB): probing / under load would
+## time out and make the kubelet kill healthy-but-busy pods.
 livenessProbe:
   enabled: true
   httpGet:
-    path: /
+    path: /healthz
     port: http
   initialDelaySeconds: 20
   periodSeconds: 15
@@ -80,7 +108,7 @@ livenessProbe:
 readinessProbe:
   enabled: true
   httpGet:
-    path: /
+    path: /healthz
     port: http
   initialDelaySeconds: 10
   periodSeconds: 10
@@ -106,6 +134,9 @@ config:
   SCW_API_LNK: ""
   SCW_API_LLM_LNK: ""
   N8N_WEBHOOK_URL: ""
+  # Max PostgreSQL connections per pod (app default: 10).
+  # Keep replicas × pool size well under the instance's max_connections.
+  DB_POOL_MAX: ""
 
 ## @section Secrets (SENSITIVE — placeholders only)
 ## DO NOT commit real values here. Set them via the Argo CD Application

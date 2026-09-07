@@ -38,6 +38,11 @@ const LLM_API_KEY = process.env.SCW_API_KEY;
 const LLM_MODEL = "qwen3-235b-a22b-instruct-2507";
 const MAX_TOKENS = 2000;
 const TEMPERATURE = 0.1;
+const LLM_TIMEOUT_MS = 30_000;
+// Per-pod backpressure: beyond this many LLM calls in flight, shed load with a
+// 503 instead of letting requests pile up until the pod runs out of memory.
+const LLM_MAX_CONCURRENT = 20;
+let llmInFlight = 0;
 
 export const POST: APIRoute = async ({ request }) => {
   if (!LLM_API_URL || !LLM_API_KEY) {
@@ -83,6 +88,10 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Directory unavailable" }, 500);
   }
 
+  if (llmInFlight >= LLM_MAX_CONCURRENT) {
+    return json({ error: "Service busy, please retry shortly" }, 503);
+  }
+  llmInFlight++;
   let rawText: string;
   try {
     const llmRes = await fetch(LLM_API_URL, {
@@ -98,7 +107,12 @@ export const POST: APIRoute = async ({ request }) => {
         temperature: TEMPERATURE,
         response_format: { type: "json_object" },
       }),
+      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
     });
+    if (llmRes.status === 429) {
+      console.error("LLM rate limited", await llmRes.text());
+      return json({ error: "Service busy, please retry shortly" }, 503);
+    }
     if (!llmRes.ok) {
       console.error("LLM error", llmRes.status, await llmRes.text());
       return json({ error: "LLM error" }, 502);
@@ -113,8 +127,14 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ error: "Bad LLM response shape" }, 502);
     }
   } catch (err) {
+    if (err instanceof DOMException && err.name === "TimeoutError") {
+      console.error("LLM call timed out after", LLM_TIMEOUT_MS, "ms");
+      return json({ error: "LLM timeout, please retry" }, 504);
+    }
     console.error("LLM call failed:", err);
     return json({ error: "LLM call failed" }, 502);
+  } finally {
+    llmInFlight--;
   }
 
   let parsed;
