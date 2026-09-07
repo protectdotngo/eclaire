@@ -28,7 +28,7 @@ export default function OrgCard(props: OrgCardProps) {
       classList={{
         // .org-card and .cursor have no CSS rules anywhere: kept as literal
         // class names so the DOM does not change.
-        "org-card": true,
+        [styles["org-card"]]: true,
         [styles["result-card-2"]]: props.index % 2 !== 0,
         [styles["result-card"]]: props.index % 2 === 0,
       }}

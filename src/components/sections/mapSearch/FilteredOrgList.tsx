@@ -30,7 +30,7 @@ export default function FilteredOrgList() {
                 // .org-card, .result-card and .read-more-wrap carry no rules
                 // in this component's styles — the timeline's versions were
                 // Astro-scoped and never reached here — so they stay literal.
-                "org-card": true,
+                [styles["org-card"]]: true,
                 [styles["result-card-2"]]: i() % 2 !== 0,
                 "result-card": i() % 2 === 0,
               }}
