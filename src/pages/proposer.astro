@@ -1,8 +1,8 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
-import ProposalForm from "../components/ProposalForm.astro";
+import ProposalForm from "../components/ProposalForm.tsx";
 ---
 
 <MainLayout title="Proposer une organisation" description={undefined}>
-  <ProposalForm />
+  <ProposalForm client:load />
 </MainLayout>

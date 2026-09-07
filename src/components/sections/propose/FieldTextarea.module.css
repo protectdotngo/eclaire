@@ -1,0 +1,40 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: black;
+}
+
+.field-required {
+  color: rgba(var(--color-required), 1);
+  margin-left: 0.15rem;
+}
+
+.field-textarea {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid rgba(var(--color-main-2), 1);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  color: #1f2937;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+  resize: vertical;
+  min-height: 100px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.field-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.15);
+}

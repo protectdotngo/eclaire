@@ -1,0 +1,65 @@
+.proposal-page {
+  position: relative;
+  z-index: 0;
+  padding-bottom: 4rem;
+}
+
+.proposal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.proposal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: end;
+  max-width: 800px;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+.proposal-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+  transition:
+    filter 0.15s ease,
+    transform 0.15s ease;
+}
+
+.proposal-submit:hover:not(:disabled) {
+  filter: brightness(0.93);
+  transform: translateY(-1px);
+}
+
+.proposal-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.proposal-error {
+  color: #dc436b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 650px) {
+  .proposal-actions {
+    padding: 0 1rem;
+    align-items: stretch;
+  }
+}
