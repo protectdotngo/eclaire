@@ -17,10 +17,10 @@ export default function FieldArrayText(props: FieldArrayTextProps) {
       <label class={styles["field-label"]}>{props.label}</label>
       <div class={styles["array-items"]}>
         {/*
-          <Index> et non <For> : ce sont des string[] edites sur place. <For>
-          est keye par reference de valeur, il recreerait donc l'<input> a
-          chaque frappe — perte du focus et du curseur. <Index> est keye par
-          position, ce qui est l'idiome correct ici.
+          <Index>, not <For>: these are string[] edited in place. <For> is keyed
+          by value reference, so it would recreate the <input> on every
+          keystroke — losing focus and caret position. <Index> is keyed by
+          position, which is the correct idiom here.
         */}
         <Index each={f.form[props.name]}>
           {(item, idx) => (

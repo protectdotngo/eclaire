@@ -15,9 +15,9 @@ export default function MonthNav() {
         type="button"
         classList={{
           [styles["month-nav-btn"]]: true,
-          // Classe sans regle CSS (le style vient de .month-nav-btn:disabled) :
-          // gardee litterale pour ne pas changer le DOM, et parce qu'un lookup
-          // de module renverrait `undefined`.
+          // Class with no CSS rule (the styling comes from
+          // .month-nav-btn:disabled): kept literal so the DOM does not change,
+          // and because a module lookup would return `undefined`.
           "month-nav-btn-disabled": prevDisabled(),
         }}
         disabled={prevDisabled()}

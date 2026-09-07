@@ -3,7 +3,7 @@ import type { EventWithOrgIds } from "../interfaces/event";
 import type { ProcessedEvent } from "../interfaces/calendar";
 import { ALL_CATEGORIES } from "./taxonomy";
 
-// Re-export pour ne pas casser les importeurs existants pendant la migration.
+// Re-exported so existing importers keep working during the migration.
 export { ALL_CATEGORIES, AUDIENCES } from "./taxonomy";
 
 export const FRENCH_MONTHS = [
@@ -158,7 +158,7 @@ export function firstOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
 
-/** Filtre les evenements — porte tel quel depuis le getter `visibleEvents`. */
+/** Filters events — ported as-is from the `visibleEvents` getter. */
 export function filterEvents(opts: {
   allEvents: readonly ProcessedEvent[];
   currentDate: Date;
@@ -228,7 +228,7 @@ export function filterEvents(opts: {
   });
 }
 
-/** Porte tel quel depuis le getter `filteredOrgs`. */
+/** Ported as-is from the `filteredOrgs` getter. */
 export function filterOrgs(
   allOrgs: readonly OrgSummary[],
   query: string,
@@ -238,7 +238,7 @@ export function filterOrgs(
   return allOrgs.filter((o) => normalize(o.name).includes(q)).slice(0, 20);
 }
 
-/** Porte tel quel depuis le getter `activeFilters`, mais type. */
+/** Ported as-is from the `activeFilters` getter, but typed. */
 export function buildActiveFilters(opts: {
   selectedCategories: ReadonlySet<string>;
   selectedAudiences: ReadonlySet<string>;
@@ -304,7 +304,7 @@ export function categoryStyle(catName: string): string {
   return `background-color: ${cat.bg}; color: ${cat.text}; border: 1px solid ${cat.color}33;`;
 }
 
-/** GET /api/dataEvents (+ ?all=true pour inclure le passe). */
+/** GET /api/dataEvents (+ ?all=true to include past events). */
 export async function fetchEvents(
   includePast: boolean,
 ): Promise<ProcessedEvent[]> {
@@ -318,7 +318,7 @@ export async function fetchEvents(
   return processEvents(baseData.data ?? []);
 }
 
-/** GET /api/dataInit, reduit a {id, name} et trie. */
+/** GET /api/dataInit, reduced to {id, name} and sorted. */
 export async function fetchOrgSummaries(): Promise<OrgSummary[]> {
   const res = await fetch("/api/dataInit", {
     method: "GET",

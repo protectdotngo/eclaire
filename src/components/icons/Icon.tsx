@@ -1,18 +1,18 @@
 import styles from "./Icon.module.css";
 
 interface IconProps {
-  /** Contenu SVG importe via `?raw` (l'idiome deja utilise dans Map.astro). */
+  /** SVG content imported via `?raw` (the idiom already used in Map.astro). */
   raw: string;
   class?: string;
 }
 
 /**
- * Rend un SVG inline dans une ile Solid.
+ * Renders an inline SVG inside a Solid island.
  *
- * L'import `.svg` par defaut d'Astro renvoie un composant *Astro* et ne peut pas
- * etre rendu depuis du JSX Solid ; `?raw` donne la chaine. On garde le SVG inline
- * (et non un <img>) parce que `stroke="currentColor"` est porteur : le CSS du
- * projet colore les icones par heritage.
+ * Astro's default `.svg` import returns an *Astro* component and cannot be
+ * rendered from Solid JSX; `?raw` gives the string instead. We keep the SVG
+ * inline (rather than an <img>) because `stroke="currentColor"` is load-bearing:
+ * the project's CSS colours the icons by inheritance.
  */
 export default function Icon(props: IconProps) {
   return (

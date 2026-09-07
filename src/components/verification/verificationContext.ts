@@ -15,7 +15,7 @@ export interface VerificationStore {
   active: Accessor<Detail | null>;
   activeId: Accessor<string>;
 
-  /** Proxy `createStore` : cle dynamique, reactivite fine par champ. */
+  /** `createStore` proxy: dynamic keys, fine-grained per-field reactivity. */
   fieldValues: Record<string, string>;
   setFieldValue(field: string, value: string): void;
 
@@ -39,7 +39,7 @@ export interface VerificationStore {
   close(): void;
   submit(mode: SubmitMode): Promise<void>;
 
-  /** Remplace $root.querySelector(".detail") — et survit au hachage CSS. */
+  /** Replaces $root.querySelector(".detail") — and survives CSS hashing. */
   registerDetailRef(el: HTMLElement | undefined): void;
 }
 

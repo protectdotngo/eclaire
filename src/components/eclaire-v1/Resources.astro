@@ -6,18 +6,18 @@ import type {
   ResourceDTO,
 } from "./sections/resourcesContext.ts";
 
-// Coquille SSR : elle lit les content collections et aplatit tout en props
-// serialisables. Une `CollectionEntry` ne peut pas traverser la frontiere
-// d'ile — le `<Content />` de `render()` est un composant Astro, ni
-// serialisable ni rendable par Solid.
+// SSR shell: it reads the content collections and flattens everything into
+// serialisable props. A `CollectionEntry` cannot cross the island boundary —
+// the `<Content />` returned by `render()` is an Astro component, neither
+// serialisable nor renderable by Solid.
 //
-// On reutilise `rendered.html`, le HTML que le content layer d'Astro a deja
-// produit avec sa propre chaine remark : c'est exactement ce que rend
-// `<Content />`. Passer par `marked` a la place produisait un HTML different
-// (remark applique smartypants, donc ' -> ’, la ou marked echappe en &#39;).
+// We reuse `rendered.html`, the HTML Astro's content layer already produced
+// with its own remark pipeline: that is exactly what `<Content />` renders.
+// Going through `marked` instead produced different HTML (remark applies
+// smartypants, so ' -> ’, where marked escapes to &#39;).
 //
-// Le lien `reference("partners")` est resolu via une seule Map, au lieu d'un
-// `getEntry` par carte comme le faisait ResourcePartner.astro.
+// The `reference("partners")` link is resolved through a single Map, instead of
+// one `getEntry` per card as ResourcePartner.astro used to do.
 const partners = await getCollection("partners");
 const partnerById = new Map(partners.map((p) => [p.id, p]));
 

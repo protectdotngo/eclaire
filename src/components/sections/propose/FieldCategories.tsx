@@ -16,9 +16,9 @@ export default function FieldCategories() {
       </p>
       <div class={styles["chip-row"]}>
         {/*
-          `cat` est dans la portee du <For> : plus besoin de stocker la valeur
-          dans data-cat pour la relire via $el.dataset.cat comme le faisait
-          l'implementation Alpine.
+          `cat` is in the <For>'s scope: no need to stash the value in data-cat
+          and read it back via $el.dataset.cat the way the Alpine
+          implementation did.
         */}
         <For each={ALL_CATEGORIES}>
           {(cat) => (

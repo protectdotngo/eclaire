@@ -7,9 +7,9 @@ interface ResourceProps {
 }
 
 export default function Resource(props: ResourceProps) {
-  // Remplace le <script> module de Resource.astro, qui accrochait ses
-  // gestionnaires via querySelectorAll(".v1-resource-card") une seule fois au
-  // chargement : il ne voyait donc pas les cartes re-rendues.
+  // Replaces Resource.astro's module <script>, which attached its handlers via
+  // querySelectorAll(".v1-resource-card") once at page load and therefore never
+  // saw re-rendered cards.
   const open = () => {
     window.open(props.resource.url, "_blank", "noopener,noreferrer");
   };

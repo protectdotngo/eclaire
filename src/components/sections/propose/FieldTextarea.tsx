@@ -21,7 +21,7 @@ export default function FieldTextarea(props: FieldTextareaProps) {
           <span class={styles["field-required"]}>*</span>
         </Show>
       </label>
-      {/* En Solid un <textarea> prend `value`, jamais des enfants. */}
+      {/* In Solid a <textarea> takes `value`, never children. */}
       <textarea
         id={props.name}
         name={props.name}

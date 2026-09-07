@@ -22,10 +22,10 @@ export const HELP_RED =
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Etat de verification d'un champ. Etait type `string`. */
+/** A field's verification state. Used to be typed `string`. */
 export type FieldState = "" | "green" | "red";
 
-/** Classe de statut appliquee au retour d'action. Etait type `string`. */
+/** Status class applied after an action. Used to be typed `string`. */
 export type StatusClass = "" | "ok" | "error";
 
 export type SubmitMode = "save" | "publish" | "reject";
@@ -44,7 +44,7 @@ export function helpTextFor(state: FieldState): string {
   return state === "red" ? HELP_RED : HELP_GREEN;
 }
 
-/** Aplatit les valeurs d'un detail en champs de formulaire editables. */
+/** Flattens a detail's values into editable form fields. */
 export function detailToFieldValues(detail: Detail): Record<string, string> {
   const out: Record<string, string> = {};
   for (const f of ORG_FIELDS) {
@@ -54,7 +54,7 @@ export function detailToFieldValues(detail: Detail): Record<string, string> {
   return out;
 }
 
-/** Re-eclate les champs tableau sur les virgules avant envoi. */
+/** Splits array fields back apart on commas before sending. */
 export function collectFields(
   fieldValues: Record<string, string>,
 ): Record<string, string[] | string> {
@@ -106,7 +106,7 @@ export function confirmMessageFor(mode: SubmitMode): string | null {
   return null;
 }
 
-/** Position de l'infobulle, calculee depuis le rect du bouton « ? ». */
+/** Tooltip position, computed from the "?" button's bounding rect. */
 export function tipPositionFor(el: HTMLElement): { top: number; left: number } {
   const r = el.getBoundingClientRect();
   return {

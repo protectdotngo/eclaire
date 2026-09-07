@@ -46,7 +46,7 @@ export default function VerifField(props: VerifFieldProps) {
           </button>
         </Show>
       </label>
-      {/* Les trois <template x-if> exclusifs deviennent un <Switch>. */}
+      {/* The three mutually exclusive <template x-if> become a <Switch>. */}
       <Switch>
         <Match when={v.arrayFields.includes(props.field)}>
           <input

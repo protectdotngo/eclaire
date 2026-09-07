@@ -2,20 +2,20 @@ import { createContext, useContext } from "solid-js";
 import type { Accessor } from "solid-js";
 
 /**
- * Une ressource, aplatie pour traverser la frontiere d'ile.
+ * A resource, flattened to cross the island boundary.
  *
- * On ne peut pas passer une `CollectionEntry` telle quelle : `render(entry)`
- * renvoie un composant Astro (`<Content />`), ni serialisable ni rendable par
- * Solid. Le Markdown est donc converti en HTML dans le frontmatter de la
- * coquille `.astro`, et le lien `reference("partners")` y est resolu une seule
- * fois — au lieu d'un `getEntry` par carte.
+ * A `CollectionEntry` cannot be passed as-is: `render(entry)` returns an Astro
+ * component (`<Content />`), neither serialisable nor renderable by Solid. The
+ * Markdown is therefore turned into HTML in the `.astro` shell's frontmatter,
+ * where the `reference("partners")` link is also resolved once — instead of one
+ * `getEntry` per card.
  */
 export interface ResourceDTO {
   id: string;
   name: string;
   url: string;
   partnerId: string;
-  /** Peut contenir du markup (ex. `Protect<sup>.ngo</sup>`). */
+  /** May contain markup (e.g. `Protect<sup>.ngo</sup>`). */
   partnerName: string;
   partnerUrl: string;
   bodyHtml: string;
@@ -23,12 +23,12 @@ export interface ResourceDTO {
 
 export interface PartnerOption {
   id: string;
-  /** Peut contenir du markup. */
+  /** May contain markup. */
   name: string;
 }
 
 export interface ResourcesStore {
-  /** Donnees statiques venues du serveur : pas de signal. */
+  /** Static data from the server: no signal. */
   resources: readonly ResourceDTO[];
   partners: readonly PartnerOption[];
   selectedPartner: Accessor<string>;

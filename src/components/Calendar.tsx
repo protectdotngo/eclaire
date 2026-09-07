@@ -42,9 +42,9 @@ export default function Calendar() {
   const [selectedOrgId, setSelectedOrgId] = createSignal<string | null>(null);
   const [selectedOrgName, setSelectedOrgName] = createSignal("");
   const [dateFilter, setDateFilter] = createSignal<Date | null>(null);
-  // Initialise cote serveur ET reinitialise dans onMount : le conteneur tourne
-  // en UTC et le client en Europe/Zurich, donc autour d'un changement de mois
-  // a minuit le libelle rendu au SSR pourrait etre celui du mauvais mois.
+  // Initialised on the server AND re-initialised in onMount: the container
+  // runs in UTC and the client in Europe/Zurich, so around a month boundary at
+  // midnight the SSR-rendered label could be the wrong month.
   const [currentDate, setCurrentDate] = createSignal(firstOfMonth(new Date()));
   const [filtersOpen, setFiltersOpen] = createSignal(false);
   const [orgSearchQuery, setOrgSearchQuery] = createSignal("");
@@ -54,7 +54,7 @@ export default function Calendar() {
 
   let flatpickrInstance: { clear(): void } | null = null;
 
-  /** Toute action de filtrage replie le detail et repart de la page 1. */
+  /** Every filtering action collapses the detail and returns to page 1. */
   const resetPaging = () => {
     setExpandedId(null);
     setVisibleCount(PAGE_SIZE);
@@ -80,7 +80,7 @@ export default function Calendar() {
     searchQuery,
     setSearchQuery(v) {
       setSearchQueryRaw(v);
-      // Etait un $watch("searchQuery") qui remettait visibleCount a pageSize.
+      // Was a $watch("searchQuery") that reset visibleCount to pageSize.
       setVisibleCount(PAGE_SIZE);
     },
     selectedCategories,

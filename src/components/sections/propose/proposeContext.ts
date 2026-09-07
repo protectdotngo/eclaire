@@ -9,8 +9,8 @@ import type {
 
 export interface ProposalStore {
   /**
-   * Proxy `createStore` : lire `form[k]` suit la dependance sur ce seul champ.
-   * Remplace l'objet `formData` qu'Alpine partageait par heritage de portee.
+   * `createStore` proxy: reading `form[k]` tracks a dependency on that single
+   * field. Replaces the `formData` object Alpine shared by scope inheritance.
    */
   form: ProposalFormData;
   setField(k: StringField, v: string): void;

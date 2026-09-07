@@ -12,8 +12,8 @@ export default function DetailForm() {
           <div class={styles["detail-head"]}>
             <div>
               <h2>{v.fieldValues.name || "(sans nom)"}</h2>
-              {/* .meta et .form-body n'ont aucune regle CSS : classes
-                    litterales conservees pour ne pas changer le DOM. */}
+              {/* .meta and .form-body have no CSS rules at all: kept as
+                    literal classes so the DOM does not change. */}
               <p class="meta">
                 <span>
                   {active().action === "modify"

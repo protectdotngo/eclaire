@@ -224,7 +224,7 @@
   border-color: #1e293b;
 }
 
-/* Remplace x-transition.opacity.duration.150ms sur la liste des organisations. */
+/* Replaces x-transition.opacity.duration.150ms on the organisation list. */
 .org-dropdown {
   animation: org-dropdown-fade-in 150ms ease;
 }

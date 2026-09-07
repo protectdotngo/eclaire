@@ -8,8 +8,9 @@ import node from "@astrojs/node";
 export default defineConfig({
   site: "https://eclaire.protect.ngo",
   output: "server",
-  // Alpine et Solid coexistent le temps de la migration : Alpine scanne le DOM
-  // qu'il trouve, Solid possede ses sous-arbres d'ile. Alpine part au dernier commit.
+  // Alpine and Solid coexist for the duration of the migration: Alpine scans
+  // whatever DOM it finds, Solid owns its island subtrees. Alpine is removed in
+  // the final commit.
   integrations: [
     alpinejs({
       entrypoint: "/alpine-config",

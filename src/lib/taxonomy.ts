@@ -2,14 +2,14 @@ import { DISPLAY_BUCKETS } from "../data/calendarConfig";
 import { AUDIENCE_TAGS } from "../data/audienceTags";
 
 /**
- * Taxonomie partagee : categories thematiques et publics vises.
+ * Shared taxonomy: thematic categories and target audiences.
  *
- * Ce calcul existait a l'identique dans `calendarState.ts` et dans
- * `propose/FieldCategories.astro`, et `mapSearch/FiltersPanel.astro` importait
- * la version du calendrier — un composant de la carte qui dependait donc de
- * l'etat du calendrier. Il vit desormais ici, sans dependance a flatpickr
- * (que `calendarState.ts` importe au niveau module, et qui se retrouvait de ce
- * fait dans le bundle de la page d'accueil).
+ * This computation existed identically in `calendarState.ts` and in
+ * `propose/FieldCategories.astro`, and `mapSearch/FiltersPanel.astro` imported
+ * the calendar's copy — a map component that therefore depended on calendar
+ * state. It now lives here, with no dependency on flatpickr (which
+ * `calendarState.ts` imports at module level, and which consequently ended up
+ * in the homepage bundle).
  */
 export const ALL_CATEGORIES = DISPLAY_BUCKETS.flatMap((bucket) =>
   bucket.categories.map((cat) => ({

@@ -143,11 +143,11 @@
 }
 
 /*
-  Remplace le plugin x-collapse par la technique grid-template-rows deja
-  utilisee dans ce projet (.filter-section). Le bord et le fond passent sur
-  l'element interne et le conteneur prend overflow:hidden : replie, sa hauteur
-  est nulle et il masque donc le liseré de 1px — ce que faisait le display:none
-  final de x-show.
+  Replaces the x-collapse plugin with the grid-template-rows technique already
+  used in this project (.filter-section). The border and background move to the
+  inner element and the wrapper takes overflow:hidden: when collapsed its
+  height is zero, so it clips the 1px hairline — which is what x-show's final
+  display:none used to do.
 */
 .event-expanded {
   display: grid;
@@ -161,11 +161,11 @@
 }
 
 /*
-  L'element directement dans la grille doit rester nu : `min-height: 0` retire
-  bien le plancher de contenu, mais le padding et la bordure comptent encore
-  dans le minimum automatique de la piste (d'ou une bande de 41px une fois
-  replie). C'est exactement pourquoi .filter-section-inner ne porte aucun
-  padding et laisse ses enfants s'en charger.
+  The direct grid item has to stay bare: `min-height: 0` does remove the
+  content floor, but padding and border still count toward the track's
+  automatic minimum (hence a 41px strip when collapsed). This is precisely why
+  .filter-section-inner carries no padding of its own and leaves that to its
+  children.
 */
 .event-expanded-inner {
   min-height: 0;

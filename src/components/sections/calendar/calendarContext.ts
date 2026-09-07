@@ -6,7 +6,7 @@ import type { ActiveFilter } from "../../../lib/calendarState";
 import type { ALL_CATEGORIES, AUDIENCES } from "../../../lib/taxonomy";
 
 export interface CalendarStore {
-  // etat
+  // state
   allOrgs: Accessor<readonly OrgSummary[]>;
   loading: Accessor<boolean>;
   loadingPast: Accessor<boolean>;
@@ -26,11 +26,11 @@ export interface CalendarStore {
   setOrgDropdownOpen(v: boolean): void;
   expandedId: Accessor<string | null>;
 
-  // taxonomie statique (non reactive)
+  // static taxonomy (not reactive)
   allCategories: typeof ALL_CATEGORIES;
   audiences: typeof AUDIENCES;
 
-  // derive (createMemo) — etaient des getters Alpine
+  // derived (createMemo) — these were Alpine getters
   currentMonthLabel: Accessor<string>;
   visibleEvents: Accessor<readonly ProcessedEvent[]>;
   pagedEvents: Accessor<readonly ProcessedEvent[]>;

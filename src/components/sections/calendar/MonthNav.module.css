@@ -81,9 +81,9 @@
   }
 }
 
-/* Remplace x-transition.opacity.duration.200ms sur le bouton « Aujourd'hui ».
-   La valeur liee ne bascule qu'a l'entree du noeud, donc une animation CSS
-   suffit et evite une dependance de transition. */
+/* Replaces x-transition.opacity.duration.200ms on the "Aujourd'hui" button.
+   The bound value only flips as the node enters, so a CSS animation is enough
+   and avoids pulling in a transition dependency. */
 .month-nav-today {
   animation: month-nav-fade-in 200ms ease;
 }

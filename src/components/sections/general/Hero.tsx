@@ -9,17 +9,17 @@ interface HeroProps {
   body?: string;
   image: string;
   comp?: boolean;
-  /** Ancien <slot /> : rendu seulement si `comp`. */
+  /** The former <slot />: rendered only when `comp` is set. */
   children?: JSX.Element;
-  /** Ancien <slot name="intro" />. */
+  /** The former <slot name="intro" />. */
   intro?: JSX.Element;
 }
 
 export default function Hero(props: HeroProps) {
   return (
-    // `hero-root` est une classe marqueur volontairement NON hachee : son seul
-    // consommateur est le `:not(.hero-root)` de Technical.astro, qui doit exclure
-    // le hero de la contrainte max-width appliquee aux autres sections.
+    // `hero-root` is a deliberately UNHASHED marker class: its only consumer is
+    // Technical.astro's `:not(.hero-root)`, which has to exclude the hero from
+    // the max-width constraint applied to every other section.
     <section class={`hero-root ${styles.image}`}>
       <div class={styles["image-cont"]}>
         <div class={styles["image-bg"]}>

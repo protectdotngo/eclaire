@@ -20,8 +20,8 @@ interface ResourcesIslandProps {
 export default function ResourcesIsland(props: ResourcesIslandProps) {
   const [selectedPartner, setSelectedPartner] = createSignal("");
 
-  // Remplace le getter `filteredCount` d'Alpine, qui derivait son etat du DOM
-  // via document.querySelectorAll(".v1-resource-card[data-partner]").
+  // Replaces Alpine's `filteredCount` getter, which derived its state from the
+  // DOM via document.querySelectorAll(".v1-resource-card[data-partner]").
   const visibleResources = createMemo(() => {
     const id = selectedPartner();
     return id === ""

@@ -23,11 +23,11 @@ export const EMPTY_FORM = {
 export type ProposalFormData = typeof EMPTY_FORM;
 
 /**
- * Les champs de `formData` qui sont des chaines, et ceux qui sont des tableaux.
+ * The string-valued and array-valued fields of `formData`.
  *
- * C'est ce qui remplace les expressions Alpine construites par concatenation
- * (`x-model={"formData." + name}`) : `name` devient une cle verifiee a la
- * compilation, et `astro check` valide enfin ces liaisons.
+ * This is what replaces the Alpine expressions built by concatenation
+ * (`x-model={"formData." + name}`): `name` becomes a compile-checked key, and
+ * `astro check` finally validates those bindings.
  */
 export type StringField = {
   [K in keyof ProposalFormData]: ProposalFormData[K] extends string ? K : never;
@@ -52,7 +52,7 @@ const AUDIENCE_SET = new Set([
   "à domicile",
 ]);
 
-/** Champs d'organisation remis a zero quand on repasse en mode « proposer ». */
+/** Organisation fields cleared when switching back to "propose" mode. */
 const ORG_FIELD_RESET: Partial<ProposalFormData> = {
   name: "",
   desc: "",
@@ -78,7 +78,7 @@ export function orgFieldsReset(): Partial<ProposalFormData> {
   };
 }
 
-/** Eclate les categories d'une org en tags thematiques / publics vises. */
+/** Splits an org's categories into thematic tags and target audiences. */
 export function splitOrgCategories(categories: string[]): {
   thematic: string[];
   audience: string[];
@@ -95,7 +95,7 @@ export function splitOrgCategories(categories: string[]): {
   return { thematic, audience };
 }
 
-/** Valeurs a appliquer quand on selectionne une org a modifier. */
+/** Values to apply when an org is selected for modification. */
 export function orgToFormFields(org: Org): Partial<ProposalFormData> {
   const { thematic, audience } = splitOrgCategories(org.categories);
   return {
@@ -205,7 +205,7 @@ export function buildProposalPayload(form: ProposalFormData) {
   };
 }
 
-/** Charge et normalise la liste des organisations (GET /api/dataInit). */
+/** Loads and normalises the organisation list (GET /api/dataInit). */
 export async function fetchOrgs(): Promise<Org[]> {
   const res = await fetch("/api/dataInit");
   if (res.status !== 200) throw new Error(`Status ${res.status}`);

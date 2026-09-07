@@ -12,8 +12,8 @@ export default function FilterPanel() {
   let orgField!: HTMLDivElement;
 
   onMount(() => {
-    // flatpickr est imperatif : il vit dans onMount, et non plus dans l'etat
-    // partage via getElementById("date-picker-input").
+    // flatpickr is imperative: it lives in onMount, no longer in the shared
+    // state reaching for getElementById("date-picker-input").
     const fp = flatpickr(dateInput, {
       locale: French,
       dateFormat: "d M Y",
@@ -24,12 +24,12 @@ export default function FilterPanel() {
     cal.registerFlatpickr(fp);
     onCleanup(() => {
       cal.registerFlatpickr(null);
-      // Sans ça, un rechargement à chaud laisse des .flatpickr-calendar
-      // orphelines accrochées au <body>.
+      // Without this, a hot reload leaves orphaned .flatpickr-calendar nodes
+      // attached to <body>.
       fp.destroy();
     });
 
-    // Remplace @click.outside
+    // Replaces @click.outside
     const onDocClick = (e: MouseEvent) => {
       if (!orgField.contains(e.target as Node)) cal.setOrgDropdownOpen(false);
     };
@@ -121,7 +121,7 @@ export default function FilterPanel() {
                 void cal.setIncludePastAndReload(e.currentTarget.checked)
               }
             />
-            {/* Classe sans regle CSS : gardee litterale pour ne pas changer le DOM. */}
+            {/* Class with no CSS rule: kept literal so the DOM does not change. */}
             <span class="include-past-text">Inclure les événements passés</span>
           </label>
           <Show when={cal.loadingPast()}>

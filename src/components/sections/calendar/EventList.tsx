@@ -82,10 +82,9 @@ export default function EventList() {
                 </button>
 
                 {/*
-                  Remplace x-collapse : la technique grid-template-rows
-                  0fr -> 1fr, deja utilisee par .filter-section dans ce projet.
-                  Le contenu reste monte pour que la transition joue dans les
-                  deux sens.
+                  Replaces x-collapse: the grid-template-rows 0fr -> 1fr
+                  technique already used by .filter-section in this project.
+                  The content stays mounted so the transition runs both ways.
                 */}
                 <div
                   classList={{

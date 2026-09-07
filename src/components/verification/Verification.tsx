@@ -94,9 +94,9 @@ export default function Verification() {
         if (!adminEditor() && detail.adminEditor) {
           setAdminEditor(detail.adminEditor);
         }
-        // Etait $nextTick + $root.querySelector(".detail") : une ref survit au
-        // hachage des classes par les CSS Modules, et Solid applique les
-        // ecritures de signal de façon synchrone, donc la ref est deja a jour.
+        // Was $nextTick + $root.querySelector(".detail"): a ref survives CSS
+        // Modules hashing the class names, and Solid applies signal writes
+        // synchronously, so the ref is already up to date.
         detailRef?.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (err) {
         setStatus(err instanceof Error ? err.message : "Échec du chargement");
@@ -213,8 +213,9 @@ export default function Verification() {
             </div>
           </section>
 
-          {/* x-cloak disparait : l'ile est rendue au SSR avec active=null,
-              donc <Show> ne rend rien — il n'y a plus de flash a masquer. */}
+          {/* x-cloak goes away: the island is server-rendered with
+              active=null, so <Show> renders nothing — there is no flash
+              left to hide. */}
           <Show when={active()}>
             <section
               class={styles.detail}
