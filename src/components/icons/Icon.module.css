@@ -2,3 +2,10 @@
   display: inline-flex;
   flex-shrink: 0;
 }
+
+/* When an explicit size is given, the inline SVG must fill the wrapper —
+   the raw markup carries its own width="24" height="24". */
+.sized > svg {
+  width: 100%;
+  height: 100%;
+}

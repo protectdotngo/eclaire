@@ -1,0 +1,329 @@
+.filters {
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.filters-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(var(--color-main-2), 0.15);
+}
+
+.filters-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filters-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: black;
+}
+
+.filters-svg {
+  width: 25px;
+  fill: black;
+  stroke: black;
+}
+
+.filters-swap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background-color: transparent;
+  color: rgba(var(--color-main-2), 1);
+  border: 1px solid rgba(var(--color-main-2), 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.filters-swap:hover {
+  background-color: rgba(var(--color-main-2), 0.05);
+  border-color: rgba(var(--color-main-2), 1);
+}
+
+.filters-swap-ai {
+  width: 20px;
+  fill: transparent;
+  stroke: rgba(var(--color-main-2), 1);
+  flex-shrink: 0;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: black;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+}
+
+.filter-search {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  color: #1f2937;
+  border: 1px solid rgba(var(--color-main-2), 0.3);
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.filter-search:focus {
+  outline: none;
+  border-color: rgba(var(--color-main-2), 1);
+  box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.12);
+  background-color: white;
+}
+
+.filter-group {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+}
+
+.filter-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.35rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+}
+
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(var(--color-main-2), 1);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.filter-group-chevron {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.25s ease;
+  color: rgba(var(--color-main-2), 1);
+}
+
+.filter-group-chevron.open {
+  transform: rotate(180deg);
+}
+
+.filter-group-chevron svg {
+  width: 18px;
+  height: 18px;
+}
+
+.filter-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.filter-collapse-open {
+  grid-template-rows: 1fr;
+}
+
+.filter-collapse-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: white;
+  border: 1.5px solid;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.chip .dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chip-category {
+  border-color: var(--chip-color);
+  color: var(--chip-color);
+}
+
+.chip-category:hover {
+  background: color-mix(in srgb, var(--chip-bg) 40%, white);
+}
+
+.chip-category .dot {
+  background: var(--chip-color);
+}
+
+.chip-category.chip-active,
+.chip-category.chip-selected {
+  background: var(--chip-color);
+  color: white;
+  font-weight: 500;
+}
+
+.chip-audience {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.chip-audience:hover {
+  background: color-mix(in srgb, #475569 8%, white);
+}
+
+.chip-audience.chip-active,
+.chip-audience.chip-selected {
+  background: #1e293b;
+  color: white;
+  border-color: #1e293b;
+}
+
+.chip-neutral {
+  border-color: rgba(var(--color-main-2), 0.4);
+  color: rgba(var(--color-main-2), 1);
+}
+
+.chip-neutral:hover {
+  background: rgba(var(--color-main-2), 0.06);
+}
+
+.chip-neutral.chip-active,
+.chip-neutral.chip-selected {
+  background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+  color: white;
+  border-color: rgba(var(--color-main-2), 1);
+}
+
+.filter-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: black;
+  margin-bottom: 1rem;
+  user-select: none;
+}
+
+.filter-checkbox input {
+  accent-color: rgba(var(--color-main-2), 1);
+  cursor: pointer;
+}
+
+.selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f9fafb;
+  border: 1px solid rgba(var(--color-main-2), 0.2);
+  border-radius: 10px;
+  align-items: center;
+}
+
+.chip-x {
+  margin-left: 0.15rem;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.filters-reset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: transparent;
+  color: #c73b5d;
+  border: 1px solid rgba(199, 59, 93, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.filters-reset:hover {
+  background-color: rgba(199, 59, 93, 0.05);
+  border-color: #c73b5d;
+}
+
+.filters-reset svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 415px) {
+  .filters-swap-ai {
+    display: none;
+  }
+}
