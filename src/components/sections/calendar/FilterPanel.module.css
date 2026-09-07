@@ -1,0 +1,236 @@
+.filter-section {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+  margin-bottom: 1rem;
+}
+
+.filter-section-open {
+  grid-template-rows: 1fr;
+}
+
+.filter-section-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filter-row-controls {
+  display: flex;
+  gap: 1rem;
+  margin: 0.75rem 0 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 220px;
+  position: relative;
+}
+
+.filter-control-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: black;
+}
+
+.filter-control-input {
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(var(--color-main-2), 1);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  background: white;
+  color: #1f2937;
+  box-sizing: border-box;
+}
+
+.filter-control-input:focus {
+  outline: none;
+  border-color: rgba(var(--color-main-2), 1);
+  box-shadow: 0 0 0 3px rgba(var(--color-main-2), 0.12);
+}
+
+.org-typeahead {
+  position: relative;
+}
+
+.org-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.org-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.9rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.org-option:hover {
+  background: #f3f4f6;
+}
+
+.org-option-empty {
+  padding: 0.75rem 0.9rem;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.filter-include-past {
+  margin: 0.75rem 0 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.include-past-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--color-main-2), 1);
+  background: white;
+  font-size: 1rem;
+  color: #4b5563;
+  user-select: none;
+}
+
+.include-past-label:hover {
+  background: color-mix(in srgb, rgb(var(--color-main-2)) 8%, white);
+}
+
+.include-past-checkbox {
+  margin: 0;
+  cursor: pointer;
+  accent-color: rgba(var(--color-main-2), 1);
+}
+
+.include-past-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: #1f2937;
+  margin-left: 0.4rem;
+}
+
+.include-past-loading svg {
+  width: 1.35rem;
+}
+
+@keyframes spin-with-pause {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.include-past-loading.animate svg {
+  animation: spin-with-pause 0.8s ease-in-out infinite;
+}
+
+.filter-section-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: black;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: white;
+  border: 1.5px solid;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.chip .dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chip-category {
+  border-color: var(--chip-color);
+  color: var(--chip-color);
+}
+
+.chip-category:hover {
+  background: color-mix(in srgb, var(--chip-bg) 40%, white);
+}
+
+.chip-category .dot {
+  background: var(--chip-color);
+}
+
+.chip-category.chip-active {
+  background: var(--chip-color);
+  color: white;
+  font-weight: 500;
+}
+
+.chip-audience {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.chip-audience:hover {
+  background: color-mix(in srgb, #475569 8%, white);
+}
+
+.chip-audience.chip-active {
+  background: #1e293b;
+  color: white;
+  border-color: #1e293b;
+}
+
+/* Remplace x-transition.opacity.duration.150ms sur la liste des organisations. */
+.org-dropdown {
+  animation: org-dropdown-fade-in 150ms ease;
+}
+
+@keyframes org-dropdown-fade-in {
+  from {
+    opacity: 0;
+  }
+}

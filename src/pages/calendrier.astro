@@ -1,8 +1,8 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
-import Calendar from "../components/Calendar.astro";
+import Calendar from "../components/Calendar.tsx";
 ---
 
-<MainLayout title="Calendrier des Événements" description={undefined}>
-  <Calendar />
+<MainLayout title="Calendrier" description={undefined}>
+  <Calendar client:load />
 </MainLayout>

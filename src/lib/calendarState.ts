@@ -1,9 +1,7 @@
-import flatpickr from "flatpickr";
-import { French } from "flatpickr/dist/l10n/fr.js";
 import type { Org, OrgSummary } from "../interfaces/org";
 import type { EventWithOrgIds } from "../interfaces/event";
 import type { ProcessedEvent } from "../interfaces/calendar";
-import { ALL_CATEGORIES, AUDIENCES } from "./taxonomy";
+import { ALL_CATEGORIES } from "./taxonomy";
 
 // Re-export pour ne pas casser les importeurs existants pendant la migration.
 export { ALL_CATEGORIES, AUDIENCES } from "./taxonomy";
@@ -124,374 +122,214 @@ export function processEvents(raw: EventWithOrgIds[]): ProcessedEvent[] {
   return out;
 }
 
-export function createCalendarComponent() {
-  return {
-    allEvents: [] as ProcessedEvent[],
-    allOrgs: [] as OrgSummary[],
-    loading: true,
-    includePast: false,
-    loadingPast: false,
-    searchQuery: "",
-    selectedCategories: new Set<string>(),
-    selectedAudiences: new Set<string>(),
-    selectedOrgId: null as string | null,
-    selectedOrgName: "",
-    dateFilter: null as Date | null,
-    currentDate: new Date(),
-    filtersOpen: false,
-    orgSearchQuery: "",
-    orgDropdownOpen: false,
-    expandedId: null as string | null,
-    visibleCount: 20 as number,
-    pageSize: 20 as number,
-    allCategories: ALL_CATEGORIES,
-    audiences: AUDIENCES,
-    flatpickrInstance: null as flatpickr.Instance | null,
+export type ActiveFilter =
+  | {
+      key: string;
+      type: "category";
+      label: string;
+      color: string;
+      bg: string;
+      text: string;
+      data: string;
+    }
+  | { key: string; type: "audience"; label: string; data: string }
+  | { key: string; type: "org"; label: string; data: string }
+  | { key: string; type: "date"; label: string; data: null }
+  | { key: string; type: "search"; label: string; data: null };
 
-    $nextTick: undefined as unknown as (callback: () => void) => void,
-    $watch: undefined as unknown as (
-      property: string,
-      callback: (value: unknown) => void,
-    ) => void,
+export const PAGE_SIZE = 20;
 
-    async init() {
-      this.currentDate = new Date(
-        this.currentDate.getFullYear(),
-        this.currentDate.getMonth(),
-        1,
-      );
+export function monthLabel(d: Date): string {
+  return `${FRENCH_MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}`;
+}
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlOrgId = urlParams.get("org");
+export function monthKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
 
-      await Promise.all([this.fetchEvents(), this.fetchOrgs()]);
+export function isSameMonthAsNow(d: Date): boolean {
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+  );
+}
 
-      if (urlOrgId) {
-        const found = this.allOrgs.find((o) => o.id === urlOrgId);
-        if (found) {
-          this.selectedOrgId = found.id;
-          this.selectedOrgName = found.name;
-        }
-      }
+export function firstOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
 
-      this.loading = false;
-      this.$watch("searchQuery", () => {
-        this.visibleCount = this.pageSize;
-      });
-      this.$nextTick(() => this.initDatePicker());
-    },
+/** Filtre les evenements — porte tel quel depuis le getter `visibleEvents`. */
+export function filterEvents(opts: {
+  allEvents: readonly ProcessedEvent[];
+  currentDate: Date;
+  dateFilter: Date | null;
+  selectedCategories: ReadonlySet<string>;
+  selectedAudiences: ReadonlySet<string>;
+  selectedOrgId: string | null;
+  searchQuery: string;
+}): ProcessedEvent[] {
+  const q = normalize(opts.searchQuery.trim());
+  const monthStart = new Date(
+    opts.currentDate.getFullYear(),
+    opts.currentDate.getMonth(),
+    1,
+  );
+  const monthEnd = new Date(
+    opts.currentDate.getFullYear(),
+    opts.currentDate.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+  );
 
-    async fetchEvents() {
-      try {
-        const url = this.includePast
-          ? "/api/dataEvents?all=true"
-          : "/api/dataEvents";
-        const res = await fetch(url, {
-          method: "GET",
-          signal: AbortSignal.timeout(20000),
-        });
-        if (res.status !== 200) throw new Error(`Status ${res.status}`);
-        const baseData = await res.json();
-        this.allEvents = processEvents(baseData.data ?? []);
-      } catch (err) {
-        console.error("Failed to load events:", err);
-        this.allEvents = [];
-      }
-    },
+  return opts.allEvents.filter((e) => {
+    const effectiveEnd = e.endDate ?? e.startDate;
+    if (e.startDate > monthEnd) return false;
+    if (effectiveEnd < monthStart) return false;
 
-    async onIncludePastChange() {
-      this.loadingPast = true;
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-      await this.fetchEvents();
-      this.loadingPast = false;
-    },
-
-    async fetchOrgs() {
-      try {
-        const res = await fetch("/api/dataInit", {
-          method: "GET",
-          signal: AbortSignal.timeout(5000),
-        });
-        if (res.status !== 200) throw new Error(`Status ${res.status}`);
-        const baseData = await res.json();
-        this.allOrgs = (baseData.data ?? []).map((o: Org) => ({
-          id: o.id,
-          name: o.name,
-        }));
-        this.allOrgs.sort((a, b) => a.name.localeCompare(b.name, "fr"));
-      } catch (err) {
-        console.error("Failed to load orgs:", err);
-        this.allOrgs = [];
-      }
-    },
-
-    initDatePicker() {
-      const el = document.getElementById("date-picker-input");
-      if (!el) return;
-      this.flatpickrInstance = flatpickr(el as HTMLInputElement, {
-        locale: French,
-        dateFormat: "d M Y",
-        allowInput: false,
-        disableMobile: true,
-        onChange: (dates: Date[]) => {
-          const picked = dates[0] ?? null;
-          this.dateFilter = picked;
-          if (picked) {
-            this.currentDate = new Date(
-              picked.getFullYear(),
-              picked.getMonth(),
-              1,
-            );
-            this.expandedId = null;
-            this.visibleCount = this.pageSize;
-          }
-        },
-      });
-    },
-
-    get currentMonthLabel(): string {
-      return `${FRENCH_MONTHS_FULL[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
-    },
-
-    get currentMonthKey(): string {
-      return `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, "0")}`;
-    },
-
-    get visibleEvents(): ProcessedEvent[] {
-      const q = normalize(this.searchQuery.trim());
-      const monthStart = new Date(
-        this.currentDate.getFullYear(),
-        this.currentDate.getMonth(),
-        1,
-      );
-      const monthEnd = new Date(
-        this.currentDate.getFullYear(),
-        this.currentDate.getMonth() + 1,
-        0,
+    if (opts.dateFilter) {
+      const df = opts.dateFilter;
+      const dayStart = new Date(df.getFullYear(), df.getMonth(), df.getDate());
+      const dayEnd = new Date(
+        df.getFullYear(),
+        df.getMonth(),
+        df.getDate(),
         23,
         59,
         59,
       );
+      const evEnd = e.endDate ?? e.startDate;
+      if (e.startDate > dayEnd || evEnd < dayStart) return false;
+    }
 
-      return this.allEvents.filter((e) => {
-        const effectiveEnd = e.endDate ?? e.startDate;
-        if (e.startDate > monthEnd) return false;
-        if (effectiveEnd < monthStart) return false;
+    if (opts.selectedCategories.size > 0) {
+      if (!e.categories.some((c) => opts.selectedCategories.has(c)))
+        return false;
+    }
 
-        if (this.dateFilter) {
-          const df = this.dateFilter;
-          const dayStart = new Date(
-            df.getFullYear(),
-            df.getMonth(),
-            df.getDate(),
-          );
-          const dayEnd = new Date(
-            df.getFullYear(),
-            df.getMonth(),
-            df.getDate(),
-            23,
-            59,
-            59,
-          );
-          const evEnd = e.endDate ?? e.startDate;
-          if (e.startDate > dayEnd || evEnd < dayStart) return false;
-        }
+    if (opts.selectedAudiences.size > 0) {
+      if (!e.categories.some((c) => opts.selectedAudiences.has(c)))
+        return false;
+    }
 
-        if (this.selectedCategories.size > 0) {
-          const hasMatch = e.categories.some((c) =>
-            this.selectedCategories.has(c),
-          );
-          if (!hasMatch) return false;
-        }
+    if (opts.selectedOrgId && !e.org_ids.includes(opts.selectedOrgId)) {
+      return false;
+    }
 
-        if (this.selectedAudiences.size > 0) {
-          const hasMatch = e.categories.some((c) =>
-            this.selectedAudiences.has(c),
-          );
-          if (!hasMatch) return false;
-        }
+    if (q) {
+      const haystack = [e.title, e.content, e.location, ...e.categories]
+        .map(normalize)
+        .join(" ");
+      if (!haystack.includes(q)) return false;
+    }
 
-        if (this.selectedOrgId) {
-          if (!e.org_ids.includes(this.selectedOrgId)) return false;
-        }
+    return true;
+  });
+}
 
-        if (q) {
-          const haystack = [e.title, e.content, e.location, ...e.categories]
-            .map(normalize)
-            .join(" ");
-          if (!haystack.includes(q)) return false;
-        }
+/** Porte tel quel depuis le getter `filteredOrgs`. */
+export function filterOrgs(
+  allOrgs: readonly OrgSummary[],
+  query: string,
+): OrgSummary[] {
+  const q = normalize(query.trim());
+  if (!q) return allOrgs.slice(0, 20);
+  return allOrgs.filter((o) => normalize(o.name).includes(q)).slice(0, 20);
+}
 
-        return true;
+/** Porte tel quel depuis le getter `activeFilters`, mais type. */
+export function buildActiveFilters(opts: {
+  selectedCategories: ReadonlySet<string>;
+  selectedAudiences: ReadonlySet<string>;
+  selectedOrgId: string | null;
+  selectedOrgName: string;
+  dateFilter: Date | null;
+  searchQuery: string;
+}): ActiveFilter[] {
+  const out: ActiveFilter[] = [];
+  for (const catName of opts.selectedCategories) {
+    const cat = ALL_CATEGORIES.find((c) => c.name === catName);
+    if (cat) {
+      out.push({
+        key: `cat:${catName}`,
+        type: "category",
+        label: cat.label,
+        color: cat.color,
+        bg: cat.bg,
+        text: cat.text,
+        data: catName,
       });
-    },
+    }
+  }
+  for (const audName of opts.selectedAudiences) {
+    out.push({
+      key: `aud:${audName}`,
+      type: "audience",
+      label: audName.charAt(0).toUpperCase() + audName.slice(1),
+      data: audName,
+    });
+  }
+  if (opts.selectedOrgId) {
+    out.push({
+      key: `org:${opts.selectedOrgId}`,
+      type: "org",
+      label: `Org: ${opts.selectedOrgName}`,
+      data: opts.selectedOrgId,
+    });
+  }
+  if (opts.dateFilter) {
+    const d = opts.dateFilter;
+    out.push({
+      key: `date:${d.toISOString().slice(0, 10)}`,
+      type: "date",
+      label: `Date: ${d.getDate()} ${FRENCH_MONTHS_FULL[d.getMonth()].toLowerCase()} ${d.getFullYear()}`,
+      data: null,
+    });
+  }
+  if (opts.searchQuery.trim()) {
+    out.push({
+      key: `search:${opts.searchQuery.trim()}`,
+      type: "search",
+      label: `« ${opts.searchQuery.trim()} »`,
+      data: null,
+    });
+  }
+  return out;
+}
 
-    get pagedEvents(): ProcessedEvent[] {
-      return this.visibleEvents.slice(0, this.visibleCount);
-    },
+export function categoryStyle(catName: string): string {
+  const cat = ALL_CATEGORIES.find((c) => c.name === catName);
+  if (!cat) return "";
+  return `background-color: ${cat.bg}; color: ${cat.text}; border: 1px solid ${cat.color}33;`;
+}
 
-    get remainingCount(): number {
-      return Math.max(0, this.visibleEvents.length - this.visibleCount);
-    },
+/** GET /api/dataEvents (+ ?all=true pour inclure le passe). */
+export async function fetchEvents(
+  includePast: boolean,
+): Promise<ProcessedEvent[]> {
+  const url = includePast ? "/api/dataEvents?all=true" : "/api/dataEvents";
+  const res = await fetch(url, {
+    method: "GET",
+    signal: AbortSignal.timeout(20000),
+  });
+  if (res.status !== 200) throw new Error(`Status ${res.status}`);
+  const baseData = await res.json();
+  return processEvents(baseData.data ?? []);
+}
 
-    loadMore() {
-      this.visibleCount += this.pageSize;
-    },
-
-    get filteredOrgs(): OrgSummary[] {
-      const q = normalize(this.orgSearchQuery.trim());
-      if (!q) return this.allOrgs.slice(0, 20);
-      return this.allOrgs
-        .filter((o) => normalize(o.name).includes(q))
-        .slice(0, 20);
-    },
-
-    get activeFilters() {
-      const out: any[] = [];
-      for (const catName of this.selectedCategories) {
-        const cat = ALL_CATEGORIES.find((c) => c.name === catName);
-        if (cat) {
-          out.push({
-            key: `cat:${catName}`,
-            type: "category",
-            label: cat.label,
-            color: cat.color,
-            bg: cat.bg,
-            text: cat.text,
-            data: catName,
-          });
-        }
-      }
-      for (const audName of this.selectedAudiences) {
-        out.push({
-          key: `aud:${audName}`,
-          type: "audience",
-          label: audName.charAt(0).toUpperCase() + audName.slice(1),
-          data: audName,
-        });
-      }
-      if (this.selectedOrgId) {
-        out.push({
-          key: `org:${this.selectedOrgId}`,
-          type: "org",
-          label: `Org: ${this.selectedOrgName}`,
-          data: this.selectedOrgId,
-        });
-      }
-      if (this.dateFilter) {
-        const d = this.dateFilter;
-        out.push({
-          key: `date:${d.toISOString().slice(0, 10)}`,
-          type: "date",
-          label: `Date: ${d.getDate()} ${FRENCH_MONTHS_FULL[d.getMonth()].toLowerCase()} ${d.getFullYear()}`,
-          data: null,
-        });
-      }
-      if (this.searchQuery.trim()) {
-        out.push({
-          key: `search:${this.searchQuery.trim()}`,
-          type: "search",
-          label: `« ${this.searchQuery.trim()} »`,
-          data: null,
-        });
-      }
-      return out;
-    },
-
-    get isCurrentMonth(): boolean {
-      const now = new Date();
-      return (
-        this.currentDate.getFullYear() === now.getFullYear() &&
-        this.currentDate.getMonth() === now.getMonth()
-      );
-    },
-
-    goToToday() {
-      const now = new Date();
-      this.currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    toggleCategory(name: string) {
-      if (this.selectedCategories.has(name)) {
-        this.selectedCategories.delete(name);
-      } else {
-        this.selectedCategories.add(name);
-      }
-      this.selectedCategories = new Set(this.selectedCategories);
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    toggleAudience(name: string) {
-      if (this.selectedAudiences.has(name)) {
-        this.selectedAudiences.delete(name);
-      } else {
-        this.selectedAudiences.add(name);
-      }
-      this.selectedAudiences = new Set(this.selectedAudiences);
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    selectOrg(org: OrgSummary) {
-      this.selectedOrgId = org.id;
-      this.selectedOrgName = org.name;
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    removeFilter(f: any) {
-      if (f.type === "category") {
-        this.selectedCategories.delete(f.data);
-        this.selectedCategories = new Set(this.selectedCategories);
-      } else if (f.type === "audience") {
-        this.selectedAudiences.delete(f.data);
-        this.selectedAudiences = new Set(this.selectedAudiences);
-      } else if (f.type === "org") {
-        this.selectedOrgId = null;
-        this.selectedOrgName = "";
-      } else if (f.type === "date") {
-        this.dateFilter = null;
-        this.flatpickrInstance?.clear();
-      } else if (f.type === "search") {
-        this.searchQuery = "";
-      }
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    prevMonth() {
-      if (!this.includePast && this.isCurrentMonth) return;
-      this.currentDate = new Date(
-        this.currentDate.getFullYear(),
-        this.currentDate.getMonth() - 1,
-        1,
-      );
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    nextMonth() {
-      this.currentDate = new Date(
-        this.currentDate.getFullYear(),
-        this.currentDate.getMonth() + 1,
-        1,
-      );
-      this.expandedId = null;
-      this.visibleCount = this.pageSize;
-    },
-
-    toggleExpand(id: string) {
-      this.expandedId = this.expandedId === id ? null : id;
-    },
-
-    getCategoryStyle(catName: string): string {
-      const cat = ALL_CATEGORIES.find((c) => c.name === catName);
-      if (!cat) return "";
-      return `background-color: ${cat.bg}; color: ${cat.text}; border: 1px solid ${cat.color}33;`;
-    },
-  };
+/** GET /api/dataInit, reduit a {id, name} et trie. */
+export async function fetchOrgSummaries(): Promise<OrgSummary[]> {
+  const res = await fetch("/api/dataInit", {
+    method: "GET",
+    signal: AbortSignal.timeout(5000),
+  });
+  if (res.status !== 200) throw new Error(`Status ${res.status}`);
+  const baseData = await res.json();
+  const orgs: OrgSummary[] = (baseData.data ?? []).map((o: Org) => ({
+    id: o.id,
+    name: o.name,
+  }));
+  orgs.sort((a, b) => a.name.localeCompare(b.name, "fr"));
+  return orgs;
 }

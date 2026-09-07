@@ -1,0 +1,337 @@
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+}
+
+.event-row {
+  background: white;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.event-row:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.event-row-expanded {
+  border-color: rgba(var(--color-main-2), 0.5);
+}
+
+.event-row-clickable {
+  display: grid;
+  grid-template-columns: 110px 1fr 1.2fr;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+  color: inherit;
+}
+
+.event-row.event-row-past {
+  opacity: 0.7;
+}
+
+.event-row.event-row-past:hover {
+  opacity: 1;
+}
+
+.event-date-col {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 81.13%);
+  color: white;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+}
+
+.event-date-block {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: fit-content;
+  color: white;
+  gap: 4px;
+}
+
+.event-date-block-end {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.event-date-day {
+  font-size: 1.8rem;
+  font-weight: 700;
+  height: fit-content;
+  width: inherit;
+  text-align: left;
+}
+
+.event-date-block-end .event-date-day {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.event-date-month {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04rem;
+}
+
+.event-body-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  margin: 1rem 1.25rem;
+}
+
+.event-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.event-location svg {
+  flex-shrink: 0;
+}
+
+.event-desc-col {
+  min-width: 0;
+}
+
+.event-desc-preview {
+  margin: 0.5rem 1rem 0.5rem 0;
+  font-size: 1rem;
+  color: #4b5563;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/*
+  Remplace le plugin x-collapse par la technique grid-template-rows deja
+  utilisee dans ce projet (.filter-section). Le bord et le fond passent sur
+  l'element interne et le conteneur prend overflow:hidden : replie, sa hauteur
+  est nulle et il masque donc le liseré de 1px — ce que faisait le display:none
+  final de x-show.
+*/
+.event-expanded {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.event-expanded-open {
+  grid-template-rows: 1fr;
+}
+
+/*
+  L'element directement dans la grille doit rester nu : `min-height: 0` retire
+  bien le plancher de contenu, mais le padding et la bordure comptent encore
+  dans le minimum automatique de la piste (d'ou une bande de 41px une fois
+  replie). C'est exactement pourquoi .filter-section-inner ne porte aucun
+  padding et laisse ses enfants s'en charger.
+*/
+.event-expanded-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.event-expanded-body {
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.event-content {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.event-times {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.event-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.event-tag {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  background: rgba(var(--color-main-2), 0.08);
+  color: rgba(var(--color-main-2), 1);
+  border-radius: 999px;
+}
+
+.event-tag::first-letter {
+  text-transform: capitalize;
+}
+
+.btn {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem 0.4rem 0.7rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-event {
+  background: rgba(var(--color-main), 1);
+}
+
+.btn-event:hover {
+  background: rgba(var(--color-main-dark), 1);
+}
+
+.btn-arrow-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  background: white;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+}
+
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.6rem;
+  border-radius: 10px;
+  border: 1.5px solid rgba(var(--color-main-2), 0.4);
+  background: white;
+  color: rgba(var(--color-main-2), 1);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family:
+    var(--font-neue-haas-grotesk), var(--font-founders-grotesk),
+    var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
+    "Nimbus Sans", Arial, sans-serif;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.load-more-btn:hover {
+  background: rgba(var(--color-main-2), 1);
+  color: white;
+  transform: translateY(-3px);
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  gap: 2.5vh;
+}
+
+.loading-state svg {
+  margin: auto;
+}
+
+@keyframes spin-with-pause {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.loading-state.animate svg {
+  animation: spin-with-pause 0.8s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  .event-row-clickable {
+    grid-template-columns: 1fr 6fr;
+    gap: 0.75rem;
+  }
+
+  .event-desc-col {
+    display: none;
+  }
+}
