@@ -304,6 +304,11 @@
 .loading-state {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  /* Holds roughly the room the event list is about to take, so the footer stays
+     below the fold while loading instead of showing at the bottom of the
+     viewport and jumping down once the events arrive. */
+  min-height: 60vh;
   text-align: center;
   padding: 3rem 1rem;
   color: #6b7280;

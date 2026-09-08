@@ -84,6 +84,13 @@ const metaDescription = Array.isArray(description)
       var(--font-inter-tight), Inter, Roboto, "Helvetica Neue", "Arial Nova",
       "Nimbus Sans", Arial, sans-serif;
   }
+  /* Sticky footer, second half: the content area takes the leftover space of
+     the body column, so short pages end with the footer at the bottom of the
+     viewport and no detached white band above it. `body > main` deliberately
+     skips the home page, where <Main> sits inside the flex row of .page. */
+  body > main {
+    flex: 1 0 auto;
+  }
   .navContMain {
     position: absolute;
     top: 0;
