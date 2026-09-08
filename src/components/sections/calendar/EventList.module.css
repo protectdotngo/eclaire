@@ -3,6 +3,10 @@
   flex-direction: column;
   gap: 2rem;
   position: relative;
+  /* <Background /> is absolute and skewed, so its transformed box reaches well
+     past this container and would stretch the page scroll height with blank
+     space below the footer. Every other Background host clips it the same way. */
+  overflow: hidden;
 }
 
 .event-row {

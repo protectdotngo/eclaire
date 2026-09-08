@@ -1,0 +1,54 @@
+---
+import ProtectDotNgo from "./ProtectDotNgo.astro";
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="footer-copyright">
+      Copyright <ProtectDotNgo /> 2026
+    </p>
+    <nav class="footer-nav">
+      <a href="/conditions" class="footer-link">
+        Conditions générales et confidentialité
+      </a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: auto;
+    background-color: #000;
+    color: #fff;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 0.75rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+  }
+
+  .footer-copyright {
+    margin: 0;
+  }
+
+  .footer-inner,
+  .footer-link {
+    font-size: 0.8125rem;
+  }
+
+  .footer-link {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .footer-link:hover,
+  .footer-link:focus-visible {
+    text-decoration: underline;
+  }
+</style>
