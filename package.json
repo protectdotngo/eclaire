@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "check": "astro check",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "delete-org": "tsx scripts/deleteOrg.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

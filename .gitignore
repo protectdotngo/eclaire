@@ -23,3 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+
+# org deletion backups (scripts/deleteOrg.ts --backup)
+orgs-backup-*.json

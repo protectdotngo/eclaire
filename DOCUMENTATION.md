@@ -618,7 +618,54 @@ pnpm check              # astro check (typage)
 pnpm test               # vitest run (tests unitaires)
 pnpm test:watch         # vitest en mode watch
 pnpm format             # prettier --write
+pnpm delete-org         # supprime une org et ses données (dry-run par défaut)
 ```
+
+### Supprimer une organisation
+
+`scripts/deleteOrg.ts` (`pnpm delete-org`) est le seul chemin de suppression du
+projet : l'application, elle, n'appelle jamais `db.delete()`.
+
+```bash
+pnpm delete-org --list [filtre]       # lister les orgs (id, nom, ville, compteurs)
+pnpm delete-org "<nom|uuid>"          # DRY RUN : ce qui serait supprimé
+pnpm delete-org "<nom|uuid>" --execute            # supprime après confirmation
+pnpm delete-org "<nom|uuid>" --execute --confirm "<nom>"   # sans terminal
+pnpm delete-org "<nom|uuid>" --backup dump.json   # dump JSON des lignes retirées
+```
+
+**L'ordre des suppressions n'est pas arbitraire** — il découle de la
+configuration des clés étrangères (§4) :
+
+1. On calcule d'abord, **avant toute suppression**, les événements et
+   actualités liés à cette org **et à aucune autre**. Le prédicat est bien
+   « rattaché à cette org et à personne d'autre », jamais « sans aucun lien » :
+   un événement que le scraping vient d'insérer n'a pas encore sa ligne de
+   jointure et ne doit pas être emporté.
+2. `propositions` (`modifying_org_id`) — supprimées explicitement, leurs
+   `proposition_verifications` suivent en cascade. Les propositions qui
+   nomment l'org sans la cibler (typiquement le `action = 'add'` qui l'a créée)
+   sont **conservées** et signalées : c'est l'historique de modération.
+3. `orgs_events` puis `orgs_news` pour cette org. Obligatoire avant l'étape
+   suivante : `orgs_news.news_id` n'a **pas** de cascade.
+4. Les événements et actualités orphelins, avec un `NOT EXISTS` de contrôle.
+   C'est lui qui neutralise le `ON DELETE CASCADE` de `orgs_events.event_id` :
+   si une autre org a réclamé la ligne entre-temps, elle est épargnée au lieu
+   d'être détruite avec son lien.
+5. `orgs` en dernier — les FK `NO ACTION` des tables de jointure servent alors
+   de contrôle d'exhaustivité : si quelque chose pointe encore vers l'org, toute
+   la transaction est annulée plutôt que de laisser des orphelins.
+
+Le tout dans **une seule transaction**, en `READ COMMITTED` avec un
+`SELECT ... FOR UPDATE` sur la ligne `orgs` : l'insertion d'un lien vers cette
+org exige un `FOR KEY SHARE` sur cette même ligne, donc le scraping ne peut pas
+en ajouter pendant l'opération. `lock_timeout` à 5 s pour ne pas bloquer la
+prod indéfiniment. Le dry-run tourne dans une transaction `read only`.
+
+⚠️ **Trois pièges** : n8n possède l'ingestion et réinsérera l'org (avec un
+nouvel UUID) à son prochain passage — il faut aussi la retirer de la config de
+scraping ; les caches en mémoire la servent encore 60 s (carte, calendrier) à
+5 min (liste d'orgs du chat) ; et il n'y a **aucun undo** sans `--backup`.
 
 Les tests unitaires ne touchent ni la base ni le LLM : `chatValidation.ts` est
 constitué de fonctions pures, donc `pnpm test` s'exécute sans `.env`. La CI
