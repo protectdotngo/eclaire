@@ -28,7 +28,11 @@ import {
   candidatesPromptSection,
   selectCandidates,
 } from "../../lib/orgCandidates";
-import { parseAndValidate, ensureLeadingText } from "../../lib/chatValidation";
+import {
+  parseAndValidate,
+  ensureLeadingText,
+  enforceScope,
+} from "../../lib/chatValidation";
 import type { RequestBody, EventSearchFilters } from "../../interfaces/chat";
 import type { EventWithOrgs, Event } from "../../interfaces/event";
 import type { OrgWithChatContext } from "../../interfaces/org";
@@ -145,7 +149,30 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Bad LLM output" }, 502);
   }
 
-  const response = ensureLeadingText(parsed.response);
+  // Thematic scope gate (EC-38). Runs before any DB work: an out-of-scope
+  // request costs zero queries.
+  const scoped = enforceScope(parsed.response, {
+    offTopic: parsed.offTopic,
+    lang: parsed.lang,
+  });
+  if (scoped.tripped) {
+    // No analytics stack: this log line is the only way to know how often the
+    // guard fires and whether the cap needs tuning.
+    console.warn(
+      `[chat] scope redirect (${scoped.tripped}) lang=${parsed.lang} raw=${rawText.slice(0, 300)}`,
+    );
+    return json({
+      blocks: scoped.response.blocks,
+      orgs: [],
+      events: [],
+      hasMoreEvents: false,
+      eventOffset: 0,
+      fabricatedIdsFiltered: parsed.fabricatedIds.length,
+      scopeRedirect: scoped.tripped,
+    });
+  }
+
+  const response = ensureLeadingText(scoped.response);
 
   const orgBlocks = response.blocks.filter((b) => b.type === "orgs") as Array<{
     type: "orgs";

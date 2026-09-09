@@ -13,6 +13,7 @@ Run tests:
     - pnpm install
     - pnpm format:check
     - pnpm check
+    - pnpm test
   cache:
     key:
       files:

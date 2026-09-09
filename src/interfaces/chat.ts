@@ -47,6 +47,16 @@ export type Block = TextBlock | OrgsBlock | EventSearchBlock;
 export type ChatResponse = { blocks: Block[] };
 
 /**
+ * Language the LLM declares for its `text` blocks. Restricted to the five
+ * languages the system prompt names, because it keys into server-owned
+ * canned strings.
+ */
+export type ReplyLang = "fr" | "en" | "de" | "it" | "es";
+
+/** Why the deterministic scope guard replaced the model's answer. */
+export type ScopeTrip = "model_signal" | "text_too_long";
+
+/**
  * Response returned by /api/chat: LLM blocks + hydrated data.
  */
 export interface ChatApiResponse {
@@ -56,6 +66,7 @@ export interface ChatApiResponse {
   hasMoreEvents?: boolean;
   eventOffset?: number;
   fabricatedIdsFiltered?: number;
+  scopeRedirect?: ScopeTrip;
 }
 
 export interface PromptVersion {

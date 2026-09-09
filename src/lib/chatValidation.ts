@@ -2,10 +2,40 @@ import type {
   Block,
   ChatResponse,
   EventSearchFilters,
+  ReplyLang,
+  ScopeTrip,
 } from "../interfaces/chat";
 import { AUDIENCE_TAGS } from "../data/audienceTags";
 
 const MAX_ITEMS_PER_BLOCK = 5;
+
+/**
+ * Sortie A (clarification / help) and Sortie D (out-of-scope redirect) are by
+ * spec a single SHORT text block. The longest legitimate example in the system
+ * prompt is the RÈGLE 4 orientation message at ~443 chars, ~575 once
+ * translated into German. A text-only answer above this cap is structurally
+ * out of spec — the model is writing prose (a recipe, an essay) instead of
+ * planning a query — so we discard it wholesale.
+ *
+ * The same figure is stated in the system prompt (Sortie A/D and the final
+ * self-check) so that both layers agree on the bound.
+ */
+export const MAX_TEXT_ONLY_CHARS = 900;
+
+const REPLY_LANGS: readonly ReplyLang[] = ["fr", "en", "de", "it", "es"];
+
+/**
+ * Canned out-of-scope redirect, one per supported language. Written here and
+ * never by the model: the whole point of the guard is that no model prose
+ * survives a scope trip.
+ */
+const SCOPE_REDIRECT: Record<ReplyLang, string> = {
+  fr: "Je peux seulement t'aider sur des questions liées au numérique et aux technologies : apprendre à utiliser un ordinateur ou un smartphone, trouver une formation ou de l'aide informatique, cybersécurité, arnaques en ligne, équipement et connexion. Pose-moi une question sur l'un de ces sujets et je cherche dans l'annuaire genevois.",
+  en: "I can only help with digital and technology questions: learning to use a computer or a smartphone, finding training or IT support, cybersecurity, online scams, equipment and connectivity. Ask me about one of those topics and I'll search the Geneva directory.",
+  de: "Ich kann dir nur bei Fragen zu Digitalem und Technik helfen: den Umgang mit Computer oder Smartphone lernen, Kurse oder IT-Unterstützung finden, Cybersicherheit, Online-Betrug, Geräte und Internetzugang. Stell mir eine Frage dazu, dann suche ich im Genfer Verzeichnis.",
+  it: "Posso aiutarti solo con domande sul digitale e sulle tecnologie: imparare a usare un computer o uno smartphone, trovare una formazione o assistenza informatica, cybersicurezza, truffe online, attrezzature e connessione. Fammi una domanda su questi temi e cerco nell'annuario ginevrino.",
+  es: "Solo puedo ayudarte con preguntas sobre lo digital y las tecnologías: aprender a usar un ordenador o un móvil, encontrar formación o ayuda informática, ciberseguridad, estafas en línea, equipamiento y conexión. Pregúntame sobre estos temas y busco en el directorio ginebrino.",
+};
 
 const TIME_OF_DAY_VALUES = ["morning", "afternoon", "evening"] as const;
 const VALID_CATEGORIES = new Set([
@@ -26,7 +56,12 @@ const VALID_CATEGORIES = new Set([
 export function parseAndValidate(
   rawText: string,
   validIds: Set<string>,
-): { response: ChatResponse; fabricatedIds: string[] } {
+): {
+  response: ChatResponse;
+  fabricatedIds: string[];
+  offTopic: boolean;
+  lang: ReplyLang;
+} {
   const cleaned = rawText
     .trim()
     .replace(/^```(?:json)?\s*/i, "")
@@ -87,7 +122,16 @@ export function parseAndValidate(
     }
   }
 
-  return { response: { blocks: out }, fabricatedIds };
+  // Root-level fields the model declares alongside `blocks`. `lang` is
+  // whitelisted rather than trusted: only one of five keys into a
+  // server-owned table can survive, so the model cannot author its own
+  // redirect text.
+  const offTopic = parsed.off_topic === true;
+  const lang: ReplyLang = REPLY_LANGS.includes(parsed.lang)
+    ? (parsed.lang as ReplyLang)
+    : "fr";
+
+  return { response: { blocks: out }, fabricatedIds, offTopic, lang };
 }
 
 function sanitizeEventSearchFilters(
@@ -171,6 +215,47 @@ function sanitizeEventSearchFilters(
   }
 
   return filters;
+}
+
+/**
+ * Deterministic scope enforcement — the layer that does not depend on the
+ * model behaving. Two independent triggers:
+ *
+ *  - `model_signal`: the model set `"off_topic": true`. This is the reliable
+ *    path, and the only one that catches SHORT off-topic answers that no
+ *    length heuristic can see (a two-line cocktail list is ~120 chars).
+ *  - `text_too_long`: a text-only answer above MAX_TEXT_ONLY_CHARS. Backstop
+ *    for a model that ignores the scope rule entirely and writes a recipe or
+ *    an essay without flagging it.
+ *
+ * On a trip the model's blocks are dropped wholesale and replaced with the
+ * canned redirect, so nothing the model wrote reaches the user.
+ */
+export function enforceScope(
+  response: ChatResponse,
+  opts: { offTopic: boolean; lang: ReplyLang },
+): { response: ChatResponse; tripped: ScopeTrip | null } {
+  const textOnly =
+    response.blocks.length > 0 &&
+    response.blocks.every((b) => b.type === "text");
+  const textLength = response.blocks.reduce(
+    (n, b) => (b.type === "text" ? n + b.content.length : n),
+    0,
+  );
+
+  let tripped: ScopeTrip | null = null;
+  if (opts.offTopic) tripped = "model_signal";
+  else if (textOnly && textLength > MAX_TEXT_ONLY_CHARS)
+    tripped = "text_too_long";
+
+  if (!tripped) return { response, tripped: null };
+
+  return {
+    response: {
+      blocks: [{ type: "text", content: SCOPE_REDIRECT[opts.lang] }],
+    },
+    tripped,
+  };
 }
 
 export function ensureLeadingText(response: ChatResponse): ChatResponse {

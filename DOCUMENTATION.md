@@ -145,10 +145,14 @@ les builds natifs `esbuild` et `sharp`).
 4. La réponse JSON est **parsée et validée** (`chatValidation.ts`) : on rejette
    les IDs fabriqués, on plafonne à 5 organisations, on borne les filtres à des
    valeurs autorisées, et on répare le JSON tronqué si nécessaire.
-5. Les organisations retenues sont **hydratées** depuis la base (données
+5. Le **périmètre thématique est appliqué côté serveur** (`enforceScope`) : si
+   le modèle a signalé `off_topic`, ou si la réponse ne contient que du texte
+   au-delà de 900 caractères, tous ses blocs sont remplacés par une redirection
+   figée et la requête s'arrête là (aucune requête SQL). Voir §8.
+6. Les organisations retenues sont **hydratées** depuis la base (données
    complètes + prochain événement à venir), et tout bloc `event_search` est
    exécuté en SQL.
-6. Le résultat consolidé (blocs + orgs + événements) revient au client, qui
+7. Le résultat consolidé (blocs + orgs + événements) revient au client, qui
    l'affiche dans une _timeline_ et met à jour la carte.
 
 Point clé : le LLM ne renvoie que des **identifiants** et des **filtres**. Les
@@ -275,19 +279,25 @@ définit des couleurs pour les thèmes clair et sombre.
 Le prompt (`src/lib/prompts/chatSystemPrompt.md`) est long et normatif. Ses
 règles principales :
 
-- **3 types de sortie** (jamais mélangés, sauf exception « B+ ») :
+- **4 types de sortie** (jamais mélangés, sauf exception « B+ ») :
   - **A** — question de clarification ou message d'aide (texte seul) ;
   - **B** — recherche d'événements (`event_search` avec filtres) ;
   - **C** — liste d'organisations (`orgs`, 1 à 5 items avec un `reason`).
   - **B+** — événements _plus_ 2-3 orgs en secours, réservé aux sujets précis.
+  - **D** — demande hors périmètre numérique : un seul bloc `text` de refus
+    poli, plus `"off_topic": true` à la racine, et aucune recherche déclenchée.
 - **Maximum absolu de 5 organisations** par réponse.
 - **Tutoiement** obligatoire, et **réponse dans la langue de l'utilisateur**
   (mais les valeurs de filtres restent en français car ce sont des tags DB).
 - **Interdiction d'inventer des filtres** : un axe demandé = un filtre rempli,
   jamais de valeur « par défaut ».
 - Le mot _événement_ (ou atelier, cours, conférence…) force une sortie B.
-- **Périmètre strict** : pas de recommandations commerciales, aucune entité
-  hors annuaire.
+- **Périmètre thématique** (RÈGLE 9) : seules les demandes liées au numérique
+  et aux technologies sont traitées. Cuisine, santé, météo, devoirs, traduction
+  de texte, culture générale… → Sortie D. Le refus est ensuite **imposé côté
+  serveur**, indépendamment de la docilité du modèle (voir §8).
+- **Périmètre documentaire** : pas de recommandations commerciales, aucune
+  entité hors annuaire.
 - **Filtrage géographique** sur le champ `city` uniquement, jamais élargi
   automatiquement.
 - Règles renforcées pour les **situations de victime** (harcèlement, arnaque) :
@@ -295,8 +305,15 @@ règles principales :
 
 ### Format de sortie du LLM
 
+Deux champs à la racine encadrent les blocs : `lang` (`"fr" | "en" | "de" |
+"it" | "es"`, la langue des blocs `text`) et `off_topic` (`true` uniquement
+pour une Sortie D). Le serveur n'accorde aucune confiance à `lang` : il n'est
+qu'une clé vers cinq messages figés côté serveur.
+
 ```json
 {
+  "off_topic": false,
+  "lang": "fr",
   "blocks": [
     { "type": "text", "content": "..." },
     {
@@ -442,6 +459,23 @@ Tous sous `src/pages/api/`. Réponses en JSON.
 - Réparation d'un JSON tronqué (`tryRepairTruncatedJson`) : ferme proprement le
   tableau `blocks` au dernier item complet.
 - Garantie d'un premier bloc `text` (`ensureLeadingText`).
+- **Application du périmètre thématique** (`enforceScope`, EC-38), deux
+  déclencheurs indépendants :
+  - `model_signal` — le modèle a mis `"off_topic": true`. C'est le chemin
+    fiable, et le seul qui attrape un hors-sujet **court** (une liste de
+    cocktails fait ~120 caractères, invisible pour toute heuristique de
+    longueur).
+  - `text_too_long` — réponse composée uniquement de texte au-delà de
+    `MAX_TEXT_ONLY_CHARS` (900). Filet de sécurité si le modèle ignore la règle
+    et rédige une recette ou une dissertation sans la signaler. Repère : le plus
+    long texte légitime du prompt (message d'orientation RÈGLE 4) fait 433
+    caractères.
+
+  Dans les deux cas, **tous** les blocs du modèle sont jetés et remplacés par
+  une redirection figée dans la langue déclarée : aucune prose du modèle
+  n'atteint l'utilisateur. Chaque déclenchement est journalisé
+  (`[chat] scope redirect (…)`) — c'est la seule visibilité disponible, faute
+  d'outillage analytique.
 
 ---
 
@@ -522,7 +556,8 @@ l'historique Git.
     │   ├── dbDrizzle.ts         # connexion PostgreSQL
     │   ├── chatPrompt.ts        # construction du prompt + cache 5 min
     │   ├── orgCandidates.ts     # présélection déterministe
-    │   ├── chatValidation.ts    # parsing/validation de la sortie LLM
+    │   ├── chatValidation.ts    # parsing/validation + périmètre thématique
+    │   ├── chatValidation.test.ts # tests unitaires (vitest)
     │   ├── mapSearch/
     │   │   ├── chatController.ts # orchestration du chat (absorbe l'ancien
     │   │   │                     #   mapSearchController)
@@ -580,8 +615,15 @@ pnpm dev                # serveur de dev sur http://localhost:4321
 pnpm build              # build de production dans ./dist
 pnpm preview            # prévisualise le build
 pnpm check              # astro check (typage)
+pnpm test               # vitest run (tests unitaires)
+pnpm test:watch         # vitest en mode watch
 pnpm format             # prettier --write
 ```
+
+Les tests unitaires ne touchent ni la base ni le LLM : `chatValidation.ts` est
+constitué de fonctions pures, donc `pnpm test` s'exécute sans `.env`. La CI
+(`.gitlab-ci.yml`, étape `Run tests`) enchaîne `format:check`, `check` et
+`test`.
 
 Un fichier `.env` local doit fournir au minimum les variables `SCW_DB_*` (accès
 à une base peuplée) et, pour tester le chat, `SCW_API_LLM_LNK` + `SCW_API_KEY`.
