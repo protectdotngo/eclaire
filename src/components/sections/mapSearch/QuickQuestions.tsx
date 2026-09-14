@@ -7,16 +7,18 @@ import styles from "./QuickQuestions.module.css";
 /** Was three hand-written buttons carrying their text in data-question. */
 const QUICK_QUESTIONS = [
   {
-    label: "Réparer mon téléphone",
-    question: "Comment réparer mon téléphone ?",
+    label: "Je cherche une formation aux réseaux sociaux sur Genève",
+    question: "Je cherche une formation aux réseaux sociaux sur Genève",
   },
   {
-    label: "Utiliser mon ordinateur",
-    question: "Comment utiliser mon ordinateur ?",
+    label: "Je suis entre deux boulots, comment me former a l'IA ?",
+    question: "Je suis entre deux boulots, comment me former a l'IA ?",
   },
   {
-    label: "Paramétrer mes emails",
-    question: "Comment paramétrer mes emails ?",
+    label:
+      "Je m'inquiète du temps passé par mes enfants sur les réseaux sociaux",
+    question:
+      "Je m'inquiète du temps passé par mes enfants sur les réseaux sociaux",
   },
 ] as const;
 
