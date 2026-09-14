@@ -1,0 +1,35 @@
+<div class="beta-banner">
+  <p class="beta-banner-text">
+    Version bêta — la sortie officielle est prévue le lundi 21 septembre.
+  </p>
+</div>
+
+<style>
+  /* Temporary launch notice. To remove it after the release, grep
+     `beta-banner` — this file, BaseLayout.astro, Map.astro and
+     SidePanel.astro are the only call sites. */
+  .beta-banner {
+    flex: 0 0 auto;
+    /* Page content paints over a static banner: `Hero`'s decorative photo is
+       `position: absolute; top: -320px`, so it bleeds above <main> and onto
+       the banner (visible on /proposer). Sit above every content layer (the
+       highest is the mobile side panel at 2000) but below `.navContMain`
+       (5000), so the mobile drawer still covers the banner when open. */
+    position: relative;
+    z-index: 3000;
+    height: var(--beta-banner-height);
+    display: flex;
+    align-items: center;
+    background-color: rgba(var(--color-main-2), 1);
+    color: rgba(var(--bg-color-1), 1);
+  }
+
+  .beta-banner-text {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-inline: 2rem;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    text-align: center;
+  }
+</style>
