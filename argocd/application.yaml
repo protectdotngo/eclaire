@@ -3,6 +3,12 @@
 # Les valeurs sensibles sont remplacées par <SECRET> — ne jamais les committer.
 # Si l'Application doit être recréée, repartir de ce fichier et remplir les
 # secrets via l'UI ArgoCD.
+#
+# ⚠️ PRÉREQUIS HORS APPLICATION : le déploiement du repo-server doit porter
+# ARGOCD_GIT_MODULES_ENABLED=false. Le dépôt a un submodule privé
+# (src/assets/fonts/) qu'ArgoCD ne sait pas cloner et dont il n'a pas besoin ;
+# sans ce réglage la génération des manifests échoue sur « HTTP Basic: Access
+# denied » et la sync ne produit rien. Voir DOCUMENTATION.md §15.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

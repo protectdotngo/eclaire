@@ -739,6 +739,29 @@ dépendance au chart `common` de Bitnami.
 3. **Cloudflare Access** — seule protection des pages d'admin `/prompt` et
    `/verification` (cette dernière écrit dans la table `orgs` de production).
 
+4. **`argocd-repo-server` doit tourner avec `ARGOCD_GIT_MODULES_ENABLED=false`.**
+   Le dépôt contient un submodule privé (`src/assets/fonts/` →
+   `cyberpeaceinstitute/eclaire-fonts`, fonte Founders Grotesk sous licence
+   commerciale). ArgoCD clone le dépôt pour rendre le chart `helm/` et lance
+   `git submodule update --init --recursive` ; ses credentials ne couvrent que
+   `micropachycephalosaurus`, donc le clone du submodule échoue et **la
+   génération des manifests s'arrête avant de produire quoi que ce soit** :
+
+   ```
+   ComparisonError: Failed to load target state: ... failed to update submodules
+   remote: HTTP Basic: Access denied.
+   fatal: Authentication failed for '.../eclaire-fonts.git/'
+   ```
+
+   ⚠️ Le message ressemble à un problème d'accès au dépôt de l'application :
+   ce n'en est pas un. **ArgoCD n'a aucun besoin de la fonte** — elle est
+   intégrée à l'image Docker au moment du build CI. Le réglage ne fait que lui
+   éviter de récupérer un submodule qu'il n'utilisera jamais.
+
+   À reconfigurer si l'instance ArgoCD est réinstallée. Le réglage est
+   _global au repo-server_ : il désactive les submodules pour toutes les
+   Applications de cette instance.
+
 ---
 
 ## 16. Points d'attention pour la maintenance
