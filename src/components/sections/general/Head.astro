@@ -27,8 +27,11 @@ const pageDesc = description
 
   <Font cssVariable="--font-inter-tight" preload />
   <Font cssVariable="--font-neue-haas-grotesk" preload />
-  <Font cssVariable="--font-founders-grotesk-medium" preload />
-  <Font cssVariable="--font-founders-grotesk" preload />
+  {
+    __HAS_FOUNDERS_GROTESK__ && (
+      <Font cssVariable="--font-founders-grotesk" preload />
+    )
+  }
 
   <!-- Facebook Meta Tags -->
   <meta property="og:url" content={canonicalURL} />

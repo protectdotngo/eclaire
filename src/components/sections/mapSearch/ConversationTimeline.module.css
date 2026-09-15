@@ -121,7 +121,7 @@
   letter-spacing: 0.05em;
   padding: 0.2rem 0.4rem;
   text-transform: uppercase;
-  font-family: var(--font-founders-grotesk);
+  font-family: var(--font-founders-grotesk, var(--font-neue-haas-grotesk));
 }
 
 .event-inline-row {

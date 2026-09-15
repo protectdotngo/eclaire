@@ -33,10 +33,15 @@ Scaleway). Déploiement : Docker → Helm → ArgoCD (Kubernetes).
 ## Démarrage rapide
 
 ```bash
+git submodule update --init   # fontes privées (facultatif, voir Licence)
 pnpm install
 cp .env.example .env   # puis renseigner les variables (voir ci-dessous)
 pnpm dev               # http://localhost:4321
 ```
+
+> Le submodule `src/assets/fonts/` contient une fonte sous licence commerciale
+> et n'est accessible qu'aux membres de Protect.ngo. Sans lui, le projet se
+> construit et fonctionne normalement (voir Licence).
 
 > Sans `SCW_API_LLM_LNK` + `SCW_API_KEY`, l'application démarre mais
 > `/api/chat` renvoie `500 « Chat is not configured »`. Le reste du site
@@ -129,7 +134,17 @@ l'AGPL donne aux utilisateurs de <https://eclaire.protect.ngo> le droit
 d'obtenir le code source correspondant. Celui-ci est publié sur
 <https://github.com/protectdotngo/eclaire>.
 
-⚠️ **Certains éléments du dépôt ne sont pas couverts par cette licence** :
-les fontes Founders Grotesk (propriétaires, non redistribuables), les logos
+⚠️ **Certains éléments ne sont pas couverts par cette licence** : les logos
 des partenaires, les PDF de ressources et les données cartographiques. Voir
 [`NOTICE`](./NOTICE) pour le détail.
+
+La fonte **Founders Grotesk** (Klim Type Foundry) est sous licence commerciale
+et n'est donc **pas incluse dans ce dépôt** : elle vit dans un dépôt privé,
+monté en submodule sur `src/assets/fonts/`. Son absence est détectée à la
+construction (`astro.config.mjs`) et la famille n'est alors pas déclarée — le
+projet se construit et fonctionne normalement, les étiquettes d'événements
+utilisant Neue Haas Grotesk Display à la place.
+
+> Note pour les mainteneurs : `jj` ne gère pas les submodules. Il préserve le
+> lien existant, mais l'ajout du submodule et toute mise à jour de sa révision
+> doivent être faits avec `git`, pas `jj`.

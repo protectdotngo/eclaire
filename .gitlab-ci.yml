@@ -3,6 +3,13 @@ stages:
   - build
   - deploy
 
+variables:
+  # Founders Grotesk is commercially licensed and lives in a private repo
+  # mounted at src/assets/fonts/ (see NOTICE). Both the test job (astro check)
+  # and the image build need it checked out.
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_FORCE_HTTPS: "true"
+
 Run tests:
   stage: test
   image: alpine:latest

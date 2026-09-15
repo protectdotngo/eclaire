@@ -6,25 +6,29 @@ version 3 or (at your option) any later version. See the LICENSE file for
 the full text.
 
 The AGPL grant covers the source code of Éclaire. It does NOT cover the
-third-party material listed below, which is included in this repository
-under separate terms. Anyone redistributing or reusing this project must
-obtain their own rights to that material.
+third-party material listed below, which is either included in this
+repository under separate terms or deliberately kept out of it. Anyone
+redistributing or reusing this project must obtain their own rights to
+that material.
 
 
 1. FONTS
 --------
 
-Founders Grotesk (Klim Type Foundry) — PROPRIETARY, NOT COVERED BY THE AGPL
+Founders Grotesk (Klim Type Foundry) — PROPRIETARY, NOT IN THIS REPOSITORY
 
-    public/fonts/FoundersGrotesk-Semibold.otf
-    src/assets/fonts/founders-grotesk-x-condensed-bold.woff2
-    src/assets/fonts/founders-grotesk-x-condensed-semibold.woff2
+Éclaire sets its event tags in Founders Grotesk X-Condensed, which is
+licensed commercially from Klim Type Foundry and is NOT redistributable
+under the AGPL or any other open-source license. The font file is therefore
+kept in a separate private repository, mounted as a git submodule at:
 
-These font files are licensed commercially from Klim Type Foundry and are
-NOT redistributable under the AGPL or any other open-source license. They
-are present in this repository for the operation of the Éclaire service
-only. If you fork, redistribute or deploy this project, you must hold your
-own Klim Type Foundry license for these fonts, or replace them.
+    src/assets/fonts/
+
+Public clones cannot fetch that submodule, and nothing is lost by that: the
+build detects the font's absence and simply does not register the family
+(see astro.config.mjs), so Éclaire builds and runs normally, with the event
+tags falling back to Neue Haas Grotesk Display. To reproduce the original
+typography you must hold your own Klim Type Foundry license.
 
 Neue Haas Grotesk Display — served at runtime through Adobe Fonts
 (configured in astro.config.mjs via fontProviders.adobe), subject to Adobe's
