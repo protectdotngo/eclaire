@@ -115,3 +115,21 @@ helm/ · argocd/      Déploiement Kubernetes
 Pour l'architecture détaillée, le modèle de données, le fonctionnement de
 l'assistant, le déploiement et les points de maintenance, voir
 **[`documentation.md`](./documentation.md)**.
+
+## Licence
+
+Le code d'Éclaire est distribué sous **licence GNU AGPL-3.0-or-later** (GNU
+Affero General Public License, version 3 ou ultérieure). Le texte complet se
+trouve dans [`LICENSE`](./LICENSE).
+
+Copyright (C) 2026 Protect.ngo
+
+Éclaire étant proposé comme service accessible par le réseau, l'article 13 de
+l'AGPL donne aux utilisateurs de <https://eclaire.protect.ngo> le droit
+d'obtenir le code source correspondant. Celui-ci est publié sur
+<https://github.com/protectdotngo/eclaire>.
+
+⚠️ **Certains éléments du dépôt ne sont pas couverts par cette licence** :
+les fontes Founders Grotesk (propriétaires, non redistribuables), les logos
+des partenaires, les PDF de ressources et les données cartographiques. Voir
+[`NOTICE`](./NOTICE) pour le détail.

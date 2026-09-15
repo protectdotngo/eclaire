@@ -1,0 +1,65 @@
+Éclaire
+Copyright (C) 2026 Protect.ngo
+
+This product is licensed under the GNU Affero General Public License,
+version 3 or (at your option) any later version. See the LICENSE file for
+the full text.
+
+The AGPL grant covers the source code of Éclaire. It does NOT cover the
+third-party material listed below, which is included in this repository
+under separate terms. Anyone redistributing or reusing this project must
+obtain their own rights to that material.
+
+
+1. FONTS
+--------
+
+Founders Grotesk (Klim Type Foundry) — PROPRIETARY, NOT COVERED BY THE AGPL
+
+    public/fonts/FoundersGrotesk-Semibold.otf
+    src/assets/fonts/founders-grotesk-x-condensed-bold.woff2
+    src/assets/fonts/founders-grotesk-x-condensed-semibold.woff2
+
+These font files are licensed commercially from Klim Type Foundry and are
+NOT redistributable under the AGPL or any other open-source license. They
+are present in this repository for the operation of the Éclaire service
+only. If you fork, redistribute or deploy this project, you must hold your
+own Klim Type Foundry license for these fonts, or replace them.
+
+Neue Haas Grotesk Display — served at runtime through Adobe Fonts
+(configured in astro.config.mjs via fontProviders.adobe), subject to Adobe's
+terms of service. Not redistributed in this repository, and not covered by
+the AGPL grant.
+
+Inter Tight — served through Fontsource under the SIL Open Font License 1.1.
+
+
+2. PARTNER LOGOS AND TRADEMARKS
+-------------------------------
+
+The logos and wordmarks under public/eclaire-v1/partners/ remain the
+property of their respective owners and are used with permission for the
+purpose of identifying Éclaire's partner organisations. They are not
+covered by the AGPL grant, and trademark rights are not licensed by it.
+
+
+3. PARTNER DOCUMENTS
+--------------------
+
+    public/eclaire-v1/resources/ARNAQUE.pdf
+    public/eclaire-v1/resources/HYGIENE.pdf
+    public/eclaire-v1/resources/IA.pdf
+
+These documents remain the property of their respective authors and are
+not covered by the AGPL grant.
+
+
+4. MAP DATA AND TILES
+---------------------
+
+Éclaire displays map tiles from Stadia Maps, OpenMapTiles and CARTO, built
+on OpenStreetMap data. Attribution is rendered in the application (see
+src/components/Map.astro). OpenStreetMap data is licensed under the Open
+Database License (ODbL). Map tiles and data are obtained from their
+providers under those providers' terms and are not covered by the AGPL
+grant.
