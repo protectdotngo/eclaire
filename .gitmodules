@@ -1,0 +1,3 @@
+[submodule "src/assets/fonts"]
+	path = src/assets/fonts
+	url = ../eclaire-fonts.git
