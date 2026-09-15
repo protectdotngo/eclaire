@@ -330,9 +330,17 @@ Combinaisons valides : `[text]`, `[text, event_search, text]`,
 
 ### Filtres `event_search` supportés
 
-`date_from`, `date_to` (ISO), `day_of_week` (0-6, récurrence), `time_of_day`
-(`morning`/`afternoon`/`evening`), `categories[]`, `keywords[]`, `city`,
-`org_ids[]`, `audience`, `offset` (pagination, 10 résultats par page).
+`date_from`, `date_to` (ISO), `include_past` (booléen), `day_of_week` (0-6,
+récurrence), `time_of_day` (`morning`/`afternoon`/`evening`), `categories[]`,
+`keywords[]`, `city`, `org_ids[]`, `audience`, `offset` (pagination, 10
+résultats par page).
+
+Par défaut, une recherche ne retourne que les événements **en cours ou à
+venir**. Ce plancher est appliqué côté serveur (`eventSearchWindow.ts`) et
+`date_from` ne le lève PAS : les dates du modèle peuvent restreindre la
+fenêtre, jamais l'élargir vers le passé. Seul `include_past: true` le lève —
+les résultats sont alors triés du plus récent au plus ancien, et une fenêtre
+sans `date_to` est bornée à aujourd'hui.
 
 ### Édition du prompt en production — page `/prompt`
 

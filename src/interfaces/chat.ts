@@ -13,6 +13,11 @@ export interface RequestBody {
 export interface EventSearchFilters {
   date_from?: string;
   date_to?: string;
+  /**
+   * Lift the "current or upcoming only" floor and read the window backwards
+   * from today. Set only when the user explicitly asks about the past.
+   */
+  include_past?: boolean;
   day_of_week?: number;
   time_of_day?: "morning" | "afternoon" | "evening";
   categories?: string[];

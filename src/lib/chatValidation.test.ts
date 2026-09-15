@@ -306,6 +306,27 @@ describe("event_search filter sanitisation", () => {
     ).toEqual({ date_from: "2026-09-09" });
   });
 
+  it("keeps include_past only when it is literally true", () => {
+    expect(filtersFor({ include_past: true })).toEqual({ include_past: true });
+    expect(filtersFor({ include_past: false })).toEqual({});
+    expect(filtersFor({ include_past: "true" })).toEqual({});
+    expect(filtersFor({ include_past: 1 })).toEqual({});
+  });
+
+  it("keeps include_past alongside a date range", () => {
+    expect(
+      filtersFor({
+        date_from: "2026-07-01",
+        date_to: "2026-07-31",
+        include_past: true,
+      }),
+    ).toEqual({
+      date_from: "2026-07-01",
+      date_to: "2026-07-31",
+      include_past: true,
+    });
+  });
+
   it("bounds day_of_week to 0-6 and rejects non-integers", () => {
     expect(filtersFor({ day_of_week: 6 })).toEqual({ day_of_week: 6 });
     expect(filtersFor({ day_of_week: 7 })).toEqual({});

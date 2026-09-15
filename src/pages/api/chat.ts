@@ -3,6 +3,7 @@ import type { APIRoute } from "astro";
 import {
   and,
   asc,
+  desc,
   eq,
   gte,
   ilike,
@@ -33,6 +34,7 @@ import {
   ensureLeadingText,
   enforceScope,
 } from "../../lib/chatValidation";
+import { resolveEventWindow } from "../../lib/eventSearchWindow";
 import type { RequestBody, EventSearchFilters } from "../../interfaces/chat";
 import type { EventWithOrgs, Event } from "../../interfaces/event";
 import type { OrgWithChatContext } from "../../interfaces/org";
@@ -353,11 +355,18 @@ async function runEventSearch(
   }
 
   const today = new Date().toISOString().slice(0, 10);
+  const searchWindow = resolveEventWindow(filters, today);
 
   const datedConditions: any[] = [...baseConditions];
-  if (filters.date_from) {
-    datedConditions.push(gte(eventsInTest.startDate, filters.date_from));
-  } else {
+  if (searchWindow.from) {
+    datedConditions.push(gte(eventsInTest.startDate, searchWindow.from));
+  }
+  if (searchWindow.to) {
+    datedConditions.push(lte(eventsInTest.startDate, searchWindow.to));
+  }
+  if (searchWindow.requireNotPast) {
+    // Applied even when the model supplied a range: the dates it chooses may
+    // narrow the window but must never widen it into the past.
     datedConditions.push(
       or(
         gte(eventsInTest.endDate, today),
@@ -365,9 +374,8 @@ async function runEventSearch(
       ),
     );
   }
-  if (filters.date_to) {
-    datedConditions.push(lte(eventsInTest.startDate, filters.date_to));
-  }
+  // Load-bearing for the descending order too: Postgres sorts NULLS FIRST on
+  // ORDER BY ... DESC, so undated rows would otherwise head the list.
   datedConditions.push(sql`${eventsInTest.startDate} IS NOT NULL`);
 
   const undatedConditions: any[] = [...baseConditions];
@@ -392,13 +400,24 @@ async function runEventSearch(
     needsOrgJoin,
     LIMIT + 1,
     offset,
+    searchWindow.order,
   );
   const hasMoreDated = datedFetch.length > LIMIT;
   const dated = datedFetch.slice(0, LIMIT);
 
+  // A window that lies entirely in the past, asked for without `include_past`,
+  // is emptied by the floor above. Padding that with undated events would
+  // answer "what happened in July" with a list of dateless ones, so let it stay
+  // empty and let the client say it found nothing.
+  const pastWindowEmptied =
+    searchWindow.requireNotPast &&
+    !!searchWindow.to &&
+    searchWindow.to < today &&
+    dated.length === 0;
+
   let undated: typeof dated = [];
   let hasMoreUndated = false;
-  if (offset === 0 && !hasMoreDated) {
+  if (offset === 0 && !hasMoreDated && !pastWindowEmptied) {
     const remainingSlots = LIMIT - dated.length;
     if (remainingSlots > 0) {
       const undatedFetch = await fetchEvents(
@@ -459,8 +478,13 @@ async function fetchEvents(
   needsOrgJoin: boolean,
   limit: number,
   off: number,
+  order: "asc" | "desc" = "asc",
 ) {
   if (limit <= 0) return [];
+  const orderBy =
+    order === "desc"
+      ? desc(eventsInTest.startDate)
+      : asc(eventsInTest.startDate);
   if (needsOrgJoin) {
     return db
       .selectDistinct({
@@ -480,7 +504,7 @@ async function fetchEvents(
       )
       .innerJoin(orgsInTest, eq(orgsInTest.id, orgsEventsInTest.orgId))
       .where(and(...conditions, ...orgConditions))
-      .orderBy(asc(eventsInTest.startDate))
+      .orderBy(orderBy)
       .limit(limit)
       .offset(off);
   } else {
@@ -497,7 +521,7 @@ async function fetchEvents(
       })
       .from(eventsInTest)
       .where(and(...conditions))
-      .orderBy(asc(eventsInTest.startDate))
+      .orderBy(orderBy)
       .limit(limit)
       .offset(off);
   }

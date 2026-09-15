@@ -153,6 +153,12 @@ function sanitizeEventSearchFilters(
   ) {
     filters.date_to = raw.date_to;
   }
+  // Only a literal `true` survives: an absent key and `false` mean the same
+  // thing (apply the not-past floor), so the flag is dropped rather than
+  // stored as false.
+  if (raw.include_past === true) {
+    filters.include_past = true;
+  }
   if (
     typeof raw.day_of_week === "number" &&
     Number.isInteger(raw.day_of_week) &&
