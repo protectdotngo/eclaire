@@ -1,6 +1,5 @@
 ---
 import { Font } from "astro:assets";
-import EclaireLogo from "../../../assets/images/logoEclaire.svg";
 
 interface Props {
   title: string;
@@ -9,9 +8,7 @@ interface Props {
 
 const { title, description } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const socialImage = EclaireLogo
-  ? new URL(EclaireLogo.src, Astro.site)
-  : "../../../assets/logoEclaire.svg";
+const ogImageURL = new URL("/images/og-image.jpg", Astro.site);
 const pageDesc = description
   ? description
   : "Bienvenue sur éclaire, le guide IA de l'inclusion et de la résilience numérique à Genève.";
@@ -38,7 +35,7 @@ const pageDesc = description
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={pageDesc} />
-  <meta property="og:image" content={socialImage} />
+  <meta property="og:image" content={ogImageURL} />
 
   <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -46,13 +43,15 @@ const pageDesc = description
   <meta property="twitter:url" content={canonicalURL} />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={pageDesc} />
-  {socialImage && <meta name="twitter:image" content={socialImage} />}
+  <meta name="twitter:image" content={ogImageURL} />
 
   <title>{title}</title>
 
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FH1JTNMC8R"
-  ></script>
+  <script
+    async
+    is:inline
+    src="https://www.googletagmanager.com/gtag/js?id=G-FH1JTNMC8R"></script>
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
     function gtag() {
