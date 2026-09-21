@@ -1,6 +1,5 @@
 ---
 import Head from "../components/sections/general/Head.astro";
-import BetaBanner from "../components/BetaBanner.astro";
 
 interface Props {
   title: string;
@@ -20,7 +19,6 @@ const metaDescription = Array.isArray(description)
 <html lang="fr">
   <Head title={pageTitle} description={metaDescription} />
   <body class="side-panel-open">
-    <BetaBanner />
     <slot />
   </body>
 </html>
@@ -38,15 +36,6 @@ const metaDescription = Array.isArray(description)
     --color-main-3: 237, 31, 122; /* #ed1f7a */
     --color-main-3-dark: 194, 26, 101;
     --color-required: 199, 59, 93; /* #c73b5d */
-    /* Height of the temporary beta banner. The full-viewport home page
-       subtracts it, so it must stay the single source of truth. */
-    --beta-banner-height: 2.25rem;
-  }
-  /* Below this width the banner copy wraps to two lines. */
-  @media (max-width: 560px) {
-    :root {
-      --beta-banner-height: 3.5rem;
-    }
   }
   html,
   body {
