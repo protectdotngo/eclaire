@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import type { Accessor, Setter } from "solid-js";
-import type { ChatMsg } from "../../interfaces/chat";
+import type { ChatMsg, ReplyLang } from "../../interfaces/chat";
 import type { EventWithOrgs } from "../../interfaces/event";
 import type { OrgWithChatContext } from "../../interfaces/org";
 import type {
@@ -67,6 +67,8 @@ export interface TimelineStore {
   addOrgs(orgs: readonly OrgWithChatContext[]): Promise<void>;
   /** The former events-done event. */
   addEvents(events: readonly EventWithOrgs[]): Promise<void>;
+  /** Appends the Builders promotion card to the open turn (EC-41). */
+  addBuilders(lang: ReplyLang): void;
   reset(): void;
   /** Replaces getElementById("ai-response-cont"). */
   setScrollContainer(el: HTMLElement | undefined): void;
@@ -232,6 +234,13 @@ export function createTimelineStore(): TimelineStore {
         scrollToBottom();
         await sleep(120);
       }
+    },
+
+    addBuilders(lang: ReplyLang) {
+      // No typewriter: the card is fixed editorial copy, not something the
+      // assistant is composing, so it appears at once.
+      currentTurn().push({ kind: "builders", lang });
+      scrollToBottom();
     },
 
     reset() {

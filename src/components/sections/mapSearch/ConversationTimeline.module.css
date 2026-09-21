@@ -449,3 +449,29 @@
     opacity: 1;
   }
 }
+
+/* The Builders promotion (EC-41). Deliberately not a .result-card: it is not a
+   directory result, so it carries the secondary colour and a visible border to
+   read as an aside rather than as another org in the list. */
+.builders-card {
+  background-color: rgba(var(--color-main-2), 0.08);
+  border: 1.5px solid rgba(var(--color-main-2), 0.35);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+}
+
+.builders-tag {
+  display: inline-block;
+  background-color: rgba(var(--color-main-2), 1);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.4rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  font-family: var(--font-founders-grotesk, var(--font-neue-haas-grotesk));
+}

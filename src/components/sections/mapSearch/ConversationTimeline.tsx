@@ -1,6 +1,7 @@
 import { For, Match, Show, Switch } from "solid-js";
 import OrgCard from "./OrgCard";
 import EventCard from "./EventCard";
+import BuildersCard from "./BuildersCard";
 import { useMapSearch } from "./mapSearchContext";
 import { renderMarkdown } from "../../../lib/text";
 import styles from "./ConversationTimeline.module.css";
@@ -111,6 +112,13 @@ export default function ConversationTimeline() {
                                     )}
                                   </For>
                                 </div>
+                              )}
+                            </Match>
+                            <Match
+                              when={node.kind === "builders" ? node : undefined}
+                            >
+                              {(builders) => (
+                                <BuildersCard lang={builders().lang} />
                               )}
                             </Match>
                           </Switch>

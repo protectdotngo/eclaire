@@ -41,10 +41,22 @@ export type EventSearchBlock = {
 };
 
 /**
+ * Promotion of The Builders (protect.ngo/the-builders), appended server-side
+ * when the user turns out to be speaking *as* an organisation (EC-41).
+ *
+ * Never emitted by the model: it carries only the reply language, which keys
+ * into the server-owned copy in `src/data/buildersCard.ts`.
+ */
+export type BuildersBlock = {
+  type: "builders";
+  lang: ReplyLang;
+};
+
+/**
  * A block emitted by the LLM in its response.
  * Discriminated union based on the `type` field.
  */
-export type Block = TextBlock | OrgsBlock | EventSearchBlock;
+export type Block = TextBlock | OrgsBlock | EventSearchBlock | BuildersBlock;
 
 /**
  * The LLM's structured response — an ordered list of blocks.

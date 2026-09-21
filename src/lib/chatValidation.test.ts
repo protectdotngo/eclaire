@@ -214,6 +214,31 @@ describe("parseAndValidate — scope root fields", () => {
     expect(parse({ lang: "pt", blocks }).lang).toBe("fr");
     expect(parse({ lang: 42, blocks }).lang).toBe("fr");
   });
+
+  it("reads asks_as_org from the root", () => {
+    expect(
+      parse({ asks_as_org: true, blocks: [{ type: "text", content: "…" }] })
+        .asksAsOrg,
+    ).toBe(true);
+  });
+
+  it("defaults asks_as_org to false when absent or non-boolean", () => {
+    const blocks = [{ type: "text", content: "…" }];
+    expect(parse({ blocks }).asksAsOrg).toBe(false);
+    expect(parse({ asks_as_org: "yes", blocks }).asksAsOrg).toBe(false);
+  });
+
+  it("never lets the model author a builders block itself", () => {
+    // The card is server-owned: a `builders` block is appended by the API
+    // route, never carried over from the model's output.
+    const r = parse({
+      blocks: [
+        { type: "text", content: "…" },
+        { type: "builders", lang: "fr" },
+      ],
+    });
+    expect(r.response.blocks).toHaveLength(1);
+  });
 });
 
 describe("parseAndValidate — existing guarantees", () => {

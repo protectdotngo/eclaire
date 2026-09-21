@@ -35,6 +35,7 @@ import {
   enforceScope,
 } from "../../lib/chatValidation";
 import { resolveEventWindow } from "../../lib/eventSearchWindow";
+import { buildersBlockFor } from "../../lib/orgSelfMention";
 import type { RequestBody, EventSearchFilters } from "../../interfaces/chat";
 import type { EventWithOrgs, Event } from "../../interfaces/event";
 import type { OrgWithChatContext } from "../../interfaces/org";
@@ -72,6 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   let systemPrompt: string;
   let validIds: Set<string>;
+  let lastUserMsg: RequestBody["messages"][number] | undefined;
   try {
     systemPrompt = await buildSystemPrompt();
     validIds = await getValidOrgIds();
@@ -79,9 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Deterministic preselection: directs the LLM's attention to the organizations
     // whose descriptions match the words in the question (complete directory
     // always provided—no loss if the matching process finds nothing).
-    const lastUserMsg = [...body.messages]
-      .reverse()
-      .find((m) => m.role === "user");
+    lastUserMsg = [...body.messages].reverse().find((m) => m.role === "user");
     if (lastUserMsg) {
       const candidates = selectCandidates(
         lastUserMsg.content,
@@ -175,6 +175,20 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const response = ensureLeadingText(scoped.response);
+
+  // EC-41: when the user turns out to be speaking *as* an organisation, the
+  // answer is followed by a card pointing at The Builders. Appended after the
+  // scope gate on purpose — an off-topic request gets the redirect and nothing
+  // else. Showing it at most once per conversation is the client's job, since
+  // this route is stateless.
+  const buildersBlock = buildersBlockFor({
+    asksAsOrg: parsed.asksAsOrg,
+    lastUserText: lastUserMsg?.content,
+    lang: parsed.lang,
+  });
+  if (buildersBlock) {
+    response.blocks.push(buildersBlock);
+  }
 
   const orgBlocks = response.blocks.filter((b) => b.type === "orgs") as Array<{
     type: "orgs";

@@ -60,6 +60,7 @@ export function parseAndValidate(
   response: ChatResponse;
   fabricatedIds: string[];
   offTopic: boolean;
+  asksAsOrg: boolean;
   lang: ReplyLang;
 } {
   const cleaned = rawText
@@ -127,11 +128,21 @@ export function parseAndValidate(
   // server-owned table can survive, so the model cannot author its own
   // redirect text.
   const offTopic = parsed.off_topic === true;
+  // Same discipline for the EC-41 signal: a boolean is all the model gets to
+  // decide. The card's wording and link are server-owned (see the `builders`
+  // block appended in /api/chat), so no model prose reaches that card either.
+  const asksAsOrg = parsed.asks_as_org === true;
   const lang: ReplyLang = REPLY_LANGS.includes(parsed.lang)
     ? (parsed.lang as ReplyLang)
     : "fr";
 
-  return { response: { blocks: out }, fabricatedIds, offTopic, lang };
+  return {
+    response: { blocks: out },
+    fabricatedIds,
+    offTopic,
+    asksAsOrg,
+    lang,
+  };
 }
 
 function sanitizeEventSearchFilters(

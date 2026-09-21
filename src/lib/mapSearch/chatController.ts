@@ -46,6 +46,9 @@ export function createChatController(deps: {
   let history: ChatMsg[] = [];
   const orgIdsOnMap = new Set<string>();
   let initialOrgs: OrgWithChatContext[] = [];
+  // EC-41: the Builders card is shown at most once per conversation, so a user
+  // who keeps talking about their association is not nagged on every turn.
+  let buildersShown = false;
 
   return {
     async loadInitialData() {
@@ -84,6 +87,7 @@ export function createChatController(deps: {
     reset() {
       history = [];
       orgIdsOnMap.clear();
+      buildersShown = false;
       $mapData.set(initialOrgs);
       timeline.reset();
       shell.setShowReset(false);
@@ -176,6 +180,11 @@ export function createChatController(deps: {
               shell.setShowReset(true);
               await done;
             }
+          } else if (block.type === "builders") {
+            if (buildersShown) continue;
+            buildersShown = true;
+            timeline.addBuilders(block.lang);
+            shell.setShowReset(true);
           } else if (
             block.type === "event_search" &&
             result.events &&
@@ -230,9 +239,14 @@ export function createChatController(deps: {
               : ` [Aucun autre événement disponible pour ces filtres.]`
             : "";
 
+        // The builders block is appended by the server, not authored by the
+        // model. Keeping it out of the history means the model never sees a
+        // block type it did not write and cannot start emitting its own.
+        const modelBlocks = result.blocks.filter((b) => b.type !== "builders");
+
         history.push({
           role: "assistant",
-          content: JSON.stringify({ blocks: result.blocks }) + paginationMeta,
+          content: JSON.stringify({ blocks: modelBlocks }) + paginationMeta,
         });
       } catch (err) {
         console.error("Chat call failed:", err);

@@ -9,10 +9,15 @@ interface Props {
 
 const { class: className = "" } = Astro.props;
 
-const aboutLinks = [
+const aboutLinks: { href: string; label: string; external?: boolean }[] = [
   { href: "/a-propos", label: "Présentation" },
   { href: "/a-propos#partenaires", label: "Partenaires" },
   { href: "/a-propos/ressources", label: "Ressources utiles" },
+  {
+    href: "https://protect.ngo/the-builders",
+    label: "Les Builders",
+    external: true,
+  },
 ];
 ---
 
@@ -54,7 +59,13 @@ const aboutLinks = [
           <div class="menu-dropdown-panel" role="menu">
             {
               aboutLinks.map((link) => (
-                <a href={link.href} class="menu-dropdown-item" role="menuitem">
+                <a
+                  href={link.href}
+                  class="menu-dropdown-item"
+                  role="menuitem"
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noopener noreferrer" : undefined}
+                >
                   {link.label}
                 </a>
               ))
@@ -95,7 +106,12 @@ const aboutLinks = [
       <div class="mobile-accordion-panel">
         {
           aboutLinks.map((link) => (
-            <a href={link.href} class="mobile-sublink">
+            <a
+              href={link.href}
+              class="mobile-sublink"
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
+            >
               {link.label}
             </a>
           ))

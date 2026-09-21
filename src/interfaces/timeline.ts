@@ -1,5 +1,6 @@
 import type { Accessor, Setter } from "solid-js";
 import type { OrgWithChatContext } from "./org";
+import type { ReplyLang } from "./chat";
 
 /**
  * The leaves driven by the typewriter carry their own signal.
@@ -54,6 +55,14 @@ export type TimelineNode =
       kind: "events";
       displayed: Accessor<readonly DisplayedEvent[]>;
       push(ev: DisplayedEvent): void;
+    }
+  | {
+      /**
+       * The Builders promotion (EC-41). Carries no model prose — only the
+       * language keying into BUILDERS_COPY — so there is nothing to type out.
+       */
+      kind: "builders";
+      lang: ReplyLang;
     };
 
 /**
