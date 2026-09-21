@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "stop": "astro dev stop",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
