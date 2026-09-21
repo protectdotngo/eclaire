@@ -50,15 +50,16 @@ pnpm dev               # http://localhost:4321
 
 ## Scripts
 
-| Commande            | Rôle                                                 |
-| ------------------- | ---------------------------------------------------- |
-| `pnpm dev`          | Serveur de développement (`localhost:4321`)          |
-| `pnpm build`        | Build de production dans `./dist`                    |
-| `pnpm preview`      | Prévisualise le build                                |
-| `pnpm check`        | `astro check` (typage)                               |
-| `pnpm format`       | `prettier --write`                                   |
-| `pnpm format:check` | Vérifie le formatage sans écrire                     |
-| `pnpm delete-org`   | Supprime une org et ses données (dry-run par défaut) |
+| Commande            | Rôle                                                       |
+| ------------------- | ---------------------------------------------------------- |
+| `pnpm dev`          | Serveur de développement (`localhost:4321`)                |
+| `pnpm build`        | Build de production dans `./dist`                          |
+| `pnpm preview`      | Prévisualise le build                                      |
+| `pnpm check`        | `astro check` (typage)                                     |
+| `pnpm format`       | `prettier --write`                                         |
+| `pnpm format:check` | Vérifie le formatage sans écrire                           |
+| `pnpm delete-org`   | Supprime une org et ses données (dry-run par défaut)       |
+| `pnpm delete-event` | Supprime un événement ou les doublons (dry-run par défaut) |
 
 ## Configuration
 

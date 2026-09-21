@@ -16,7 +16,8 @@
     "check": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "delete-org": "tsx scripts/deleteOrg.ts"
+    "delete-org": "tsx scripts/deleteOrg.ts",
+    "delete-event": "tsx scripts/deleteEvent.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

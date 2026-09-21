@@ -448,15 +448,15 @@ renvoie le détail complet d'une vérification pour le formulaire.
 
 Tous sous `src/pages/api/`. Réponses en JSON.
 
-| Endpoint             | Méthode  | Rôle                                                                                                                                 |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `/api/chat`          | POST     | Cœur conversationnel : prompt → LLM → validation → hydratation → recherche d'événements. Corps : `{ messages: ChatMsg[] }`.          |
-| `/api/dataInit`      | GET      | Liste complète des organisations (pour la carte et le formulaire).                                                                   |
-| `/api/dataFilter`    | POST     | Filtre les orgs par `category` et/ou `location` (form-data).                                                                         |
-| `/api/dataEvents`    | GET      | Événements ; `?org=<uuid>` pour une org, `?all=true` pour tout l'historique (sinon à partir du mois courant). Valide le format UUID. |
-| `/api/propose`       | POST     | Enregistre une `proposition` ; notifie n8n via webhook si configuré.                                                                 |
-| `/api/prompt`        | GET/POST | Lit/écrit le prompt système et son historique.                                                                                       |
-| `/api/verifications` | GET/POST | GET : liste des propositions à traiter, ou `?id=` pour le détail. POST : enregistrer / publier / rejeter une proposition (voir §7).  |
+| Endpoint             | Méthode  | Rôle                                                                                                                                                                                                                                    |
+| -------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/chat`          | POST     | Cœur conversationnel : prompt → LLM → validation → hydratation → recherche d'événements. Corps : `{ messages: ChatMsg[] }`.                                                                                                             |
+| `/api/dataInit`      | GET      | Liste complète des organisations (pour la carte et le formulaire).                                                                                                                                                                      |
+| `/api/dataFilter`    | POST     | Filtre les orgs par `category` et/ou `location` (form-data).                                                                                                                                                                            |
+| `/api/dataEvents`    | GET      | Événements **du numérique uniquement** (voir §Filtre numérique) ; `?org=<uuid>` pour une org, `?all=true` pour tout l'historique (sinon à partir du mois courant), `?scope=all` pour lever le filtre thématique. Valide le format UUID. |
+| `/api/propose`       | POST     | Enregistre une `proposition` ; notifie n8n via webhook si configuré.                                                                                                                                                                    |
+| `/api/prompt`        | GET/POST | Lit/écrit le prompt système et son historique.                                                                                                                                                                                          |
+| `/api/verifications` | GET/POST | GET : liste des propositions à traiter, ou `?id=` pour le détail. POST : enregistrer / publier / rejeter une proposition (voir §7).                                                                                                     |
 
 **Validation notable côté chat** (`chatValidation.ts`) :
 
@@ -627,7 +627,79 @@ pnpm test               # vitest run (tests unitaires)
 pnpm test:watch         # vitest en mode watch
 pnpm format             # prettier --write
 pnpm delete-org         # supprime une org et ses données (dry-run par défaut)
+pnpm delete-event       # supprime un événement ou les doublons (dry-run par défaut)
 ```
+
+### Filtre numérique du calendrier
+
+Les scrapers suivent des agendas communaux entiers : sur 1 101 événements à
+partir du mois courant, la majorité sont des cours de yoga, des conférences de
+jardinage ou des séances de conseil municipal. `/api/dataEvents` ne renvoie donc
+que les événements **liés au numérique**, filtrés en base :
+
+```sql
+categories && ARRAY['formation numérique', 'inclusion & accessibilité numérique',
+                    'aide & soutien numérique', 'connectivité publique',
+                    'aide matérielle & équipement', 'cybersécurité & prévention']
+```
+
+Cette liste n'est **pas** écrite en dur : `DIGITAL_CATEGORIES`
+(`src/lib/taxonomy.ts`) la dérive des buckets `digital_learning`,
+`digital_help` et `cybersecurity` de `calendarConfig.ts`. Ajouter une catégorie
+à l'un de ces buckets la rend numérique sans toucher à une seconde liste.
+`hasDigitalCategory()` est le même prédicat en TypeScript, pour les appelants
+qui ont déjà les lignes en main — c'est lui que les tests couvrent.
+
+Le filtre s'applique **en base et non dans le navigateur** : il divise la charge
+DB et fait passer la réponse de 933 Ko à 347 Ko. La clé de cache inclut `scope`.
+
+`?scope=all` lève le filtre (maintenance, vue détaillée d'une org). Aucun
+appelant applicatif ne l'utilise aujourd'hui.
+
+⚠️ Le filtre porte sur les **catégories de l'événement**, pas sur celles de
+l'org. C'est voulu : « Réseau WIFI public gratuit — Ville de Meyrin » est une
+org numérique dont les 161 événements scrapés sont l'agenda municipal complet,
+et aucun n'est numérique. Les catégories sont posées à l'ingestion ; leur
+justesse conditionne directement ce que voit le calendrier.
+
+### Supprimer un événement
+
+`scripts/deleteEvent.ts` (`pnpm delete-event`) suit la même forme que
+`delete-org` : dry-run par défaut, `--execute`, `--confirm`, `--backup`.
+
+```bash
+pnpm delete-event --list [filtre]     # lister les événements (id, date, titre, orgs)
+pnpm delete-event "<titre|uuid>"      # DRY RUN : ce qui serait supprimé
+pnpm delete-event "<titre|uuid>" --execute                # après confirmation
+pnpm delete-event --duplicates                 # DRY RUN : groupes de doublons
+pnpm delete-event --duplicates --execute       # collapse, une copie par groupe
+```
+
+La suppression unitaire est **plus simple que celle d'une org** :
+`orgs_events.event_id` est `ON DELETE CASCADE` et rien d'autre ne référence
+`events`, donc il n'y a pas d'orphelins à traquer. Les lignes de jointure sont
+tout de même supprimées explicitement, pour pouvoir les compter.
+
+Un titre qui correspond à plusieurs événements **n'est pas supprimé** : les
+candidats sont affichés pour que l'opérateur passe le bon UUID. C'est le cas
+courant — les titres dupliqués sont la norme ici, contrairement aux noms d'orgs.
+
+**`--duplicates`** regroupe sur `title` **ET** `start_date` — le titre seul
+fusionnerait les séances hebdomadaires de « Cuisine et Partage », qui sont des
+événements distincts. Dans chaque groupe, la copie conservée est la
+**mieux reliée** (le plus de liens orgs, puis le scrape le plus ancien, puis le
+plus petit id) : les lignes de jointure sont la seule partie non régénérable.
+
+⚠️ **Le garde-fou qui compte** : un événement peut appartenir à plusieurs orgs,
+donc supprimer la mauvaise copie peut coûter à une org son **unique** lien vers
+l'événement. Si aucune copie ne couvre tous les liens du groupe, le groupe
+entier est **laissé intact** et signalé, plutôt qu'à moitié nettoyé. En
+production, 163 groupes sur 166 sont nettoyables ; les 3 autres (dont un groupe
+de 10 lignes sans titre, 7 liens en jeu) demandent un arbitrage manuel.
+
+Le plan des doublons est lu **sans `FOR UPDATE`** (la requête agrège, ce qui
+interdit le verrou de ligne) : avant de supprimer, le script recompte les liens
+des copies condamnées et annule la transaction s'ils ont bougé.
 
 ### Supprimer une organisation
 

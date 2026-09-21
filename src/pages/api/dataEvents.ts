@@ -2,14 +2,15 @@ import "dotenv/config";
 import type { APIRoute } from "astro";
 import { eventsInTest, orgsEventsInTest } from "../../../drizzle/schema";
 import { db } from "../../lib/dbDrizzle";
-import { gte, and, eq, inArray } from "drizzle-orm";
+import { gte, and, eq, inArray, arrayOverlaps } from "drizzle-orm";
 import { getCached, setCached } from "../../lib/apiCache";
+import { DIGITAL_CATEGORIES } from "../../lib/taxonomy";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Cache per (org, all) combination: the no-param variant is hit by every
-// visitor on page load and was the main DB load during the load test.
+// Cache per (org, all, scope) combination: the no-param variant is hit by
+// every visitor on page load and was the main DB load during the load test.
 const CACHE_TTL_MS = 60_000;
 
 const JSON_HEADERS = {
@@ -20,6 +21,12 @@ const JSON_HEADERS = {
 export const GET: APIRoute = async ({ url }) => {
   const orgId = url.searchParams.get("org");
   const includeAll = url.searchParams.get("all") === "true";
+  // The calendar is about digital inclusion, but the scrapers follow whole
+  // municipal agendas, so most of what lands in `events` is yoga classes and
+  // council meetings. Filtering here rather than in the browser also keeps the
+  // payload (and the DB work) down. `?scope=all` opts out, for the org detail
+  // view and for maintenance.
+  const digitalOnly = url.searchParams.get("scope") !== "all";
 
   if (orgId !== null && !UUID_REGEX.test(orgId)) {
     return new Response(JSON.stringify({ message: "Invalid org id format" }), {
@@ -28,7 +35,7 @@ export const GET: APIRoute = async ({ url }) => {
     });
   }
 
-  const cacheKey = `dataEvents:${orgId ?? ""}:${includeAll}`;
+  const cacheKey = `dataEvents:${orgId ?? ""}:${includeAll}:${digitalOnly}`;
   const cached = getCached(cacheKey, CACHE_TTL_MS);
   if (cached) {
     return new Response(cached, { status: 200, headers: JSON_HEADERS });
@@ -43,6 +50,10 @@ export const GET: APIRoute = async ({ url }) => {
     const conditions: any[] = [];
     if (orgId) conditions.push(eq(orgsEventsInTest.orgId, orgId));
     if (!includeAll) conditions.push(gte(eventsInTest.startDate, minDate));
+    if (digitalOnly)
+      conditions.push(
+        arrayOverlaps(eventsInTest.categories, DIGITAL_CATEGORIES),
+      );
 
     const result = orgId
       ? await db
