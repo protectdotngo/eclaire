@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { type CollectionEntry, render } from "astro:content";
 
 interface Props {
@@ -28,7 +29,7 @@ const { Content } = await render(partner);
         <p class="v1-partner-address">{partner.data.address}</p>
       )
     }
-    <img
+    <Image
       src={partner.data.logo}
       alt={`Logo ${partner.data.name}`}
       class="v1-partner-logo"

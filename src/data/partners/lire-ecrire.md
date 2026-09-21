@@ -1,7 +1,9 @@
 ---
 name: Lire et Ecrire
-logo: /eclaire-v1/partners/lire-ecrire.svg
+logo: ./assets/lire-ecrire.svg
 url: https://www.lire-et-ecrire.ch/
+categories:
+  - community
 ---
 
 L'association Lire et Ecrire contribue à donner une réponse à la problématique de l'illettrisme. Elle organise des cours en compétences de base qui permettent à des adultes de mieux s'orienter dans leur vie familiale, sociale et professionnelle.

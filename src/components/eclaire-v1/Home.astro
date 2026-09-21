@@ -1,45 +1,22 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { Image } from "astro:assets";
 import Partner from "./sections/Partner.astro";
 import Hero from "../sections/general/Hero.tsx";
 import Background from "../sections/general/Background.tsx";
-import LogoProtectDotNgo from "../../assets/images/logo-protectdotngo.svg";
-import LogoVilleDeGeneve from "../../assets/images/logo-gva.svg";
-import LogoCantonDeGeneve from "../../assets/images/logo-canton.png";
-import LogoMIA from "../../assets/images/logo-mia.png";
 
 const visiblePartners = (
-  await getCollection("partners", (p) => !p.data.hidden)
+  await getCollection(
+    "partners",
+    (p) => !p.data.hidden && p.data.categories.includes("community"),
+  )
 ).sort((a, b) => a.data.name.localeCompare(b.data.name));
 
-type Partner = {
-  name: string;
-  link: string;
-  image: ImageMetadata;
-};
-
-const logos: Partner[] = [
-  {
-    name: "Ville de Genève",
-    link: "https://www.geneve.ch",
-    image: LogoVilleDeGeneve,
-  },
-  {
-    name: "Canton de Genève",
-    link: "https://ge.ch",
-    image: LogoCantonDeGeneve,
-  },
-  {
-    name: "Maison Internationale des Associations",
-    link: "https://mia-ge.ch/",
-    image: LogoMIA,
-  },
-  {
-    name: "Protect<sup>.ngo</sup>",
-    link: "https://protect.ngo",
-    image: LogoProtectDotNgo,
-  },
+const sponsors = [
+  await getEntry("partners", "geneve-ville")!,
+  await getEntry("partners", "geneve-canton")!,
+  await getEntry("partners", "mia")!,
+  await getEntry("partners", "protect-dot-ngo")!,
 ];
 ---
 
@@ -84,9 +61,13 @@ const logos: Partner[] = [
     <h2 class="v1-partners-title">Les partenaires éclaire</h2>
     <div class="partners">
       {
-        logos.map((l) => (
-          <a href={l.link}>
-            <Image class="logo" src={l.image} alt={`Logo de ${l.name}`} />
+        sponsors.map((s) => (
+          <a href={s.data.url}>
+            <Image
+              class="logo"
+              src={s.data.logo}
+              alt={`Logo de ${s.data.name}`}
+            />
           </a>
         ))
       }
