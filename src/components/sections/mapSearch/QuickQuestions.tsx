@@ -11,8 +11,8 @@ const QUICK_QUESTIONS = [
     question: "Je cherche une formation aux réseaux sociaux sur Genève",
   },
   {
-    label: "Je suis entre deux boulots, comment me former a l'IA ?",
-    question: "Je suis entre deux boulots, comment me former a l'IA ?",
+    label: "Je suis entre deux boulots, comment me former à l'IA ?",
+    question: "Je suis entre deux boulots, comment me former à l'IA ?",
   },
   {
     label:
