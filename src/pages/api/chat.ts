@@ -359,12 +359,16 @@ async function runEventSearch(
   }
 
   if (filters.keywords && filters.keywords.length > 0) {
-    const keywordConditions = filters.keywords.map((kw) =>
-      or(
-        ilike(eventsInTest.title, `%${kw}%`),
-        ilike(eventsInTest.content, `%${kw}%`),
-      ),
-    );
+    // Whole-word match, not substring: ILIKE '%ia%' matched half the French
+    // vocabulary ("Initiation", "média", "social"…), so short keywords like
+    // "IA" returned everything. \m/\M are PostgreSQL word boundaries.
+    const keywordConditions = filters.keywords.map((kw) => {
+      const pattern = `\\m${escapeRegex(kw)}\\M`;
+      return or(
+        sql`${eventsInTest.title} ~* ${pattern}`,
+        sql`${eventsInTest.content} ~* ${pattern}`,
+      );
+    });
     baseConditions.push(or(...keywordConditions));
   }
 
@@ -484,6 +488,10 @@ async function runEventSearch(
   }));
 
   return { events, hasMore };
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function fetchEvents(
