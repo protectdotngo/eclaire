@@ -23,7 +23,20 @@ export default function Hero(props: HeroProps) {
     <section class={`hero-root ${styles.image}`}>
       <div class={styles["image-cont"]}>
         <div class={styles["image-bg"]}>
-          <img src={props.image} alt="" />
+          <svg width="0" height="0" style={{ position: "absolute" }}>
+            <clipPath id="hero-clip" clipPathUnits="objectBoundingBox">
+              <path
+                transform={`scale(${1 / 876}, ${1 / 600})`}
+                d="M0 571.523V0H876V332.294C876 349.485 864.635 364.585 848.114 369.36L36.7141 598.76C18.4312 604.292 0 590.625 0 571.523Z"
+              />
+            </clipPath>
+          </svg>
+
+          <img
+            src={props.image}
+            style={{ "clip-path": "url(#hero-clip)" }}
+            alt=""
+          />
         </div>
         <Show when={props.comp}>
           <div class={styles["image-box"]}>{props.children}</div>
