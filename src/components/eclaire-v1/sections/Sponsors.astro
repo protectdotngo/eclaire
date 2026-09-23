@@ -1,0 +1,77 @@
+---
+import { getEntry } from "astro:content";
+import { Image } from "astro:assets";
+
+const sponsors = [
+  await getEntry("partners", "geneve-ville")!,
+  await getEntry("partners", "geneve-canton")!,
+  await getEntry("partners", "mia")!,
+  await getEntry("partners", "protect-dot-ngo")!,
+];
+---
+
+<section class="v1-sponsors" id="partenaires">
+  <h2 class="v1-sponsors-title">Les partenaires éclaire</h2>
+  <div class="partners">
+    {
+      sponsors.map((s) => (
+        <a href={s.data.url}>
+          <Image
+            class="logo"
+            src={s.data.logo}
+            alt={`Logo de ${s.data.name}`}
+          />
+        </a>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .v1-sponsors {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    scroll-margin-top: 5rem;
+    box-sizing: border-box;
+  }
+
+  .v1-sponsors-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem;
+    color: transparent;
+    background: linear-gradient(54.55deg, #b52ec4 11.79%, #ed1e79 26.13%);
+    background-clip: text;
+  }
+
+  .partners {
+    display: grid;
+    grid-auto-rows: 1fr;
+    align-items: center;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-block-end: 4rem;
+
+    .logo {
+      max-width: 60%;
+      height: auto;
+    }
+
+    @media (min-width: 800px) {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4rem;
+
+      .logo {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  @media (max-width: 650px) {
+    .v1-sponsors {
+      padding: 0 1rem;
+    }
+  }
+</style>

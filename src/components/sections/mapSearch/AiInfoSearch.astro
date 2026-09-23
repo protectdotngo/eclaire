@@ -1,5 +1,6 @@
 ---
 import EclaireLogo from "../../../assets/images/logoEclaire.svg";
+import Sponsors from "../../eclaire-v1/sections/Sponsors.astro";
 ---
 
 <div class="ai-info" id="aiInfo">
@@ -7,7 +8,8 @@ import EclaireLogo from "../../../assets/images/logoEclaire.svg";
     <img src={EclaireLogo.src} class={"ai-info-logo"} alt={""} />
     <p>
       <span class="ai-info-greeting"
-        >Salut, moi c'est <strong>éclaire</strong>,<br /></span
+        >Salut, moi c'est <strong>éclaire</strong>, ton phare numérique !<br
+        /></span
       >
       <span class="ai-info-greeting-sub">
         Le guide IA de l'inclusion et de la résilience numérique à Genève.
@@ -46,6 +48,7 @@ import EclaireLogo from "../../../assets/images/logoEclaire.svg";
   <div class="ai-info-collage">
     <img src={"/images/collage.png"} alt={""} class="ai-info-collage-img" />
   </div>
+  <Sponsors />
 </div>
 
 <style>

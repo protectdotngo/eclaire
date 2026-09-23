@@ -255,7 +255,7 @@ export default function Calendar() {
       <section>
         <Hero
           title="Calendrier"
-          lead="Le projet éclaire fédère plusieurs événements organisés par des associations numériques et autres partenaires de la ville, à différents endroits de Genève et ses environs."
+          lead="Éclaire, le phare numérique, fédère plusieurs événements organisés par des associations numériques et autres partenaires de la ville, à différents endroits de Genève et ses environs."
           body="Ces rendez-vous, qui se tiennent dans des lieux variés et fréquentés permettent de répondre aux questions du public sur la technologie au quotidien: usage du smartphone, de l'ordinateur ou des réseaux sociaux, protection des données, prévention des arnaques en ligne ou encore cybersécurité. Organisés à plusieurs reprises entre avril et juin 2026, ces événements permettent de démystifier le numérique auprès d'un large public, des seniors aux jeunes, et de rendre la technologie plus accessible et moins intimidante pour toutes et tous."
           image="/images/3.jpg"
           comp
