@@ -41,7 +41,7 @@ export type EventSearchBlock = {
 };
 
 /**
- * Promotion of The Builders (protect.ngo/the-builders), appended server-side
+ * Promotion of The Builders (protect.ngo/ge), appended server-side
  * when the user turns out to be speaking *as* an organisation (EC-41).
  *
  * Never emitted by the model: it carries only the reply language, which keys

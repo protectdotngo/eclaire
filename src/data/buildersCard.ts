@@ -1,6 +1,6 @@
 import type { ReplyLang } from "../interfaces/chat";
 
-export const BUILDERS_URL = "https://protect.ngo/the-builders";
+export const BUILDERS_URL = "https://protect.ngo/ge";
 
 export interface BuildersCopy {
   /** Short label above the title, like the ÉVÉNEMENT tag on event cards. */
