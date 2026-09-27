@@ -45,7 +45,7 @@ export default function QuickQuestions() {
               // .disabled on every chip; the global body class is no longer
               // needed because the chips read `thinking` directly.
               disabled={shell.thinking()}
-              onClick={() => void chat.send(q.question)}
+              onClick={() => void chat.send(q.question, "quick_question")}
             >
               <span>{q.label}</span>
               <span class={styles["chip-plus"]}>

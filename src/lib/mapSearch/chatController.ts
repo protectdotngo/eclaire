@@ -1,5 +1,9 @@
 import { $mapData } from "../mapStore";
-import type { ChatApiResponse, ChatMsg } from "../../interfaces/chat";
+import type {
+  ChatApiResponse,
+  ChatMsg,
+  ChatSource,
+} from "../../interfaces/chat";
 import type { OrgWithChatContext } from "../../interfaces/org";
 import type { TimelineStore } from "./timelineStore";
 import type { FiltersStore } from "./filtersStore";
@@ -12,7 +16,7 @@ export interface ChatShell {
 
 export interface ChatController {
   /** Was sendChatMessage. */
-  send(text: string): Promise<void>;
+  send(text: string, source: ChatSource): Promise<void>;
   /** Was resetConversation. */
   reset(): void;
   /** Was populateFilters + the three `populate-*` / `orgs-init` events. */
@@ -49,6 +53,9 @@ export function createChatController(deps: {
   // EC-41: the Builders card is shown at most once per conversation, so a user
   // who keeps talking about their association is not nagged on every turn.
   let buildersShown = false;
+  // Groups chat log rows for later analysis. Rotated on reset(), not just on
+  // mount, so "Nouvelle recherche" starts a new session like a page refresh.
+  let sessionId = crypto.randomUUID();
 
   return {
     async loadInitialData() {
@@ -88,13 +95,14 @@ export function createChatController(deps: {
       history = [];
       orgIdsOnMap.clear();
       buildersShown = false;
+      sessionId = crypto.randomUUID();
       $mapData.set(initialOrgs);
       timeline.reset();
       shell.setShowReset(false);
       shell.setShowInfo(true);
     },
 
-    async send(userText: string) {
+    async send(userText: string, source: ChatSource) {
       history.push({ role: "user", content: userText });
       await timeline.addMessage({ role: "user", content: userText });
       shell.setShowInfo(false);
@@ -104,7 +112,7 @@ export function createChatController(deps: {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: history }),
+          body: JSON.stringify({ messages: history, sessionId, source }),
           signal: AbortSignal.timeout(120000),
         });
         if (res.status !== 200) {

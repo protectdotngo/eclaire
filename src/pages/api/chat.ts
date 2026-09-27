@@ -19,6 +19,7 @@ import {
   eventsInTest,
   orgsInTest,
   orgsEventsInTest,
+  chatLogsInTest,
 } from "../../../drizzle/schema";
 import {
   buildSystemPrompt,
@@ -36,7 +37,11 @@ import {
 } from "../../lib/chatValidation";
 import { resolveEventWindow } from "../../lib/eventSearchWindow";
 import { buildersBlockFor } from "../../lib/orgSelfMention";
-import type { RequestBody, EventSearchFilters } from "../../interfaces/chat";
+import type {
+  RequestBody,
+  EventSearchFilters,
+  ChatApiResponse,
+} from "../../interfaces/chat";
 import type { EventWithOrgs, Event } from "../../interfaces/event";
 import type { OrgWithChatContext } from "../../interfaces/org";
 
@@ -70,6 +75,11 @@ export const POST: APIRoute = async ({ request }) => {
   if (!Array.isArray(body.messages) || body.messages.length === 0) {
     return json({ error: "Missing messages" }, 400);
   }
+
+  const canLog =
+    typeof body.sessionId === "string" &&
+    body.sessionId.length > 0 &&
+    (body.source === "typed" || body.source === "quick_question");
 
   let systemPrompt: string;
   let validIds: Set<string>;
@@ -163,7 +173,7 @@ export const POST: APIRoute = async ({ request }) => {
     console.warn(
       `[chat] scope redirect (${scoped.tripped}) lang=${parsed.lang} raw=${rawText.slice(0, 300)}`,
     );
-    return json({
+    const redirectResponse: ChatApiResponse = {
       blocks: scoped.response.blocks,
       orgs: [],
       events: [],
@@ -171,7 +181,11 @@ export const POST: APIRoute = async ({ request }) => {
       eventOffset: 0,
       fabricatedIdsFiltered: parsed.fabricatedIds.length,
       scopeRedirect: scoped.tripped,
-    });
+    };
+    if (canLog) {
+      logChatTurn(body, lastUserMsg?.content, redirectResponse);
+    }
+    return json(redirectResponse);
   }
 
   const response = ensureLeadingText(scoped.response);
@@ -309,7 +323,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  return json({
+  const apiResponse: ChatApiResponse = {
     blocks: response.blocks,
     orgs: hydratedOrgs,
     events: eventsResult.events,
@@ -319,8 +333,30 @@ export const POST: APIRoute = async ({ request }) => {
         ? (eventSearchBlock.filters.offset ?? 0)
         : 0,
     fabricatedIdsFiltered: parsed.fabricatedIds.length,
-  });
+  };
+  if (canLog) {
+    logChatTurn(body, lastUserMsg?.content, apiResponse);
+  }
+  return json(apiResponse);
 };
+
+/** Fire-and-forget: must never affect or delay the chat response. */
+function logChatTurn(
+  body: RequestBody,
+  userMessage: string | undefined,
+  response: ChatApiResponse,
+): void {
+  db.insert(chatLogsInTest)
+    .values({
+      sessionId: body.sessionId,
+      source: body.source,
+      userMessage: userMessage ?? "",
+      response,
+    })
+    .catch((err) => {
+      console.error("Failed to log chat interaction:", err);
+    });
+}
 
 async function runEventSearch(
   filters: EventSearchFilters,

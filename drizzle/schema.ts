@@ -179,3 +179,23 @@ export const promptConfigInTest = test.table("prompt_config", {
     .defaultNow()
     .notNull(),
 });
+
+export const chatLogsInTest = test.table(
+  "chat_logs",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    sessionId: uuid("session_id").notNull(),
+    source: text().notNull(),
+    userMessage: text("user_message").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_chat_logs_session").using(
+      "btree",
+      table.sessionId.asc().nullsLast().op("uuid_ops"),
+    ),
+  ],
+);

@@ -6,8 +6,12 @@ export interface ChatMsg {
   content: string;
 }
 
+export type ChatSource = "typed" | "quick_question";
+
 export interface RequestBody {
   messages: ChatMsg[];
+  sessionId: string;
+  source: ChatSource;
 }
 
 export interface EventSearchFilters {

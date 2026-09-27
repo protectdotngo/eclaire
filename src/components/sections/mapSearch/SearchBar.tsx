@@ -14,7 +14,7 @@ export default function SearchBar() {
     const text = shell.query().trim();
     if (!text || shell.thinking()) return;
     shell.setQuery("");
-    void chat.send(text);
+    void chat.send(text, "typed");
   };
 
   return (
