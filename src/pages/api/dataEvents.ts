@@ -44,7 +44,8 @@ export const GET: APIRoute = async ({ url }) => {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  const minDate = `${year}-${month}-01`;
+  const day = String(now.getDate()).padStart(2, "0");
+  const minDate = `${year}-${month}-${day}`;
 
   try {
     const conditions: any[] = [];

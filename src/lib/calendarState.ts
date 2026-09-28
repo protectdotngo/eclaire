@@ -64,7 +64,7 @@ function hasTime(dateStr: string): boolean {
 export function processEvents(raw: EventWithOrgIds[]): ProcessedEvent[] {
   const out: ProcessedEvent[] = [];
   const now = new Date();
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   for (const e of raw) {
     if (!e.startDate) continue;
@@ -115,7 +115,7 @@ export function processEvents(raw: EventWithOrgIds[]): ProcessedEvent[] {
       hasEnd,
       timeLabel,
       monthKey,
-      isPast: startDate < currentMonthStart,
+      isPast: startDate < today,
     });
   }
   out.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
