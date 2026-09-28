@@ -7,18 +7,16 @@ import styles from "./QuickQuestions.module.css";
 /** Was three hand-written buttons carrying their text in data-question. */
 const QUICK_QUESTIONS = [
   {
-    label: "Je cherche une formation aux réseaux sociaux sur Genève",
-    question: "Je cherche une formation aux réseaux sociaux sur Genève",
+    label: "J'ai besoin d'aide dans mes recherches d'emploi en ligne",
+    question: "J'ai besoin d'aide dans mes recherches d'emploi en ligne",
   },
   {
-    label: "Je suis entre deux boulots, comment me former à l'IA ?",
-    question: "Je suis entre deux boulots, comment me former à l'IA ?",
+    label: "Existe-t-il des cours informatiques pour seniors ?",
+    question: "Existe-t-il des cours informatiques pour seniors ?",
   },
   {
-    label:
-      "Je m'inquiète du temps passé par mes enfants sur les réseaux sociaux",
-    question:
-      "Je m'inquiète du temps passé par mes enfants sur les réseaux sociaux",
+    label: "Je m'inquiète du temps passé par mes enfants sur leurs écrans",
+    question: "Je m'inquiète du temps passé par mes enfants sur leurs écrans",
   },
 ] as const;
 
