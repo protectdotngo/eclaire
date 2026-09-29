@@ -60,7 +60,7 @@ export function createChatController(deps: {
   return {
     async loadInitialData() {
       try {
-        const res = await fetch("/api/dataInit", {
+        const res = await fetch("/api/orgs", {
           method: "GET",
           signal: AbortSignal.timeout(5000),
         });

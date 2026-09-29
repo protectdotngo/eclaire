@@ -7,7 +7,7 @@ import { getCached, setCached } from "../../lib/apiCache";
 // Every visitor calls this on page load: cache the (rarely changing) org list
 // so the DB sees at most one query per pod per minute instead of one per visit.
 const CACHE_TTL_MS = 60_000;
-const CACHE_KEY = "dataInit";
+const CACHE_KEY = "orgs";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",

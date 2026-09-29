@@ -117,8 +117,8 @@ les builds natifs `esbuild` et `sharp`).
      │       │                 │                             │
      │       │                 ├─ /api/chat ──► LLM Scaleway │
      │       │                 │      (Qwen 235B)            │
-     │       │                 ├─ /api/dataInit / dataFilter │
-     │       │                 ├─ /api/dataEvents            │
+     │       │                 ├─ /api/orgs / dataFilter │
+     │       │                 ├─ /api/events            │
      │       │                 ├─ /api/propose ──► webhook n8n│
      │       │                 └─ /api/prompt (édition)      │
      │       ▼                                               │
@@ -451,9 +451,9 @@ Tous sous `src/pages/api/`. Réponses en JSON.
 | Endpoint             | Méthode  | Rôle                                                                                                                                                                                                                                    |
 | -------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/api/chat`          | POST     | Cœur conversationnel : prompt → LLM → validation → hydratation → recherche d'événements. Corps : `{ messages: ChatMsg[] }`.                                                                                                             |
-| `/api/dataInit`      | GET      | Liste complète des organisations (pour la carte et le formulaire).                                                                                                                                                                      |
+| `/api/orgs`      | GET      | Liste complète des organisations (pour la carte et le formulaire).                                                                                                                                                                      |
 | `/api/dataFilter`    | POST     | Filtre les orgs par `category` et/ou `location` (form-data).                                                                                                                                                                            |
-| `/api/dataEvents`    | GET      | Événements **du numérique uniquement** (voir §Filtre numérique) ; `?org=<uuid>` pour une org, `?all=true` pour tout l'historique (sinon à partir du mois courant), `?scope=all` pour lever le filtre thématique. Valide le format UUID. |
+| `/api/events`    | GET      | Événements **du numérique uniquement** (voir §Filtre numérique) ; `?org=<uuid>` pour une org, `?all=true` pour tout l'historique (sinon à partir du mois courant), `?scope=all` pour lever le filtre thématique. Valide le format UUID. |
 | `/api/propose`       | POST     | Enregistre une `proposition` ; notifie n8n via webhook si configuré.                                                                                                                                                                    |
 | `/api/prompt`        | GET/POST | Lit/écrit le prompt système et son historique.                                                                                                                                                                                          |
 | `/api/verifications` | GET/POST | GET : liste des propositions à traiter, ou `?id=` pour le détail. POST : enregistrer / publier / rejeter une proposition (voir §7).                                                                                                     |
@@ -553,7 +553,7 @@ l'historique Git.
     │   ├── verification.astro   # admin : relire/publier/rejeter les propositions
     │   ├── sous-le-capot.astro  # page "technique" publique
     │   ├── a-propos/            # présentation + ressources (contenu v1)
-    │   └── api/                 # chat, dataInit, dataFilter, dataEvents,
+    │   └── api/                 # chat, orgs, dataFilter, events,
     │                            #   propose, prompt, verifications
     ├── components/          # composants .astro (Map, Calendar, SidePanel,
     │   │                    #   ProposalForm, Nav, Technical…)
@@ -634,7 +634,7 @@ pnpm delete-event       # supprime un événement ou les doublons (dry-run par d
 
 Les scrapers suivent des agendas communaux entiers : sur 1 101 événements à
 partir du mois courant, la majorité sont des cours de yoga, des conférences de
-jardinage ou des séances de conseil municipal. `/api/dataEvents` ne renvoie donc
+jardinage ou des séances de conseil municipal. `/api/events` ne renvoie donc
 que les événements **liés au numérique**, filtrés en base :
 
 ```sql

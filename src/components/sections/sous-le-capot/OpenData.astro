@@ -1,0 +1,34 @@
+<section class="open-data">
+  <h2 class="open-data-title">Open data: l'API</h2>
+  <p>
+    Les données sont disponibles en JSON, sans authentification ni clé d'API.
+  </p>
+  <ul>
+    <li>
+      <a href="/api/orgs"><code>GET /api/orgs</code></a> — la liste des organisations.
+    </li>
+    <li>
+      <a href="/api/events"><code>GET /api/events</code></a> — la liste des événements
+      à venir. Paramètres optionnels: <code>org=&lt;id&gt;</code> pour une organisation,
+      <code>all=true</code> pour inclure les événements passés,
+      <code>scope=all</code> pour inclure les événements hors inclusion numérique.
+    </li>
+  </ul>
+</section>
+
+<style>
+  .open-data {
+    margin-bottom: 3.5rem;
+    line-height: 1.55;
+  }
+
+  .open-data-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: rgba(var(--color-main), 1);
+  }
+
+  .open-data a {
+    color: rgba(var(--color-main-2), 1);
+  }
+</style>

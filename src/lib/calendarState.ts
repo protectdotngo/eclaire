@@ -304,11 +304,11 @@ export function categoryStyle(catName: string): string {
   return `background-color: ${cat.bg}; color: ${cat.text}; border: 1px solid ${cat.color}33;`;
 }
 
-/** GET /api/dataEvents (+ ?all=true to include past events). */
+/** GET /api/events (+ ?all=true to include past events). */
 export async function fetchEvents(
   includePast: boolean,
 ): Promise<ProcessedEvent[]> {
-  const url = includePast ? "/api/dataEvents?all=true" : "/api/dataEvents";
+  const url = includePast ? "/api/events?all=true" : "/api/events";
   const res = await fetch(url, {
     method: "GET",
     signal: AbortSignal.timeout(20000),
@@ -318,9 +318,9 @@ export async function fetchEvents(
   return processEvents(baseData.data ?? []);
 }
 
-/** GET /api/dataInit, reduced to {id, name} and sorted. */
+/** GET /api/orgs, reduced to {id, name} and sorted. */
 export async function fetchOrgSummaries(): Promise<OrgSummary[]> {
-  const res = await fetch("/api/dataInit", {
+  const res = await fetch("/api/orgs", {
     method: "GET",
     signal: AbortSignal.timeout(5000),
   });

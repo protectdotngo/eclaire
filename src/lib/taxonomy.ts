@@ -43,7 +43,7 @@ const DIGITAL_BUCKET_IDS = [
 
 /**
  * Thematic categories that mark an event as digital. Used by
- * `/api/dataEvents` to filter at the database rather than in the browser.
+ * `/api/events` to filter at the database rather than in the browser.
  */
 export const DIGITAL_CATEGORIES: string[] = DISPLAY_BUCKETS.filter((b) =>
   DIGITAL_BUCKET_IDS.includes(b.calendarId),

@@ -523,7 +523,7 @@ function afterword(backup: string | null): string {
     "  1. n8n owns event ingestion and will re-insert anything still listed on",
     "     the source page, with a new UUID. Fix the scrape config too, or this",
     "     comes back on the next run.",
-    "  2. /api/dataEvents caches for 60s in-process, so deleted events can",
+    "  2. /api/events caches for 60s in-process, so deleted events can",
     "     still appear on the calendar briefly.",
     backup === null
       ? "  3. There is no undo and you did not pass --backup."

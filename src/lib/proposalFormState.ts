@@ -205,9 +205,9 @@ export function buildProposalPayload(form: ProposalFormData) {
   };
 }
 
-/** Loads and normalises the organisation list (GET /api/dataInit). */
+/** Loads and normalises the organisation list (GET /api/orgs). */
 export async function fetchOrgs(): Promise<Org[]> {
-  const res = await fetch("/api/dataInit");
+  const res = await fetch("/api/orgs");
   if (res.status !== 200) throw new Error(`Status ${res.status}`);
   const baseData = await res.json();
   return (baseData.data ?? [])

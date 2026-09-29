@@ -83,8 +83,8 @@ Helm en production).
 
 ```
 src/
-├── pages/          Routes .astro + endpoints /api (chat, dataInit,
-│                   dataFilter, dataEvents, propose, prompt)
+├── pages/          Routes .astro + endpoints /api (chat, orgs,
+│                   dataFilter, events, propose, prompt)
 ├── components/      Composants UI (Map, Calendar, SidePanel, ProposalForm…)
 ├── lib/             Logique métier (dbDrizzle, chatPrompt, orgCandidates,
 │                   chatValidation, contrôleurs client, prompts/)

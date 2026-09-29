@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ url }) => {
     });
   }
 
-  const cacheKey = `dataEvents:${orgId ?? ""}:${includeAll}:${digitalOnly}`;
+  const cacheKey = `events:${orgId ?? ""}:${includeAll}:${digitalOnly}`;
   const cached = getCached(cacheKey, CACHE_TTL_MS);
   if (cached) {
     return new Response(cached, { status: 200, headers: JSON_HEADERS });
