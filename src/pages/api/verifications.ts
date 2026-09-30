@@ -125,8 +125,7 @@ async function getDetail(verificationId: string): Promise<Response> {
     values[f] = p[PROP_COL[f]] as string[] | string | null;
   }
 
-  const match =
-    p.action === "modify" ? null : await findOrgByDomain(p.domain);
+  const match = p.action === "modify" ? null : await findOrgByDomain(p.domain);
 
   return json({
     match,
