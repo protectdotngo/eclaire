@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Take9 — Scam Help Finder (mockup)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css" />
+  <style>
+    /* Polices réelles du site pausetake9.org (hotlink — maquette locale uniquement) */
+    @font-face { font-family: "Newake"; src: url("https://pausetake9.org/wp-content/uploads/2026/05/NewakeRegular.woff") format("woff"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Montreal"; src: url("https://pausetake9.org/wp-content/uploads/2026/05/MontrealLight.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+    @font-face { font-family: "Montreal"; src: url("https://pausetake9.org/wp-content/uploads/2026/05/Montreal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Montreal"; src: url("https://pausetake9.org/wp-content/uploads/2026/05/MontrealMedium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+    @font-face { font-family: "Montreal"; src: url("https://pausetake9.org/wp-content/uploads/2026/05/MontrealBold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+    :root {
+      /* palette exacte pausetake9.org */
+      --ink: #181147;      /* logo / cartes navy */
+      --navy: #151b44;     /* texte */
+      --yellow: #fcd210;
+      --orange: #ef4523;   /* fond héro */
+      --red: #ef2330;
+      --cream: #f5f2dc;
+      --white: #ffffff;
+      --font-display: "Newake", "Arial Black", sans-serif;
+      --font-body: "Montreal", "Helvetica Neue", sans-serif;
+      --card-radius: 30px 30px 80px 30px; /* radius signature du site */
+      --pill-shadow: -10px 10px 0 0 rgba(0, 0, 0, 0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font-family: var(--font-body); color: var(--navy); background: var(--cream); overflow: hidden; }
+    .layout { display: flex; height: 100vh; }
+
+    /* ─── Panneau gauche (structure éclaire, habillage Take9) ─── */
+    .panel {
+      width: 430px; min-width: 430px;
+      display: flex; flex-direction: column;
+      background: var(--cream);
+      position: relative; z-index: 500;
+    }
+    .panel-scroll { flex: 1; overflow-y: auto; }
+
+    /* héro orange, comme /protect-yourself */
+    .hero {
+      background: var(--orange);
+      padding: 22px 24px 26px;
+    }
+    .hero .logo-pill {
+      display: inline-block; background: var(--cream);
+      border: 3px solid var(--yellow); border-radius: 16px;
+      padding: 10px 16px 6px; box-shadow: var(--pill-shadow);
+      margin-bottom: 18px;
+    }
+    .hero .logo-pill svg { width: 109px; height: 31px; display: block; }
+    .hero h1 {
+      font-family: var(--font-display); font-weight: 400;
+      color: var(--yellow); text-transform: uppercase;
+      font-size: 34px; line-height: 1.02; letter-spacing: .5px;
+      margin-bottom: 12px;
+    }
+    .hero p { color: var(--white); font-size: 15px; line-height: 1.5; font-weight: 400; }
+    .mock-badge {
+      display: inline-block; margin-top: 14px;
+      background: var(--yellow); color: var(--ink);
+      border-radius: 999px; font-size: 12px; font-weight: 700; padding: 5px 14px;
+    }
+
+    /* zone chat */
+    .chat { display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 10px; }
+    .msg { max-width: 94%; border-radius: 18px; padding: 13px 15px; font-size: 15px; line-height: 1.5; }
+    .msg.user {
+      align-self: flex-end;
+      background: var(--ink); color: var(--white);
+      border-radius: 18px 18px 4px 18px;
+    }
+    .msg.bot {
+      align-self: flex-start;
+      background: var(--white); color: var(--navy);
+      border-radius: 18px 18px 18px 4px;
+      box-shadow: -5px 5px 0 0 rgba(0,0,0,.18);
+      width: 94%;
+    }
+    .thinking { display: inline-flex; gap: 5px; align-items: center; }
+    .thinking i { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); animation: blink 1.2s infinite; font-style: normal; }
+    .thinking i:nth-child(2) { animation-delay: .2s; }
+    .thinking i:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%,80%,100% { opacity: .25 } 40% { opacity: 1 } }
+    .thinking-label { font-family: var(--font-display); font-size: 13px; color: var(--orange); margin-left: 8px; letter-spacing: .5px; }
+
+    /* carte org = carte navy signature du site */
+    .org-card {
+      background: var(--ink); color: var(--white);
+      border-radius: var(--card-radius);
+      padding: 20px 20px 24px; margin-top: 12px;
+    }
+    .org-card h4 { font-family: var(--font-display); font-weight: 400; letter-spacing: .5px; font-size: 20px; color: var(--yellow); text-transform: uppercase; }
+    .org-loc { font-size: 13px; color: var(--yellow); font-weight: 700; margin: 3px 0 8px; }
+    .org-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .org-tag { background: var(--yellow); color: var(--ink); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
+    .org-desc { font-size: 14px; line-height: 1.45; color: var(--cream); }
+    .org-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .org-actions button {
+      font-family: var(--font-display); letter-spacing: .8px; font-size: 13px;
+      border-radius: 999px; padding: 9px 16px; cursor: pointer; border: 0;
+    }
+    .org-actions .primary { background: var(--red); color: var(--white); }
+    .org-actions .secondary { background: var(--yellow); color: var(--ink); }
+    .org-actions button:hover { transform: translate(-2px, -2px); box-shadow: -3px 3px 0 rgba(0,0,0,.35); }
+
+    /* questions rapides + saisie */
+    .panel-bottom { padding: 10px 16px 16px; background: var(--cream); border-top: 3px solid var(--yellow); }
+    .qq-label { font-family: var(--font-display); font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: var(--ink); margin-bottom: 7px; }
+    .qq-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .qq {
+      white-space: nowrap; font-family: var(--font-body); font-size: 13px; font-weight: 500;
+      background: var(--white); color: var(--navy); border: 2px solid var(--ink);
+      border-radius: 999px; padding: 7px 13px; cursor: pointer;
+    }
+    .qq:hover { background: var(--yellow); }
+    .inputbar {
+      display: flex; gap: 8px; align-items: center;
+      background: var(--white); border: 3px solid var(--yellow);
+      border-radius: 20px; padding: 6px 6px 6px 16px;
+      box-shadow: var(--pill-shadow);
+    }
+    .inputbar input { flex: 1; border: 0; outline: 0; font-family: var(--font-body); font-size: 15px; background: transparent; color: var(--navy); }
+    .inputbar input::placeholder { color: #5f5c7d; }
+    .inputbar button {
+      font-family: var(--font-display); letter-spacing: 1px; font-size: 15px;
+      background: var(--ink); color: var(--yellow); border: 0;
+      border-radius: 999px; padding: 10px 20px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .inputbar button .arrow {
+      background: var(--red); color: var(--white); border-radius: 50%;
+      width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .inputbar button:disabled { opacity: .5; cursor: default; }
+    .criteria {
+      margin-top: 10px; width: 100%;
+      font-family: var(--font-display); letter-spacing: 1px; font-size: 15px;
+      background: var(--orange); color: var(--white);
+      border: 0; border-radius: 14px; padding: 12px; cursor: pointer;
+    }
+    .criteria:hover { filter: brightness(1.05); }
+
+    /* ─── Carte ─── */
+    .map-wrap { flex: 1; position: relative; background: var(--cream); }
+    #map { height: 100%; width: 100%; }
+    .map-header {
+      position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 800; display: flex; gap: 20px; align-items: center;
+      background: var(--cream); border: 3px solid var(--yellow);
+      border-radius: 20px; padding: 10px 12px 10px 20px;
+      box-shadow: var(--pill-shadow);
+      font-weight: 700; font-size: 14.5px; white-space: nowrap;
+    }
+    .map-header svg { width: 88px; height: 25px; display: block; }
+    .map-header a { color: var(--navy); text-decoration: none; font-family: var(--font-body); }
+    .map-header a:hover { color: var(--orange); }
+    .map-header .cta {
+      background: var(--ink); color: var(--yellow);
+      font-family: var(--font-display); font-weight: 400; letter-spacing: .5px;
+      border-radius: 999px; padding: 8px 8px 8px 16px; font-size: 15px;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .map-header .cta .arrow {
+      background: var(--red); color: var(--white); border-radius: 50%;
+      width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .count-pill {
+      position: absolute; bottom: 18px; left: 18px; z-index: 800;
+      background: var(--ink); color: var(--white);
+      border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 700;
+      box-shadow: -6px 6px 0 0 rgba(0,0,0,.3);
+    }
+    .count-pill span { color: var(--yellow); font-family: var(--font-display); font-size: 17px; letter-spacing: .5px; }
+
+    .marker-pin {
+      background: var(--orange); border: 2.5px solid var(--ink);
+      width: 20px; height: 20px; border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+    }
+    .marker-cluster-custom {
+      background: var(--yellow); border: 3px solid var(--ink);
+      border-radius: 50% 50% 50% 20%; color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 15px;
+    }
+    .leaflet-popup-content-wrapper {
+      background: var(--ink); color: var(--cream);
+      border-radius: 20px 20px 40px 20px; font-family: var(--font-body);
+    }
+    .leaflet-popup-content b { font-family: var(--font-display); font-weight: 400; letter-spacing: .5px; font-size: 16px; color: var(--yellow); text-transform: uppercase; }
+    .leaflet-popup-tip { background: var(--ink); }
+
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .panel { width: 100%; min-width: 0; height: 60vh; }
+      .map-wrap { height: 40vh; }
+      .map-header { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="panel">
+      <div class="panel-scroll" id="panelScroll">
+        <div class="hero">
+          <span class="logo-pill" id="logoPill"><!-- logo injecté --></span>
+          <h1>Find help<br />against scams</h1>
+          <p>Scammers are getting smarter, but you can stay ahead of them. Ask me who fights scams near you — nonprofits, hotlines, workshops — free and trusted, all over the US. And remember: count to 9 before you click.</p>
+          <span class="mock-badge">MOCKUP — 100% FICTIONAL DATA</span>
+        </div>
+
+        <div class="chat" id="chat"></div>
+      </div>
+
+      <div class="panel-bottom">
+        <div class="qq-label">Frequently asked questions</div>
+        <div class="qq-row" id="qqRow"></div>
+        <form class="inputbar" id="chatForm">
+          <input id="chatInput" type="text" placeholder="Ask us a question!" autocomplete="off" />
+          <button type="submit" id="sendBtn">Send <span class="arrow">→</span></button>
+        </form>
+        <button class="criteria" type="button" onclick="alert('Mockup: criteria search not wired yet 😉')">Search by criteria</button>
+      </div>
+    </aside>
+
+    <main class="map-wrap">
+      <nav class="map-header">
+        <span id="logoNav"><!-- logo injecté --></span>
+        <a href="#">Protect Yourself</a><a href="#">Got Scammed?</a><a href="#">About</a>
+        <span class="cta">Stay Informed <span class="arrow">→</span></span>
+      </nav>
+      <div id="map"></div>
+      <div class="count-pill"><span id="orgCount">…</span> organizations on the map</div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+  <script>
+    // Injecte le vrai logo Take9 (logo.svg extrait du site) aux deux emplacements
+    fetch("logo.svg").then(r => r.text()).then(svg => {
+      document.getElementById("logoPill").innerHTML = svg;
+      document.getElementById("logoNav").innerHTML = svg;
+    });
+  </script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
