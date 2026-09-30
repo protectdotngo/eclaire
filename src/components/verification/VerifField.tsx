@@ -74,6 +74,11 @@ export default function VerifField(props: VerifFieldProps) {
           />
         </Match>
       </Switch>
+      <Show when={v.existingDiff(props.field) !== null}>
+        <div class={styles.existing}>
+          <span>Actuel :</span> {v.existingDiff(props.field) || "—"}
+        </div>
+      </Show>
     </div>
   );
 }

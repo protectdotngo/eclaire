@@ -125,7 +125,11 @@ async function getDetail(verificationId: string): Promise<Response> {
     values[f] = p[PROP_COL[f]] as string[] | string | null;
   }
 
+  const match =
+    p.action === "modify" ? null : await findOrgByDomain(p.domain);
+
   return json({
+    match,
     verificationId: v.id,
     verdict: v.verdict,
     legitimacyScore: v.legitimacyScore,
@@ -143,6 +147,30 @@ async function getDetail(verificationId: string): Promise<Response> {
     values,
     original: (p.originalSubmission as Record<string, unknown> | null) ?? null,
   });
+}
+
+function baseHost(domain: string | null): string | null {
+  if (!domain?.trim()) return null;
+  try {
+    const d = domain.trim();
+    const host = new URL(d.includes("://") ? d : `https://${d}`).hostname;
+    return host.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+async function findOrgByDomain(domain: string | null) {
+  const host = baseHost(domain);
+  if (!host) return null;
+  const orgs = await db.select().from(orgsInTest);
+  const org = orgs.find((o) => baseHost(o.domain) === host);
+  if (!org) return null;
+  const values = {} as Record<OrgField, string[] | string | null>;
+  for (const f of ORG_FIELDS) {
+    values[f] = org[ORG_COL[f]] as string[] | string | null;
+  }
+  return { id: org.id, name: org.name, values };
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -247,8 +275,15 @@ export const POST: APIRoute = async ({ request }) => {
       .set({ ...mapPropUpdate(fields), ...nowEdit })
       .where(eq(propositionsInTest.id, row.propositionId));
 
-    if (row.action === "modify") {
-      if (!row.modifyingOrgId) {
+    const targetOrgId =
+      row.action === "modify"
+        ? row.modifyingOrgId
+        : typeof body.updateOrgId === "string"
+          ? body.updateOrgId
+          : null;
+
+    if (row.action === "modify" || targetOrgId) {
+      if (!targetOrgId) {
         return json(
           { error: "Proposition de modification sans org de référence." },
           400,
@@ -257,7 +292,7 @@ export const POST: APIRoute = async ({ request }) => {
       const [org] = await db
         .select()
         .from(orgsInTest)
-        .where(eq(orgsInTest.id, row.modifyingOrgId))
+        .where(eq(orgsInTest.id, targetOrgId))
         .limit(1);
       if (!org) {
         return json({ error: "L'org référencée n'existe plus." }, 400);
@@ -281,7 +316,7 @@ export const POST: APIRoute = async ({ request }) => {
       await db
         .update(orgsInTest)
         .set(diff)
-        .where(eq(orgsInTest.id, row.modifyingOrgId));
+        .where(eq(orgsInTest.id, targetOrgId));
       await markPublished(row.propositionId);
       return json({
         ok: true,

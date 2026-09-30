@@ -68,6 +68,11 @@ export interface Detail {
   adminEditor: string | null;
   adminEditedAt: string | null;
   values: Record<string, string[] | string | null>;
+  match: {
+    id: string;
+    name: string | null;
+    values: Record<string, string[] | string | null>;
+  } | null;
 }
 
 export interface ListItem {
@@ -85,4 +90,5 @@ export interface WritePayload {
   publish?: unknown;
   reject?: unknown;
   fields?: unknown;
+  updateOrgId?: unknown;
 }

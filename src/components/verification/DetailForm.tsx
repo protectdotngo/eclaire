@@ -66,6 +66,18 @@ export default function DetailForm() {
             </Show>
           </div>
 
+          <Show when={active().match}>
+            {(match) => (
+              <div class={styles.duplicate}>
+                <p>
+                  Ce site web existe déjà dans la base :{" "}
+                  <strong>{match().name}</strong>. Les valeurs actuelles
+                  différentes sont affichées sous chaque champ.
+                </p>
+              </div>
+            )}
+          </Show>
+
           <div class="form-body">
             <For each={v.fieldOrder}>{(f) => <VerifField field={f} />}</For>
 
@@ -92,9 +104,18 @@ export default function DetailForm() {
               >
                 Enregistrer
               </button>
+              <Show when={active().match}>
+                <button
+                  type="button"
+                  disabled={v.busy() || !v.hasDiff()}
+                  onClick={() => void v.submit("update")}
+                >
+                  Mettre à jour l'org existante
+                </button>
+              </Show>
               <button
                 type="button"
-                disabled={v.busy()}
+                disabled={v.busy() || !!active().match}
                 onClick={() => void v.submit("publish")}
               >
                 Publier

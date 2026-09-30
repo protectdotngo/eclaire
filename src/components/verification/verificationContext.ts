@@ -34,6 +34,9 @@ export interface VerificationStore {
   arrayFields: readonly OrgField[];
   fieldLabels: Record<string, string>;
   fieldState(field: string): FieldState;
+  /** Existing org's value for a field, only when it differs from the form. */
+  existingDiff(field: string): string | null;
+  hasDiff(): boolean;
 
   open(id: string): Promise<void>;
   close(): void;

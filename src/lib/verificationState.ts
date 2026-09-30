@@ -28,7 +28,7 @@ export type FieldState = "" | "green" | "red";
 /** Status class applied after an action. Used to be typed `string`. */
 export type StatusClass = "" | "ok" | "error";
 
-export type SubmitMode = "save" | "publish" | "reject";
+export type SubmitMode = "save" | "publish" | "reject" | "update";
 
 export function fieldStateFor(
   active: Detail | null,
@@ -45,13 +45,19 @@ export function helpTextFor(state: FieldState): string {
 }
 
 /** Flattens a detail's values into editable form fields. */
-export function detailToFieldValues(detail: Detail): Record<string, string> {
+export function flattenValues(
+  values: Record<string, string[] | string | null>,
+): Record<string, string> {
   const out: Record<string, string> = {};
   for (const f of ORG_FIELDS) {
-    const val = detail.values[f];
+    const val = values[f];
     out[f] = Array.isArray(val) ? val.join(", ") : (val ?? "");
   }
   return out;
+}
+
+export function detailToFieldValues(detail: Detail): Record<string, string> {
+  return flattenValues(detail.values);
 }
 
 /** Splits array fields back apart on commas before sending. */
@@ -78,16 +84,18 @@ export function buildWritePayload(
   verificationId: string,
   adminEditor: string,
   fieldValues: Record<string, string>,
+  updateOrgId?: string,
 ): Record<string, unknown> {
   const payload: Record<string, unknown> = { verificationId, adminEditor };
-  if (mode === "publish") payload.publish = true;
+  if (mode === "publish" || mode === "update") payload.publish = true;
+  if (mode === "update") payload.updateOrgId = updateOrgId;
   if (mode === "reject") payload.reject = true;
   if (mode !== "reject") payload.fields = collectFields(fieldValues);
   return payload;
 }
 
 export function pendingStatusFor(mode: SubmitMode): string {
-  return mode === "publish"
+  return mode === "publish" || mode === "update"
     ? "Publication…"
     : mode === "reject"
       ? "Rejet…"
@@ -101,6 +109,8 @@ export function doneStatusFor(mode: SubmitMode, changed: unknown): string {
 
 export function confirmMessageFor(mode: SubmitMode): string | null {
   if (mode === "publish") return "Publier cette proposition dans la base ?";
+  if (mode === "update")
+    return "Appliquer ces valeurs à l'organisation existante ?";
   if (mode === "reject")
     return "Rejeter cette proposition ? Elle ne sera pas publiée.";
   return null;

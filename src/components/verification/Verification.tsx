@@ -13,6 +13,7 @@ import {
   buildWritePayload,
   confirmMessageFor,
   detailToFieldValues,
+  flattenValues,
   doneStatusFor,
   EMAIL_RE,
   FIELD_LABELS,
@@ -82,6 +83,13 @@ export default function Verification() {
     arrayFields: ARRAY_FIELDS,
     fieldLabels: FIELD_LABELS,
     fieldState: (field) => fieldStateFor(active(), field),
+    existingDiff(field) {
+      const match = active()?.match;
+      if (!match) return null;
+      const current = flattenValues(match.values)[field] ?? "";
+      return current !== (fieldValues[field] ?? "") ? current : null;
+    },
+    hasDiff: () => ORG_FIELDS.some((f) => store.existingDiff(f) !== null),
 
     async open(id) {
       setActiveId(id);
@@ -130,7 +138,13 @@ export default function Verification() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(
-            buildWritePayload(mode, current.verificationId, email, fieldValues),
+            buildWritePayload(
+              mode,
+              current.verificationId,
+              email,
+              fieldValues,
+              current.match?.id,
+            ),
           ),
         });
         const data = await res.json();
