@@ -7,3 +7,4 @@ drizzle/meta
 
 # private fonts submodule — not this repo's content to format
 src/assets/fonts/
+public/take9/
